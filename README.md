@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="logo.png" alt="Flash Loan Arbitrage Logo" width="200" />
+  <img src="logo.png" alt="Flash Loan Arbitrage Logo" width="800" />
     <h1>FLASH</h1>
   <br><br>
   <img src="https://img.shields.io/badge/Solidity-0.8.20-blue.svg" alt="Solidity v0.8.20">
