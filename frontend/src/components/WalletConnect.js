@@ -23,6 +23,8 @@ const WalletConnect = ({ onConnect }) => {
   const [provider, setProvider] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [networkName, setNetworkName] = useState('');
+  const [error, setError] = useState('');
+  const [isWrongNetwork, setIsWrongNetwork] = useState(false);
 
   // Configuration options for wallet providers
   const providerOptions = {
@@ -31,10 +33,54 @@ const WalletConnect = ({ onConnect }) => {
 
   // Initialize Web3Modal with options
   const web3Modal = new Web3Modal({
-    network: "goerli", // default network
+    network: "sepolia", // default network - updated to Sepolia
     cacheProvider: true,
     providerOptions
   });
+  
+  // Sepolia network parameters
+  const sepoliaChainParams = {
+    chainId: '0xaa36a7', // 11155111 in hex
+    chainName: 'Sepolia Testnet',
+    nativeCurrency: {
+      name: 'Sepolia ETH',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    rpcUrls: ['https://sepolia.infura.io/v3/'],
+    blockExplorerUrls: ['https://sepolia.etherscan.io/']
+  };
+
+  /**
+   * Switches the connected wallet to Sepolia network
+   */
+  const switchToSepolia = async () => {
+    if (!provider) return;
+    
+    try {
+      // Try to switch to Sepolia
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0xaa36a7' }], // 11155111 in hex
+      });
+    } catch (switchError) {
+      // If the chain doesn't exist, try to add it
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [sepoliaChainParams],
+          });
+        } catch (addError) {
+          console.error('Error adding Sepolia network:', addError);
+          setError('Could not add Sepolia network to your wallet. Please add it manually.');
+        }
+      } else {
+        console.error('Error switching to Sepolia:', switchError);
+        setError('Could not switch to Sepolia. Please switch networks manually in your wallet.');
+      }
+    }
+  };
 
   /**
    * Connect to the user's Ethereum wallet
@@ -44,6 +90,8 @@ const WalletConnect = ({ onConnect }) => {
    */
   const connectWallet = async () => {
     try {
+      setError(''); // Clear any previous errors
+      setIsWrongNetwork(false);
       // Open modal to select wallet provider
       const instance = await web3Modal.connect();
       
@@ -57,10 +105,20 @@ const WalletConnect = ({ onConnect }) => {
       const networkNames = {
         1: 'Ethereum Mainnet',
         5: 'Goerli Testnet',
-        42: 'Kovan Testnet'
+        11155111: 'Sepolia Testnet',
+        42: 'Kovan Testnet',
+        31337: 'Hardhat Local Node'
       };
       
-      setNetworkName(networkNames[network.chainId] || `Chain ID: ${network.chainId}`);
+      const currentNetworkName = networkNames[network.chainId] || `Chain ID: ${network.chainId}`;
+      setNetworkName(currentNetworkName);
+      
+      // Check if on the correct network (Sepolia)
+      if (network.chainId !== 11155111) {
+        setError(`Connected to ${currentNetworkName}. Please switch to Sepolia Testnet.`);
+        setIsWrongNetwork(true);
+      }
+      
       setAccount(address);
       setProvider(ethersProvider);
       setIsConnected(true);
@@ -88,6 +146,7 @@ const WalletConnect = ({ onConnect }) => {
       
     } catch (error) {
       console.error("Could not connect wallet:", error);
+      setError(`Connection error: ${error.message || 'Could not connect to wallet'}`);
     }
   };
   
@@ -102,6 +161,8 @@ const WalletConnect = ({ onConnect }) => {
       setAccount('');
       setProvider(null);
       setIsConnected(false);
+      setError('');
+      setIsWrongNetwork(false);
     }
   };
   
@@ -117,7 +178,7 @@ const WalletConnect = ({ onConnect }) => {
       {isConnected ? (
         <div className="wallet-info">
           <div className="account-info">
-            <span className="network-badge">{networkName}</span>
+            <span className={`network-badge ${error ? 'network-error' : ''}`}>{networkName}</span>
             <span className="account-address">
               {account.substr(0, 6)}...{account.substr(-4)}
             </span>
@@ -136,6 +197,20 @@ const WalletConnect = ({ onConnect }) => {
         >
           Connect Wallet
         </button>
+      )}
+      
+      {error && (
+        <div className="wallet-error">
+          {error}
+          {isWrongNetwork && (
+            <button 
+              className="switch-network-button" 
+              onClick={switchToSepolia}
+            >
+              Switch to Sepolia
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

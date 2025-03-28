@@ -302,3 +302,66 @@ body {
     opacity: 1;
   }
 }
+
+/* Update information and refresh button */
+.update-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.refresh-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.refresh-button:hover {
+  background-color: #45a049;
+}
+
+.refresh-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.network-error {
+  background-color: #ff4d4d !important;
+  color: white;
+}
+
+.wallet-error {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  padding: 8px;
+  background-color: rgba(255, 77, 77, 0.1);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.switch-network-button {
+  display: block;
+  margin: 10px auto 0;
+  padding: 6px 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.switch-network-button:hover {
+  background-color: #2980b9;
+}

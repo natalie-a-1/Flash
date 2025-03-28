@@ -14,22 +14,24 @@ import TokenPriceDisplay from './components/TokenPriceDisplay';
 import ArbitrageExecutor from './components/ArbitrageExecutor';
 
 // Enable mock mode for testing without blockchain interactions
-const MOCK_MODE = true;
+const MOCK_MODE = false; // Set to true temporarily while fixing contract addresses
 
 // Contract address on local Hardhat network
 const FLASH_LOAN_ARBITRAGE_ADDRESS = "0xB44EA4d12606aaB741bAd2FdA8AA79f5c1849A6F";
 
-// Uniswap V2 Router address (Sepolia testnet)
-const UNISWAP_ROUTER_ADDRESS = "0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD";
+// Uniswap V2 Router address on Sepolia
+// NOTE: This should be updated to the actual Uniswap router on Sepolia when available
+const UNISWAP_ROUTER_ADDRESS = "0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008";
 
-// SushiSwap Router address (Sepolia testnet)
+// SushiSwap Router address on Sepolia
+// NOTE: This should be updated to the actual Sushiswap router on Sepolia when available
 const SUSHISWAP_ROUTER_ADDRESS = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
 
-// Sample ERC20 tokens for demonstration on Sepolia
+// Sample ERC20 tokens with known liquidity on Sepolia
 // WETH on Sepolia
-const TOKEN_A = "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9";
-// USDC on Sepolia
-const TOKEN_B = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8";
+const TOKEN_A = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
+// USDC on Sepolia (or other stable with liquidity)
+const TOKEN_B = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 
 // Mock data for testing
 const MOCK_DATA = {
