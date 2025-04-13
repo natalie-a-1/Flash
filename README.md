@@ -1,57 +1,62 @@
 # Flash Blockchain Project
 
-## Development Environment Setup
+A blockchain development project built on Ethereum.
 
-### Prerequisites
-- Node.js (>=16.0.0)
-- npm (comes with Node.js)
+## Quick Start
 
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd Flash
-```
-
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
-```
 
-This will install all required dependencies including:
-- Truffle framework
-- Web3.js
-- Ganache CLI (for local blockchain)
-
-### Available Scripts
-
-```bash
-# Start Truffle development console
-npm run dev
-
-# Run tests
-npm test
+# Start development blockchain
+npm run ganache
 
 # Compile contracts
 npm run compile
 
-# Deploy contracts
+# Deploy to development network
 npm run migrate
-
-# Start Ganache blockchain
-npm run ganache
 ```
 
+## Development Setup
+
+### Prerequisites
+- Node.js ≥ 16.0.0
+- npm
+
 ### Project Structure
+- `contracts/` - Smart contracts
+- `migrations/` - Deployment scripts
+- `test/` - Test files
 
-- `contracts/`: Solidity smart contracts
-- `migrations/`: Deployment scripts
-- `test/`: Test files
-- `build/`: Compiled contracts (generated)
+### Available Scripts
+- `npm run dev` - Start Truffle console
+- `npm test` - Run tests
+- `npm run ganache` - Start local blockchain
 
-## Development Guidelines
+## Deployment
 
-- Always use the provided npm scripts instead of global installations
-- Run tests before committing changes
-- Follow the solidity style guide for contract development 
+### Local Development
+1. Start Ganache: `npm run ganache`
+2. Deploy contracts: `npm run migrate`
+
+### Sepolia Testnet
+1. Create `.env` file from `.env.example`
+2. Add your mnemonic and Alchemy API key
+3. Uncomment Sepolia config in `truffle-config.js`
+4. Run: `npm run migrate:sepolia`
+
+## MetaMask Configuration
+
+### Sepolia Network Settings
+- **Network Name**: Sepolia Test Network
+- **RPC URL**: https://rpc.sepolia.org
+- **Chain ID**: 11155111
+- **Currency**: ETH
+- **Explorer**: https://sepolia.etherscan.io
+
+### Getting Test ETH
+Use any Sepolia faucet:
+- [Alchemy Faucet](https://sepoliafaucet.com)
+- [PK910 Faucet](https://sepolia-faucet.pk910.de)
+- [Sepolia Faucet](https://faucet.sepolia.dev) 

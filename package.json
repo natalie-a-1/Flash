@@ -7,11 +7,14 @@
     "test": "truffle test",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
+    "migrate:sepolia": "truffle migrate --network sepolia",
     "dev": "truffle develop",
     "ganache": "ganache-cli"
   },
   "dependencies": {
-    "web3": "^1.10.0"
+    "web3": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "@truffle/hdwallet-provider": "^2.1.15"
   },
   "devDependencies": {
     "truffle": "^5.11.5",
