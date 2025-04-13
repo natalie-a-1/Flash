@@ -1,26 +1,26 @@
 {
   "name": "flash",
   "version": "1.0.0",
-  "description": "",
+  "description": "Flash blockchain project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "migrate:sepolia": "truffle migrate --network sepolia",
+    "dev": "truffle develop",
+    "ganache": "ganache-cli"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/natalie-a-1/Flash.git"
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^16.3.1",
+    "web3": "^1.10.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/natalie-a-1/Flash/issues"
-  },
-  "homepage": "https://github.com/natalie-a-1/Flash#readme",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@openzeppelin/contracts": "^5.2.0",
-    "dotenv": "^16.4.7",
-    "hardhat": "^2.22.19"
+    "ganache-cli": "^6.12.2",
+    "truffle": "^5.11.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

@@ -1,68 +1,30 @@
 # Node dependencies
-node_modules
-package-lock.json
-yarn.lock
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+node_modules/
+npm-debug.log
 
-# Environment files
+# Truffle build directory
+build/
+
+# Environment variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
-# Hardhat files
-/cache
-/artifacts
-/typechain
-/typechain-types
-/coverage
-/coverage.json
-ignition/deployments/
-hardhat-fork/
-
-# Build & production files
-/build
-/dist
-/frontend/build
-/frontend/dist
-/.next
-/.nuxt
-/out/
-
-# IDE & editor files
-.idea/
+# Editor files
 .vscode/
-*.code-workspace
-.DS_Store
-*.sublime-project
-*.sublime-workspace
-
-# Debug logs
-logs
-*.log
-npm-debug.log*
-
-# Local blockchain data
-/deployments/localhost
-/deployments/hardhat
-
-# Misc
-.DS_Store
-.directory
-Thumbs.db
+.idea/
 *.swp
 *.swo
-*~
 
-# Testing
-/coverage
-/coverageEnv
+# OS files
+.DS_Store
+Thumbs.db
+
+# Truffle
+.openzeppelin/
+
+# Coverage
+coverage/
 coverage.json
-lcov.info
 
-# Production specific
-/production
+# Hardhat (if using)
+artifacts/
+cache/ 
