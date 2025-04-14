@@ -23,8 +23,25 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     
+    - name: Setup npm configuration
+      run: |
+        echo "omit=optional" > .npmrc
+        echo "platform=linux" >> .npmrc
+        echo "optional=false" >> .npmrc
+        echo "loglevel=error" >> .npmrc
+        npm config set ignore-scripts true
+    
+    - name: Remove fsevents from package-lock
+      run: |
+        if [ -f package-lock.json ]; then
+          # Create a temporary file
+          jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
+          # Replace the original file
+          mv temp-package-lock.json package-lock.json
+        fi
+    
     - name: Install root dependencies
-      run: npm ci --no-optional --no-fund --ignore-scripts --foreground-scripts=false --platform=linux
+      run: npm ci --ignore-scripts
     
     - name: Run smart contract tests
       run: npm test
@@ -38,8 +55,27 @@ jobs:
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
     
+    - name: Setup frontend npm configuration
+      run: |
+        echo "omit=optional" > frontend/.npmrc
+        echo "platform=linux" >> frontend/.npmrc
+        echo "optional=false" >> frontend/.npmrc
+        echo "loglevel=error" >> frontend/.npmrc
+        npm config set ignore-scripts true
+      working-directory: frontend
+    
+    - name: Remove fsevents from frontend package-lock
+      run: |
+        if [ -f package-lock.json ]; then
+          # Create a temporary file
+          jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
+          # Replace the original file
+          mv temp-package-lock.json package-lock.json
+        fi
+      working-directory: frontend
+    
     - name: Install frontend dependencies
-      run: npm ci --no-optional --no-fund --ignore-scripts --foreground-scripts=false --platform=linux
+      run: npm ci --ignore-scripts
       working-directory: frontend
     
     - name: Run frontend tests
