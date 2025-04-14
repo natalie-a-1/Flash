@@ -1,7 +1,7 @@
 'use client';
 
-import { useWeb3 } from '@/components/Web3Provider';
-import { FAUCETS } from '@/lib/config';
+import { useWeb3 } from '@/components/web3/Web3Provider';
+import { FAUCETS } from '@/lib/web3/config';
 
 export default function Home() {
   const { 

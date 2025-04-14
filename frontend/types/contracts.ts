@@ -1,3 +1,6 @@
+import { Contract } from 'web3-eth-contract';
+import { AbiItem } from 'web3-utils';
+
 // Contract deployment network information
 export interface ContractNetwork {
   events: Record<string, unknown>;
@@ -6,28 +9,15 @@ export interface ContractNetwork {
   transactionHash: string;
 }
 
-// Contract JSON structure
+// Type for the contract JSON file structure
 export interface ContractJson {
-  contractName: string;
-  abi: any[];
-  metadata: string;
-  bytecode: string;
-  deployedBytecode: string;
-  sourceMap: string;
-  deployedSourceMap: string;
-  source: string;
-  sourcePath: string;
-  ast: any;
-  compiler: {
-    name: string;
-    version: string;
-  };
+  abi: AbiItem[];
   networks: {
-    [key: string]: ContractNetwork;
+    [networkId: string]: {
+      address: string;
+    };
   };
-  schemaVersion: string;
-  updatedAt: string;
 }
 
-// We'll use this type when we need to refer to Web3 contract instances
-export type Web3Contract = any; 
+// Type for a Web3 contract instance
+export type Web3Contract = Contract<AbiItem[]>; 

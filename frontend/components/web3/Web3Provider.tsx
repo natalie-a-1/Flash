@@ -1,9 +1,9 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getWeb3, getAccounts, isSepoliaNetwork, switchToSepolia } from '@/lib/web3';
+import { getWeb3, getAccounts, isSepoliaNetwork, switchToSepolia } from '@/lib/web3/web3';
 import Web3 from 'web3';
-import { NETWORK_IDS, NETWORK_NAMES } from '@/lib/config';
+import { NETWORK_IDS, NETWORK_NAMES } from '@/lib/web3/config';
 
 // Define context type
 interface Web3ContextType {
@@ -103,9 +103,39 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
   // Auto-connect when component mounts
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.ethereum) {
-      connectWallet();
-    }
+    // Removed auto-connect - will only connect when user clicks the button
+    // Check if user was previously connected
+    const checkPreviousConnection = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+        try {
+          const web3Instance = await getWeb3();
+          // Only check if accounts exist without requesting new connection
+          const accounts = await web3Instance.eth.getAccounts();
+          if (accounts && accounts.length > 0) {
+            // User was previously connected, restore state
+            setWeb3(web3Instance);
+            setAccount(accounts[0]);
+            setIsConnected(true);
+            await updateNetworkInfo(web3Instance);
+            
+            // Setup event listeners for account and network changes
+            window.ethereum.on('accountsChanged', (accounts: string[]) => {
+              setAccount(accounts[0] || null);
+              setIsConnected(!!accounts[0]);
+            });
+            
+            window.ethereum.on('chainChanged', async () => {
+              // Reload the page on chain change as recommended by MetaMask
+              window.location.reload();
+            });
+          }
+        } catch (error) {
+          console.error('Error checking previous connection', error);
+        }
+      }
+    };
+    
+    checkPreviousConnection();
   }, []);
 
   return (

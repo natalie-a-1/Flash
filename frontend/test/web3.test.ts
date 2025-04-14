@@ -2,7 +2,7 @@
 /// <reference types="chai" />
 
 import { expect } from 'chai';
-import { getWeb3, getEthersProvider, getNetworkDetails, getAccounts, isSepoliaNetwork, switchToSepolia } from '../lib/web3';
+import { getWeb3, getEthersProvider, getNetworkDetails, getAccounts, isSepoliaNetwork, switchToSepolia } from '../lib/web3/web3';
 
 describe('Web3 Integration', () => {
   describe('getWeb3', () => {
@@ -14,17 +14,16 @@ describe('Web3 Integration', () => {
   });
 
   describe('getEthersProvider', () => {
-    it('should initialize ethers provider with MetaMask', () => {
-      const provider = getEthersProvider();
+    it('should initialize ethers provider with MetaMask', async () => {
+      const provider = await getEthersProvider();
       expect(provider).to.exist;
     });
   });
 
   describe('getNetworkDetails', () => {
     it('should get the current network ID', async () => {
-      const web3 = await getWeb3();
-      const { networkId } = await getNetworkDetails(web3);
-      expect(Number(networkId)).to.equal(11155111);
+      const { id } = await getNetworkDetails();
+      expect(Number(id)).to.equal(11155111);
     });
   });
 
@@ -39,8 +38,7 @@ describe('Web3 Integration', () => {
 
   describe('isSepoliaNetwork', () => {
     it('should detect if connected to Sepolia network', async () => {
-      const web3 = await getWeb3();
-      const isSepolia = await isSepoliaNetwork(web3);
+      const isSepolia = await isSepoliaNetwork();
       expect(isSepolia).to.be.a('boolean');
     });
   });

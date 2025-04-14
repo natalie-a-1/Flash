@@ -1,0 +1,102 @@
+import { ethers } from 'ethers';
+import Web3 from 'web3';
+import { NETWORK_IDS } from './config';
+
+// Define MetaMask provider type
+export interface MetaMaskEthereumProvider {
+  request: (args: { method: string; params?: any[] }) => Promise<any>;
+  on: (event: string, callback: (params: any) => void) => void;
+  removeListener: (event: string, callback: (params: any) => void) => void;
+}
+
+// Declare global window.ethereum type
+declare global {
+  interface Window {
+    ethereum: MetaMaskEthereumProvider;
+  }
+}
+
+// Get Web3 instance
+export const getWeb3 = async (): Promise<Web3> => {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    return new Web3(window.ethereum);
+  }
+  throw new Error('MetaMask is not installed');
+};
+
+// Get ethers provider
+export const getEthersProvider = async (): Promise<ethers.BrowserProvider> => {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    return new ethers.BrowserProvider(window.ethereum);
+  }
+  throw new Error('MetaMask is not installed');
+};
+
+// Get network details
+export const getNetworkDetails = async (): Promise<{ id: number; name: string }> => {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    return {
+      id: parseInt(chainId, 16),
+      name: `Chain ${parseInt(chainId, 16)}`,
+    };
+  }
+  throw new Error('MetaMask is not installed');
+};
+
+// Get accounts
+export const getAccounts = async (web3: Web3): Promise<string[]> => {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    // This will prompt the MetaMask popup if not connected
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+  }
+  return await web3.eth.getAccounts();
+};
+
+// Check if on Sepolia network
+export const isSepoliaNetwork = async (): Promise<boolean> => {
+  const { id } = await getNetworkDetails();
+  return id === NETWORK_IDS.SEPOLIA;
+};
+
+// Switch to Sepolia network
+export const switchToSepolia = async (): Promise<boolean> => {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${NETWORK_IDS.SEPOLIA.toString(16)}` }],
+      });
+      return true;
+    } catch (error: any) {
+      // This error code indicates that the chain has not been added to MetaMask
+      if (error.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${NETWORK_IDS.SEPOLIA.toString(16)}`,
+                chainName: 'Sepolia Test Network',
+                nativeCurrency: {
+                  name: 'Sepolia ETH',
+                  symbol: 'ETH',
+                  decimals: 18,
+                },
+                rpcUrls: ['https://sepolia.infura.io/v3/'],
+                blockExplorerUrls: ['https://sepolia.etherscan.io/'],
+              },
+            ],
+          });
+          return true;
+        } catch (addError) {
+          console.error('Error adding Sepolia network', addError);
+          return false;
+        }
+      }
+      console.error('Error switching to Sepolia network', error);
+      return false;
+    }
+  }
+  return false;
+}; 
