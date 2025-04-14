@@ -34,13 +34,22 @@ jobs:
       - name: Remove fsevents from package-lock (Root)
         run: |
           if [ -f package-lock.json ]; then
-            # Recursively remove any object with "name": "fsevents"
+            # Recursively remove any reference to fsevents using jq
             jq 'def walk(f):
                   . as $in | if type=="object" then
                     reduce keys[] as $key ({}; . + { ($key): ($in[$key] | walk(f)) } ) | f
                   elif type=="array" then map( walk(f) ) | f
                   else f end;
                 walk(if type=="object" and (.name? == "fsevents") then empty else . end)' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+          fi
+
+      - name: Verify fsevents removal (Root)
+        run: |
+          if grep -q '"fsevents"' package-lock.json; then
+            echo "Error: fsevents is still present in package-lock.json."
+            exit 1
+          else
+            echo "fsevents successfully removed from package-lock.json."
           fi
 
       - name: Install root dependencies
@@ -78,6 +87,16 @@ jobs:
                   elif type=="array" then map( walk(f) ) | f
                   else f end;
                 walk(if type=="object" and (.name? == "fsevents") then empty else . end)' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+          fi
+        working-directory: frontend
+
+      - name: Verify fsevents removal (Frontend)
+        run: |
+          if grep -q '"fsevents"' package-lock.json; then
+            echo "Error: fsevents is still present in frontend/package-lock.json."
+            exit 1
+          else
+            echo "fsevents successfully removed from frontend/package-lock.json."
           fi
         working-directory: frontend
 
