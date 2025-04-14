@@ -1,5 +1,4 @@
-name: Test
-
+# File: Test.yml
 on:
   push:
     branches: [ main ]
@@ -15,72 +14,69 @@ jobs:
         node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    
-    - name: Setup npm configuration
-      run: |
-        echo "omit=optional" > .npmrc
-        echo "platform=linux" >> .npmrc
-        echo "optional=false" >> .npmrc
-        echo "loglevel=error" >> .npmrc
-        npm config set ignore-scripts true
-    
-    - name: Remove fsevents from package-lock
-      run: |
-        if [ -f package-lock.json ]; then
-          # Create a temporary file
-          jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
-          # Replace the original file
-          mv temp-package-lock.json package-lock.json
-        fi
-    
-    - name: Install root dependencies
-      run: npm ci --ignore-scripts
-    
-    - name: Run smart contract tests
-      run: npm test
-      env:
-        NODE_ENV: test
-    
-    - name: Setup frontend Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
-    
-    - name: Setup frontend npm configuration
-      run: |
-        echo "omit=optional" > frontend/.npmrc
-        echo "platform=linux" >> frontend/.npmrc
-        echo "optional=false" >> frontend/.npmrc
-        echo "loglevel=error" >> frontend/.npmrc
-        npm config set ignore-scripts true
-      working-directory: frontend
-    
-    - name: Remove fsevents from frontend package-lock
-      run: |
-        if [ -f package-lock.json ]; then
-          # Create a temporary file
-          jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
-          # Replace the original file
-          mv temp-package-lock.json package-lock.json
-        fi
-      working-directory: frontend
-    
-    - name: Install frontend dependencies
-      run: npm ci --ignore-scripts
-      working-directory: frontend
-    
-    - name: Run frontend tests
-      run: npm test
-      working-directory: frontend
-      env:
-        NEXT_PUBLIC_NETWORK_ID: 11155111  # Sepolia testnet
-        NODE_ENV: test 
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js for Root
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Setup npm configuration (Root)
+        run: |
+          echo "omit=optional" > .npmrc
+          echo "platform=linux" >> .npmrc
+          echo "optional=false" >> .npmrc
+          echo "loglevel=error" >> .npmrc
+          npm config set ignore-scripts true
+
+      - name: Remove fsevents from package-lock (Root)
+        run: |
+          if [ -f package-lock.json ]; then
+            jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
+            mv temp-package-lock.json package-lock.json
+          fi
+
+      - name: Install root dependencies
+        run: npm ci --omit=optional --ignore-scripts
+
+      - name: Run smart contract tests
+        run: npm test
+        env:
+          NODE_ENV: test
+
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup npm configuration (Frontend)
+        run: |
+          echo "omit=optional" > .npmrc
+          echo "platform=linux" >> .npmrc
+          echo "optional=false" >> .npmrc
+          echo "loglevel=error" >> .npmrc
+          npm config set ignore-scripts true
+        working-directory: frontend
+
+      - name: Remove fsevents from frontend package-lock
+        run: |
+          if [ -f package-lock.json ]; then
+            jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
+            mv temp-package-lock.json package-lock.json
+          fi
+        working-directory: frontend
+
+      - name: Install frontend dependencies
+        run: npm ci --omit=optional --ignore-scripts
+        working-directory: frontend
+
+      - name: Run frontend tests
+        run: npm test
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_NETWORK_ID: 11155111  # Sepolia testnet
+          NODE_ENV: test
