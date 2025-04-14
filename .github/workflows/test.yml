@@ -24,7 +24,7 @@ jobs:
         cache: 'npm'
     
     - name: Install root dependencies
-      run: npm ci --no-optional
+      run: npm ci --omit=optional
     
     - name: Run smart contract tests
       run: npm test
@@ -40,7 +40,7 @@ jobs:
         working-directory: frontend
     
     - name: Install frontend dependencies
-      run: npm ci --no-optional
+      run: npm ci --omit=optional
       working-directory: frontend
     
     - name: Run frontend tests
