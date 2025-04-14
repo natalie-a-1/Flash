@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "mocha --require ts-node/register --require test/setup.ts 'test/**/*.test.ts'"
   },
   "dependencies": {
     "ethers": "^6.13.5",
@@ -18,12 +19,19 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/chai": "^4.3.20",
+    "@types/jsdom": "^21.1.7",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "chai": "^4.3.10",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
+    "jsdom": "^24.0.0",
+    "mocha": "^10.3.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

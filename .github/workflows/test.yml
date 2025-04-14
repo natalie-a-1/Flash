@@ -1,0 +1,51 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install root dependencies
+      run: npm ci
+    
+    - name: Run smart contract tests
+      run: npm test
+      env:
+        NODE_ENV: test
+    
+    - name: Setup frontend Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        working-directory: frontend
+    
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: frontend
+    
+    - name: Run frontend tests
+      run: npm test
+      working-directory: frontend
+      env:
+        NEXT_PUBLIC_NETWORK_ID: 11155111  # Sepolia testnet
+        NODE_ENV: test 
