@@ -34,11 +34,14 @@ jobs:
       - name: Remove fsevents from package-lock (Root)
         run: |
           if [ -f package-lock.json ]; then
-            jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
+            # Remove fsevents from both the packages and dependencies sections
+            jq 'del(.packages["node_modules/fsevents"]) | del(.dependencies.fsevents)' package-lock.json > temp-package-lock.json
             mv temp-package-lock.json package-lock.json
           fi
 
       - name: Install root dependencies
+        env:
+          npm_config_optional: false
         run: npm ci --omit=optional --ignore-scripts
 
       - name: Run smart contract tests
@@ -65,12 +68,14 @@ jobs:
       - name: Remove fsevents from frontend package-lock
         run: |
           if [ -f package-lock.json ]; then
-            jq 'del(.. | .dependencies?.fsevents?)' package-lock.json > temp-package-lock.json
+            jq 'del(.packages["node_modules/fsevents"]) | del(.dependencies.fsevents)' package-lock.json > temp-package-lock.json
             mv temp-package-lock.json package-lock.json
           fi
         working-directory: frontend
 
       - name: Install frontend dependencies
+        env:
+          npm_config_optional: false
         run: npm ci --omit=optional --ignore-scripts
         working-directory: frontend
 
