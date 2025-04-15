@@ -34,9 +34,12 @@ jobs:
       - name: Remove fsevents from package-lock (Root)
         run: |
           if [ -f package-lock.json ]; then
-            # Use two jq passes for more robust removal
-            jq 'del(.packages."node_modules/fsevents")' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
-            jq 'walk(if type == "object" and .dependencies? != null then .dependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+            echo "Attempting to remove fsevents references..."
+            # Use multiple jq passes for more robust removal
+            jq 'del(.packages."node_modules/fsevents")' package-lock.json > temp && mv temp package-lock.json
+            jq 'walk(if type == "object" and .dependencies? != null then .dependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp && mv temp package-lock.json
+            jq 'walk(if type == "object" and .optionalDependencies? != null then .optionalDependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp && mv temp package-lock.json
+            echo "Finished removing fsevents references."
           fi
 
       - name: Verify fsevents removal (Root)
@@ -77,9 +80,12 @@ jobs:
       - name: Remove fsevents from package-lock (Frontend)
         run: |
           if [ -f package-lock.json ]; then
-            # Use two jq passes for more robust removal
-            jq 'del(.packages."node_modules/fsevents")' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
-            jq 'walk(if type == "object" and .dependencies? != null then .dependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+            echo "Attempting to remove fsevents references from frontend..."
+            # Use multiple jq passes for more robust removal
+            jq 'del(.packages."node_modules/fsevents")' package-lock.json > temp && mv temp package-lock.json
+            jq 'walk(if type == "object" and .dependencies? != null then .dependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp && mv temp package-lock.json
+            jq 'walk(if type == "object" and .optionalDependencies? != null then .optionalDependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp && mv temp package-lock.json
+            echo "Finished removing fsevents references from frontend."
           fi
         working-directory: frontend
 
