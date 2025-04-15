@@ -1,9 +1,20 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getWeb3, getAccounts, isSepoliaNetwork, switchToSepolia } from '@/lib/web3/web3';
-import Web3 from 'web3';
-import { NETWORK_IDS, NETWORK_NAMES } from '@/lib/web3/config';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  getWeb3,
+  getAccounts,
+  isSepoliaNetwork,
+  switchToSepolia,
+} from "@/lib/web3/web3";
+import Web3 from "web3";
+import { NETWORK_IDS, NETWORK_NAMES } from "@/lib/web3/config";
 
 // Define context type
 interface Web3ContextType {
@@ -46,16 +57,16 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     try {
       const networkId = Number(await web3Instance.eth.net.getId());
       setNetworkId(networkId);
-      
+
       // Get network name from our config or default to "Unknown Network"
       const name = NETWORK_NAMES[networkId] || `Unknown Network (${networkId})`;
       setNetworkName(name);
-      
+
       // Check if we're on Sepolia
       const onSepoliaNetwork = networkId === NETWORK_IDS.SEPOLIA;
       setIsCorrectNetwork(onSepoliaNetwork);
     } catch (error) {
-      console.error('Error getting network info', error);
+      console.error("Error getting network info", error);
     }
   };
 
@@ -68,7 +79,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       }
       return result;
     } catch (error) {
-      console.error('Error switching network', error);
+      console.error("Error switching network", error);
       return false;
     }
   };
@@ -78,26 +89,25 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     try {
       const web3Instance = await getWeb3();
       setWeb3(web3Instance);
-      
+
       const accounts = await getAccounts(web3Instance);
       setAccount(accounts[0]);
       setIsConnected(true);
-      
+
       await updateNetworkInfo(web3Instance);
-      
+
       // Setup event listeners for account and network changes
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+      window.ethereum.on("accountsChanged", (accounts: string[]) => {
         setAccount(accounts[0] || null);
         setIsConnected(!!accounts[0]);
       });
-      
-      window.ethereum.on('chainChanged', async () => {
+
+      window.ethereum.on("chainChanged", async () => {
         // Reload the page on chain change as recommended by MetaMask
         window.location.reload();
       });
-      
     } catch (error) {
-      console.error('Error connecting to MetaMask', error);
+      console.error("Error connecting to MetaMask", error);
     }
   };
 
@@ -106,7 +116,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     // Removed auto-connect - will only connect when user clicks the button
     // Check if user was previously connected
     const checkPreviousConnection = async () => {
-      if (typeof window !== 'undefined' && window.ethereum) {
+      if (typeof window !== "undefined" && window.ethereum) {
         try {
           const web3Instance = await getWeb3();
           // Only check if accounts exist without requesting new connection
@@ -117,41 +127,43 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
             setAccount(accounts[0]);
             setIsConnected(true);
             await updateNetworkInfo(web3Instance);
-            
+
             // Setup event listeners for account and network changes
-            window.ethereum.on('accountsChanged', (accounts: string[]) => {
+            window.ethereum.on("accountsChanged", (accounts: string[]) => {
               setAccount(accounts[0] || null);
               setIsConnected(!!accounts[0]);
             });
-            
-            window.ethereum.on('chainChanged', async () => {
+
+            window.ethereum.on("chainChanged", async () => {
               // Reload the page on chain change as recommended by MetaMask
               window.location.reload();
             });
           }
         } catch (error) {
-          console.error('Error checking previous connection', error);
+          console.error("Error checking previous connection", error);
         }
       }
     };
-    
+
     checkPreviousConnection();
   }, []);
 
   return (
-    <Web3Context.Provider value={{ 
-      web3, 
-      account, 
-      isConnected, 
-      isCorrectNetwork,
-      networkId,
-      networkName,
-      connectWallet,
-      switchNetwork
-    }}>
+    <Web3Context.Provider
+      value={{
+        web3,
+        account,
+        isConnected,
+        isCorrectNetwork,
+        networkId,
+        networkName,
+        connectWallet,
+        switchNetwork,
+      }}
+    >
       {children}
     </Web3Context.Provider>
   );
 };
 
-export default Web3Provider; 
+export default Web3Provider;

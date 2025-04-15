@@ -5,6 +5,7 @@ This document explains the overall architecture and design of the Flash Blockcha
 ## Project Overview
 
 Flash is a blockchain project built on Ethereum that includes:
+
 1. A set of smart contracts written in Solidity
 2. A web frontend built with Next.js
 
@@ -75,4 +76,4 @@ User (Browser) ←→ Frontend (Next.js) ←→ Web3.js/ethers.js ←→ MetaMas
 
 - **Development**: Local Ganache blockchain
 - **Testing**: Sepolia testnet
-- **Production**: Ethereum mainnet (future) 
+- **Production**: Ethereum mainnet (future)

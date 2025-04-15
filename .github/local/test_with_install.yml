@@ -3,9 +3,9 @@
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Setup npm configuration (Root)
         run: |
@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup npm configuration (Frontend)
@@ -77,5 +77,5 @@ jobs:
           echo "Skipping actual tests for local testing"
         working-directory: frontend
         env:
-          NEXT_PUBLIC_NETWORK_ID: 11155111  # Sepolia testnet
-          NODE_ENV: test 
+          NEXT_PUBLIC_NETWORK_ID: 11155111 # Sepolia testnet
+          NODE_ENV: test

@@ -24,6 +24,7 @@ test/
 ### Test Files
 
 - `setup.ts`: Configures the test environment with:
+
   - JSDOM for browser simulation
   - Mocked MetaMask provider
   - Global type definitions
@@ -38,23 +39,29 @@ test/
 ## Available Tests
 
 ### Web3 Integration Tests
+
 1. **getWeb3**
+
    - Verifies Web3 initialization with MetaMask
    - Checks provider existence
 
 2. **getEthersProvider**
+
    - Validates ethers.js provider setup
    - Ensures MetaMask compatibility
 
 3. **getNetworkDetails**
+
    - Tests network ID retrieval
    - Validates Sepolia testnet detection
 
 4. **getAccounts**
+
    - Verifies account access
    - Validates Ethereum address format
 
 5. **isSepoliaNetwork**
+
    - Tests network detection logic
    - Confirms Sepolia network identification
 
@@ -65,12 +72,13 @@ test/
 ## Adding New Tests
 
 1. Create a new test file:
+
    ```typescript
    // example.test.ts
-   import { expect } from 'chai';
-   
-   describe('Your Feature', () => {
-     it('should do something specific', () => {
+   import { expect } from "chai";
+
+   describe("Your Feature", () => {
+     it("should do something specific", () => {
        // Your test code
      });
    });
@@ -85,13 +93,16 @@ test/
 ## Test Environment
 
 ### Technologies Used
+
 - **Mocha**: Test runner
 - **Chai**: Assertion library
 - **JSDOM**: Browser environment simulation
 - **TypeScript**: Type safety and modern JavaScript features
 
 ### MetaMask Mocking
+
 The test environment includes a mocked MetaMask provider that simulates:
+
 - Account connections
 - Network detection and switching
 - Event handling
@@ -100,6 +111,7 @@ The test environment includes a mocked MetaMask provider that simulates:
 ## Continuous Integration
 
 Tests run automatically on GitHub Actions:
+
 - On push to main branch
 - On pull request creation
 - Using Node.js 16.x and 18.x environments
@@ -107,12 +119,14 @@ Tests run automatically on GitHub Actions:
 ## Best Practices
 
 1. **Writing Tests**
+
    - One assertion per test when possible
    - Clear, descriptive test names
    - Proper setup and teardown
    - Isolated test cases
 
 2. **Running Tests**
+
    - Run tests before committing
    - Ensure all tests pass locally
    - Check test coverage regularly
@@ -127,11 +141,13 @@ Tests run automatically on GitHub Actions:
 Common issues and solutions:
 
 1. **Test Timeouts**
+
    - Increase timeout in mocha config
    - Check for hanging promises
    - Verify async/await usage
 
 2. **Mock Issues**
+
    - Update mock methods in setup.ts
    - Check MetaMask API changes
    - Verify RPC method signatures
@@ -139,4 +155,4 @@ Common issues and solutions:
 3. **Type Errors**
    - Ensure types are properly imported
    - Update type definitions
-   - Check TypeScript configuration 
+   - Check TypeScript configuration

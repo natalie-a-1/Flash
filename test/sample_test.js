@@ -16,30 +16,37 @@ contract("Migrations", (accounts) => {
 
   it("should set the correct owner on deployment", async () => {
     const contractOwner = await migrations.owner();
-    assert.equal(contractOwner, owner, "Owner was not set correctly on deployment");
+    assert.equal(
+      contractOwner,
+      owner,
+      "Owner was not set correctly on deployment",
+    );
   });
 
   it("should update last_completed_migration when called by owner", async () => {
     const newCompletedMigration = 5;
-    
+
     await migrations.setCompleted(newCompletedMigration, { from: owner });
-    
+
     const completedMigration = await migrations.last_completed_migration();
     assert.equal(
       completedMigration.toNumber(),
       newCompletedMigration,
-      "last_completed_migration was not updated correctly"
+      "last_completed_migration was not updated correctly",
     );
   });
 
   it("should only allow the owner to update last_completed_migration", async () => {
     const newCompletedMigration = 10;
-    
+
     try {
       await migrations.setCompleted(newCompletedMigration, { from: newOwner });
       assert.fail("Non-owner was able to update last_completed_migration");
     } catch (error) {
-      assert(error.toString().includes("revert"), "Expected revert error but got: " + error.toString());
+      assert(
+        error.toString().includes("revert"),
+        "Expected revert error but got: " + error.toString(),
+      );
     }
   });
-}); 
+});

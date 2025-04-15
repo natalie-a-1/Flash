@@ -3,13 +3,15 @@
  */
 
 // Load environment variables from .env file (if present)
-require('dotenv').config();
+require("dotenv").config();
 
 // Uncomment to use HDWalletProvider for Sepolia
-const HDWalletProvider = require('@truffle/hdwallet-provider');
-// 
-const MNEMONIC = process.env.MNEMONIC || 'Your mnemonic here...';
-const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || 'https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY';
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+//
+const MNEMONIC = process.env.MNEMONIC || "Your mnemonic here...";
+const SEPOLIA_RPC_URL =
+  process.env.SEPOLIA_RPC_URL ||
+  "https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY";
 
 module.exports = {
   // Configure networks
@@ -18,9 +20,9 @@ module.exports = {
     development: {
       host: "127.0.0.1",
       port: 8545,
-      network_id: "*" // Match any network id
+      network_id: "*", // Match any network id
     },
-    
+
     // Sepolia testnet
     // To use this configuration:
     // 1. Uncomment the HDWalletProvider import and config above
@@ -32,9 +34,9 @@ module.exports = {
       gas: 5500000,
       confirmations: 2,
       timeoutBlocks: 200,
-      skipDryRun: true
+      skipDryRun: true,
     },
-    
+
     // Add other networks as needed (testnet, mainnet, etc.)
   },
 
@@ -45,15 +47,15 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 200
-        }
-      }
-    }
+          runs: 200,
+        },
+      },
+    },
   },
 
   // Project directory structure
-  contracts_directory: './contracts',
-  contracts_build_directory: './build/contracts',
-  migrations_directory: './migrations',
-  test_directory: './test'
-}; 
+  contracts_directory: "./contracts",
+  contracts_build_directory: "./build/contracts",
+  migrations_directory: "./migrations",
+  test_directory: "./test",
+};

@@ -18,4 +18,4 @@ npm run copy-contracts
 
 ## Using the contracts
 
-These contract artifacts are imported by the frontend code to interact with the deployed smart contracts. 
+These contract artifacts are imported by the frontend code to interact with the deployed smart contracts.

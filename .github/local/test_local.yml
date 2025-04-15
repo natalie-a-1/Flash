@@ -3,9 +3,9 @@
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -30,7 +30,7 @@ jobs:
           node --version
           echo "NPM version:"
           npm --version
-          
+
       - name: List files
         run: |
           echo "Root directory files:"
@@ -42,4 +42,4 @@ jobs:
         run: |
           echo "This is a local test run using act"
           echo "In a real GitHub Actions environment, this would run the tests"
-          echo "Local testing passed!" 
+          echo "Local testing passed!"

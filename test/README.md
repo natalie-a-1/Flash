@@ -23,19 +23,19 @@ contract("ContractName", (accounts) => {
   let contractInstance;
   const owner = accounts[0];
   const user1 = accounts[1];
-  
+
   // Set up before each test
   beforeEach(async () => {
     contractInstance = await ContractName.new({ from: owner });
   });
-  
+
   it("should perform expected behavior", async () => {
     // Setup
     const initialValue = await contractInstance.getValue();
-    
+
     // Action
     await contractInstance.setValue(newValue, { from: owner });
-    
+
     // Assertion
     const updatedValue = await contractInstance.getValue();
     assert.equal(updatedValue, newValue, "Value was not set correctly");
@@ -49,4 +49,4 @@ contract("ContractName", (accounts) => {
 2. Test both success and failure cases (e.g., permissions, input validation)
 3. Test contract interactions
 4. Use `beforeEach` to reset contract state between tests
-5. Use meaningful assertion messages 
+5. Use meaningful assertion messages

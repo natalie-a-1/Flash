@@ -41,4 +41,4 @@ module.exports = function (deployer) {
 ## Running Migrations
 
 - Local development: `npm run migrate`
-- Sepolia testnet: `npm run migrate:sepolia` 
+- Sepolia testnet: `npm run migrate:sepolia`

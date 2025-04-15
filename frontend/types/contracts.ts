@@ -1,5 +1,5 @@
-import { Contract } from 'web3-eth-contract';
-import { AbiItem } from 'web3-utils';
+import { Contract } from "web3-eth-contract";
+import { AbiItem } from "web3-utils";
 
 // Contract deployment network information
 export interface ContractNetwork {
@@ -20,4 +20,4 @@ export interface ContractJson {
 }
 
 // Type for a Web3 contract instance
-export type Web3Contract = Contract<AbiItem[]>; 
+export type Web3Contract = Contract<AbiItem[]>;

@@ -32,4 +32,4 @@ When adding new contracts:
 1. Create the Solidity file in this directory
 2. Create a migration script in `migrations/`
 3. Compile and deploy
-4. The contract ABIs will be automatically copied to the frontend 
+4. The contract ABIs will be automatically copied to the frontend
