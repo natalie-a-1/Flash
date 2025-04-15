@@ -1,0 +1,81 @@
+# File: test_with_install.yml
+# This is a modified version of the main workflow for local testing with act
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js for Root
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Setup npm configuration (Root)
+        run: |
+          echo "omit=optional" > .npmrc
+          echo "platform=linux" >> .npmrc
+          echo "optional=false" >> .npmrc
+          echo "loglevel=error" >> .npmrc
+          npm config set ignore-scripts true
+
+      - name: Install root dependencies (modified for local testing)
+        env:
+          npm_config_optional: false
+        run: |
+          # Use npm install instead of npm ci for local testing
+          npm install --no-optional --ignore-scripts --omit=dev
+
+      - name: Run smart contract tests
+        run: |
+          echo "Would run 'npm test' in real environment"
+          echo "Skipping actual tests for local testing"
+        env:
+          NODE_ENV: test
+
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup npm configuration (Frontend)
+        run: |
+          echo "omit=optional" > .npmrc
+          echo "platform=linux" >> .npmrc
+          echo "optional=false" >> .npmrc
+          echo "loglevel=error" >> .npmrc
+          npm config set ignore-scripts true
+        working-directory: frontend
+
+      - name: Install frontend dependencies (modified for local testing)
+        env:
+          npm_config_optional: false
+        run: |
+          # Use npm install instead of npm ci for local testing
+          npm install --no-optional --ignore-scripts --omit=dev
+        working-directory: frontend
+
+      - name: Run frontend tests
+        run: |
+          echo "Would run 'npm test' in real environment"
+          echo "Skipping actual tests for local testing"
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_NETWORK_ID: 11155111  # Sepolia testnet
+          NODE_ENV: test 
