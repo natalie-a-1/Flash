@@ -34,12 +34,9 @@ jobs:
       - name: Remove fsevents from package-lock (Root)
         run: |
           if [ -f package-lock.json ]; then
-            jq 'def rwalk(f):
-                  . as $in | if type=="object" then
-                    reduce (keys_unsorted[]) as $k ({}; . + { ($k): ( $in[$k] | rwalk(f) ) } ) | f
-                  elif type=="array" then map(rwalk(f)) | f
-                  else f end;
-                rwalk( if type=="object" then with_entries(select(.key != "fsevents")) else . end )' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+            # Use two jq passes for more robust removal
+            jq 'del(.packages."node_modules/fsevents")' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+            jq 'walk(if type == "object" and .dependencies? != null then .dependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
           fi
 
       - name: Verify fsevents removal (Root)
@@ -80,12 +77,9 @@ jobs:
       - name: Remove fsevents from package-lock (Frontend)
         run: |
           if [ -f package-lock.json ]; then
-            jq 'def rwalk(f):
-                  . as $in | if type=="object" then
-                    reduce (keys_unsorted[]) as $k ({}; . + { ($k): ( $in[$k] | rwalk(f) ) } ) | f
-                  elif type=="array" then map(rwalk(f)) | f
-                  else f end;
-                rwalk( if type=="object" then with_entries(select(.key != "fsevents")) else . end )' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+            # Use two jq passes for more robust removal
+            jq 'del(.packages."node_modules/fsevents")' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
+            jq 'walk(if type == "object" and .dependencies? != null then .dependencies |= (del(.fsevents) // .) else . end)' package-lock.json > temp-package-lock.json && mv temp-package-lock.json package-lock.json
           fi
         working-directory: frontend
 
