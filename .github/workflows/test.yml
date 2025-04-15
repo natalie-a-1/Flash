@@ -34,7 +34,7 @@ jobs:
       - name: Install root dependencies
         env:
           npm_config_optional: false
-        run: npm ci --omit=optional --ignore-scripts --force
+        run: npm install --force
 
       - name: Install Ganache CLI
         run: npm install -g ganache-cli

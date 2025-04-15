@@ -11,7 +11,9 @@
     "dev": "truffle develop",
     "ganache": "ganache-cli",
     "copy-contracts": "node copy-contracts.js",
-    "postmigrate": "npm run copy-contracts"
+    "postmigrate": "npm run copy-contracts",
+    "format": "prettier --write .",
+    "check:format": "prettier --check ."
   },
   "dependencies": {
     "@truffle/hdwallet-provider": "^2.1.15",
@@ -20,7 +22,8 @@
   },
   "devDependencies": {
     "ganache-cli": "^6.12.2",
-    "truffle": "^5.11.5"
+    "truffle": "^5.11.5",
+    "prettier": "^3.0.0"
   },
   "engines": {
     "node": ">=16.0.0"
