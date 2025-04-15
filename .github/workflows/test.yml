@@ -34,7 +34,7 @@ jobs:
       - name: Install root dependencies
         env:
           npm_config_optional: false
-        run: npm ci --omit=optional --ignore-scripts
+        run: npm ci --omit=optional --ignore-scripts --force
 
       - name: Run smart contract tests
         run: npm test
@@ -60,7 +60,7 @@ jobs:
       - name: Install frontend dependencies
         env:
           npm_config_optional: false
-        run: npm ci --omit=optional --ignore-scripts
+        run: npm ci --omit=optional --ignore-scripts --force
         working-directory: frontend
 
       - name: Run frontend tests
@@ -69,3 +69,6 @@ jobs:
         env:
           NEXT_PUBLIC_NETWORK_ID: 11155111  # Sepolia testnet
           NODE_ENV: test
+
+      - name: Check formatting
+        run: npm run check:format
