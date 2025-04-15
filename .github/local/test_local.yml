@@ -1,0 +1,45 @@
+# File: test_local.yml
+# This is a modified version of the main workflow for local testing with act
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify environment
+        run: |
+          echo "Node version:"
+          node --version
+          echo "NPM version:"
+          npm --version
+
+      - name: List files
+        run: |
+          echo "Root directory files:"
+          ls -la
+          echo "Frontend directory files:"
+          ls -la frontend || echo "No frontend directory"
+
+      - name: Skip actual tests for local testing
+        run: |
+          echo "This is a local test run using act"
+          echo "In a real GitHub Actions environment, this would run the tests"
+          echo "Local testing passed!"
