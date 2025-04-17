@@ -8,7 +8,8 @@ contract("FlashLoan", (accounts) => {
   const owner = accounts[0];
   const nonOwner = accounts[1];
 
-  // Sepolia Addresses used in the contract (for verification)
+  // Constants representing addresses used in the FlashLoan contract for the Sepolia network.
+  // These are used here for verification purposes in tests.
   const AAVE_POOL_PROVIDER_SEPOLIA = "0x012bAC54348C0E635dCAc9D5FB99f06F24136C9A";
   const USDC_SEPOLIA = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"; // Address from contract
   const WETH_SEPOLIA = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"; // Address from contract
@@ -16,7 +17,8 @@ contract("FlashLoan", (accounts) => {
   const SUSHISWAP_ROUTER_SEPOLIA = "0xeaBcE3E74EF41FB40024a21Cc2ee2F5dDc615791"; // Address from contract
 
   beforeEach(async () => {
-    // Deploy a new instance before each test
+    // Deploying a new contract instance before each test ensures a clean state
+    // and prevents side effects between tests.
     flashLoanInstance = await FlashLoan.new(AAVE_POOL_PROVIDER_SEPOLIA, { from: owner });
   });
 
@@ -81,7 +83,8 @@ contract("FlashLoan", (accounts) => {
 
     it("should prevent non-owners from withdrawing Ether", async () => {
       await web3.eth.sendTransaction({ from: owner, to: flashLoanInstance.address, value: web3.utils.toWei("1", "ether") });
-      // Use expectRevert.unspecified because Ganache fork might not decode the custom error reason
+      // Use expectRevert.unspecified because Ganache fork might not decode the custom error reason string ("NotOwner") correctly.
+      // This still ensures the transaction reverts as expected for a non-owner.
       await expectRevert.unspecified(
         flashLoanInstance.withdrawEther({ from: nonOwner })
       );
@@ -105,7 +108,9 @@ contract("FlashLoan", (accounts) => {
         // For now, we'll skip the actual transfer and check revert if balance is 0
         // TODO: Implement actual USDC transfer once fork setup allows it.
 
-        // Attempt withdrawal when balance is likely 0 (should succeed but transfer 0)
+        // Attempt withdrawal when balance is likely 0. 
+        // This test primarily confirms the owner *can* call the function without reverting.
+        // It doesn't test the transfer logic itself without funds present.
         await flashLoanInstance.withdraw(USDC_SEPOLIA, { from: owner });
         // Add checks here once you can reliably send USDC to the contract
         // e.g., check owner's USDC balance before/after withdraw
@@ -115,7 +120,7 @@ contract("FlashLoan", (accounts) => {
     });
 
     it("should prevent non-owners from withdrawing ERC20 tokens", async () => {
-      // Use expectRevert.unspecified because Ganache fork might not decode the custom error reason
+      // Use expectRevert.unspecified for the same reason as the Ether withdrawal test.
       await expectRevert.unspecified(
         flashLoanInstance.withdraw(USDC_SEPOLIA, { from: nonOwner })
       );
@@ -128,7 +133,9 @@ contract("FlashLoan", (accounts) => {
   // and potentially require manipulating token balances or impersonating accounts.
   describe("Flash Loan Functionality", () => {
       it("should attempt a flash loan and handle the outcome", async () => {
-          // This requires:
+          // This test verifies the core flash loan initiation and the contract's
+          // response within the executeOperation callback on the Sepolia fork.
+          // Requirements:
           // 1. Running on the 'development_fork' network.
           // 2. The 'owner' account having enough ETH for gas.
           // 3. The Sepolia contracts (Aave, Uniswap, SushiSwap, Tokens) being available on the fork.
@@ -137,10 +144,10 @@ contract("FlashLoan", (accounts) => {
           
           const loanAmount = new BN('100000000'); // Request 100 USDC (100 * 10^6)
           
-          // We expect this to potentially revert with "ArbitrageFailed" 
-          // if no profit opportunity exists or slippage is too high, 
-          // or "RepayFailed" / other Aave errors.
-          // A successful run is complex to guarantee in a test without setup.
+          // The goal here is *not* necessarily to see a successful arbitrage, which depends 
+          // heavily on the unpredictable state of the forked chain.
+          // Instead, we test that the flash loan is initiated and that the contract
+          // either succeeds or fails gracefully with an expected revert reason.
           try {
               const tx = await flashLoanInstance.requestFlashLoan(loanAmount, { from: owner });
               // If it doesn't revert, it implies Aave called executeOperation, 
@@ -149,8 +156,9 @@ contract("FlashLoan", (accounts) => {
               // TODO: Add assertions for successful scenario (e.g., check events or balances)
               console.log("      Flash loan successful (or did not revert). Gas used:", tx.receipt.gasUsed);
           } catch (error) {
-              // Check if the revert reason is the expected ArbitrageFailed or potentially RepayFailed
-              // Ganache fork might struggle with decoding custom errors, so check message substring
+              // Check if the revert reason is one of the expected failures (ArbitrageFailed, RepayFailed)
+              // or a generic revert. Due to potential decoding issues on the fork, 
+              // we check if the error message includes relevant substrings.
               console.warn("      Flash loan request reverted (likely expected):", error.message);
               assert(
                 error.message.includes("ArbitrageFailed") || error.message.includes("RepayFailed") || error.message.includes("revert"), 
@@ -160,14 +168,11 @@ contract("FlashLoan", (accounts) => {
       });
 
        it("should revert if requesting flash loan for an asset other than USDC", async () => {
-          // This test is tricky because requestFlashLoan hardcodes USDC.
-          // We'd need to interact with Aave Pool directly.
-          // For now, we test that executeOperation reverts if called with non-USDC.
-          // This isn't directly testing requestFlashLoan but the internal check.
-
-          // We cannot easily call executeOperation directly as it expects caller to be Aave Pool.
-          // Let's modify the test to acknowledge this limitation or skip it.
-          // Skipping for now as it doesn't directly test the intended function flow.
+          // This test aims to check the `if (asset != USDC)` guard in executeOperation.
+          // However, `requestFlashLoan` hardcodes USDC, making it hard to trigger this 
+          // condition directly through the intended external function.
+          // Simulating a direct call to executeOperation from the Aave Pool with a different asset
+          // is complex in this testing setup. Therefore, this test is currently trivial.
           assert(true, "Skipping test: Cannot easily simulate non-USDC flash loan request via requestFlashLoan().");
        });
   });
