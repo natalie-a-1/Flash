@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "truffle test",
+    "test:fork": "truffle test --network development_fork",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "migrate:sepolia": "truffle migrate --network sepolia",
