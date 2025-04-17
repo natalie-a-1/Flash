@@ -23,6 +23,17 @@ module.exports = {
       network_id: "*", // Match any network id
     },
 
+    // Development network forking Sepolia
+    // Requires SEPOLIA_RPC_URL in .env and Ganache installed
+    development_fork: {
+      host: "127.0.0.1", // Ganache's default host
+      port: 8545,       // Ganache's default port
+      network_id: "*",  // Match any network ID
+      fork: SEPOLIA_RPC_URL, // Fork Sepolia using the RPC URL from .env
+      gas: 8000000, // Set a higher gas limit for potentially complex interactions
+      gasPrice: 20000000000, // Optional: Set gas price (e.g., 20 Gwei)
+    },
+
     // Sepolia testnet
     // To use this configuration:
     // 1. Uncomment the HDWalletProvider import and config above
