@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "truffle test",
+    "test:fork": "truffle test --network development_fork",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "migrate:sepolia": "truffle migrate --network sepolia",
@@ -21,9 +22,12 @@
     "web3": "^1.10.0"
   },
   "devDependencies": {
-    "ganache-cli": "^6.12.2",
-    "truffle": "^5.11.5",
-    "prettier": "^3.0.0"
+    "@aave/core-v3": "^1.19.3",
+    "@openzeppelin/contracts": "^5.3.0",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "ganache": "^7.9.2",
+    "prettier": "^3.0.0",
+    "truffle": "^5.11.5"
   },
   "engines": {
     "node": ">=16.0.0"

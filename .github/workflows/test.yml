@@ -36,13 +36,33 @@ jobs:
           npm_config_optional: false
         run: npm install --force
 
-      - name: Install Ganache CLI
-        run: npm install -g ganache-cli
+      - name: Install Ganache
+        run: npm install -g ganache
 
       - name: Run smart contract tests
-        run: ganache-cli > /dev/null & npm test
         env:
+          # Pass the secret RPC URL to the steps
+          SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
           NODE_ENV: test
+        run: |
+          # Start Ganache in the background, forking Sepolia using the provided RPC URL
+          # Use port 8545 to match truffle-config.js
+          ganache --fork "$SEPOLIA_RPC_URL" --port 8545 > ganache.log 2>&1 &
+
+          # Wait a few seconds for Ganache to initialize the fork
+          echo "Waiting for Ganache fork to start..."
+          sleep 10 
+
+          # Check if Ganache started correctly (optional but helpful)
+          if ! pgrep -f ganache; then
+            echo "Ganache failed to start. Check logs:"
+            cat ganache.log
+            exit 1
+          fi
+          echo "Ganache started. Running fork tests..."
+
+          # Run the specific fork test script
+          npm run test:fork
 
       - name: Setup Node.js for Frontend
         uses: actions/setup-node@v3
