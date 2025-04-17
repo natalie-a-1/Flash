@@ -29,8 +29,8 @@ module.exports = {
     // `ganache --fork <YOUR_SEPOLIA_RPC_URL>`
     development_fork: {
       host: "127.0.0.1", // Ganache's default host
-      port: 8545,       // Ganache's default port
-      network_id: "*",  // Match any network ID
+      port: 8545, // Ganache's default port
+      network_id: "*", // Match any network ID
       // This crucial parameter tells Truffle that the Ganache instance at host:port
       // should be a fork of the specified network (using the RPC URL from .env).
       fork: SEPOLIA_RPC_URL,

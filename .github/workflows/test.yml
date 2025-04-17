@@ -48,11 +48,11 @@ jobs:
           # Start Ganache in the background, forking Sepolia using the provided RPC URL
           # Use port 8545 to match truffle-config.js
           ganache --fork "$SEPOLIA_RPC_URL" --port 8545 > ganache.log 2>&1 &
-          
+
           # Wait a few seconds for Ganache to initialize the fork
           echo "Waiting for Ganache fork to start..."
           sleep 10 
-          
+
           # Check if Ganache started correctly (optional but helpful)
           if ! pgrep -f ganache; then
             echo "Ganache failed to start. Check logs:"
@@ -60,7 +60,7 @@ jobs:
             exit 1
           fi
           echo "Ganache started. Running fork tests..."
-          
+
           # Run the specific fork test script
           npm run test:fork
 
