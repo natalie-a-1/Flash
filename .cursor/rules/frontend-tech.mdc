@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The frontend is built with Next.js 15 (App Router, Turbopack for dev), React 19, TypeScript 5, and Tailwind CSS 4. It uses both `web3.js` (v4) and `ethers.js` (v6) for blockchain interaction via the user's injected provider (e.g., MetaMask).

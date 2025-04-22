@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The `copy-contracts.js` script is used to bridge the backend and frontend regarding contract artifacts.
+
+It runs via `npm run copy-contracts` (or automatically after deployment via `npm run postmigrate`) and copies compiled contract JSON artifacts (containing ABI and network deployment addresses) from `build/contracts` to `frontend/contracts`. The frontend then uses these files (e.g., in `frontend/lib/web3/contracts.ts`) to interact with the deployed contracts.

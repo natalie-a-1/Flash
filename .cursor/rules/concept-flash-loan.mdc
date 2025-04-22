@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+A flash loan (specifically Aave V3 in this project) allows borrowing assets (USDC here) without upfront collateral, provided the loan amount plus a fee (premium) is returned within the *same* blockchain transaction.
+
+The core logic happens inside the `executeOperation` function of the `FlashLoan.sol` contract, which is called by the Aave Pool after the funds are sent.

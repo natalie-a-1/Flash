@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The primary target network for deployment and testing (besides local development) is the Sepolia testnet (Chain ID: 11155111).
+
+Configuration files (`truffle-config.js`, `frontend/lib/web3/config.ts`, `.env.example`), the smart contract (`contracts/FlashLoan.sol`), deployment scripts (`migrations/`), tests (`test/`), and frontend logic (`frontend/lib/web3/web3.ts`) contain Sepolia-specific addresses (Aave, Uniswap, SushiSwap, Tokens), RPC URLs, and network IDs.
+
+The frontend actively checks if the connected wallet is on Sepolia and prompts the user to switch if necessary.

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The main smart contract `FlashLoan.sol` inherits from Aave's `FlashLoanSimpleReceiverBase` and implements the `executeOperation` callback to perform the USDC -> WETH (Uniswap) -> USDC (SushiSwap) arbitrage. It requires the Aave Pool Addresses Provider address during deployment.
