@@ -1,0 +1,54 @@
+{
+  "rules": [
+    {
+      "name": "Project Overview",
+      "description": "This is a full-stack Ethereum dApp implementing an Aave V3 flash loan arbitrage strategy between Uniswap V2 and SushiSwap V2 on the Sepolia testnet. The backend uses Solidity/Truffle, and the frontend uses Next.js/React/TypeScript.",
+      "patterns": ["README.md", "truffle-config.js", "frontend/README.md", "frontend/package.json", "package.json"]
+    },
+    {
+      "name": "Smart Contract Core Logic",
+      "description": "The main smart contract `FlashLoan.sol` inherits from Aave's `FlashLoanSimpleReceiverBase` and implements the `executeOperation` callback to perform the USDC -> WETH (Uniswap) -> USDC (SushiSwap) arbitrage. It requires the Aave Pool Addresses Provider address during deployment.",
+      "patterns": ["contracts/FlashLoan.sol", "migrations/2_deploy_flashloan.js"]
+    },
+    {
+      "name": "Backend Frameworks & Libraries",
+      "description": "The backend uses Truffle for compilation, migration, and testing. It relies on Ganache for local development (including Sepolia forks) and utilizes OpenZeppelin contracts and Aave V3 core contracts.",
+      "patterns": ["truffle-config.js", "package.json", "contracts/", "test/", "migrations/"]
+    },
+    {
+      "name": "Frontend Frameworks & Libraries",
+      "description": "The frontend is built with Next.js (App Router, Turbopack), React, TypeScript, and Tailwind CSS. It uses `web3.js` and `ethers.js` for blockchain interaction.",
+      "patterns": ["frontend/package.json", "frontend/next.config.ts", "frontend/tailwind.config.js", "frontend/tsconfig.json", "frontend/app/", "frontend/components/", "frontend/lib/"]
+    },
+    {
+      "name": "Frontend Web3 Integration",
+      "description": "The `Web3Provider` component (`frontend/components/web3/Web3Provider.tsx`) uses React Context to manage wallet connection (MetaMask), account details, and network status (checking for Sepolia). Core Web3 utilities are in `frontend/lib/web3/`. Contracts are loaded via `frontend/lib/web3/contracts.ts` using JSON artifacts.",
+      "patterns": ["frontend/components/web3/Web3Provider.tsx", "frontend/lib/web3/", "frontend/app/layout.tsx", "frontend/app/page.tsx"]
+    },
+    {
+      "name": "Contract Artifact Handling",
+      "description": "The `copy-contracts.js` script (run via `npm run copy-contracts` or `postmigrate`) copies compiled contract JSON artifacts from `build/contracts` to `frontend/contracts` to make ABIs and deployment addresses available to the frontend.",
+      "patterns": ["copy-contracts.js", "build/contracts/", "frontend/contracts/"]
+    },
+    {
+      "name": "Testing Strategy",
+      "description": "Smart contract tests (`test/flashLoan.test.js`) use Truffle and OpenZeppelin test helpers. Testing the core flash loan logic relies heavily on running against a Sepolia fork (`development_fork` network in Truffle config) to interact with live testnet contracts.",
+      "patterns": ["test/flashLoan.test.js", "truffle-config.js"]
+    },
+    {
+      "name": "Target Network: Sepolia",
+      "description": "The primary target network for deployment and testing (besides local development) is the Sepolia testnet. Configuration files and contracts contain Sepolia-specific addresses and IDs.",
+      "patterns": ["truffle-config.js", "contracts/FlashLoan.sol", "migrations/2_deploy_flashloan.js", "test/flashLoan.test.js", "frontend/lib/web3/config.ts", "frontend/lib/web3/web3.ts"]
+    },
+    {
+      "name": "Key Concept: Flash Loan",
+      "description": "Central concept involving borrowing assets (USDC) from Aave V3 without collateral, executing logic (arbitrage), and repaying the loan plus a fee within the same transaction.",
+      "patterns": ["contracts/FlashLoan.sol", "README.md"]
+    },
+    {
+      "name": "Key Concept: Arbitrage",
+      "description": "The strategy aims to exploit price differences for the same asset pair (USDC/WETH) between two DEXs (Uniswap V2 and SushiSwap V2 on Sepolia).",
+      "patterns": ["contracts/FlashLoan.sol", "test/flashLoan.test.js"]
+    }
+  ]
+} 

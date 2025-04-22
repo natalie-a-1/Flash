@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The `Web3Provider` component (`frontend/components/web3/Web3Provider.tsx`) uses React Context (`useWeb3` hook) to manage wallet connection (MetaMask), account details, and network status (checking for Sepolia). 
+
+Core Web3 utilities (getting provider, accounts, network details, switching network) are in `frontend/lib/web3/web3.ts`. 
+
+Contracts are loaded dynamically via `frontend/lib/web3/contracts.ts` using JSON artifacts from `frontend/contracts/`. The `Web3Provider` wraps the main application layout (`frontend/app/layout.tsx`).

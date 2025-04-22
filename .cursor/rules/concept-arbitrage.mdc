@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+The arbitrage strategy implemented in `FlashLoan.sol` aims to exploit potential price differences for the USDC/WETH pair between Uniswap V2 and SushiSwap V2 on the Sepolia testnet.
+
+The specific path is:
+1. Borrow USDC (Aave Flash Loan)
+2. Swap USDC for WETH (Uniswap V2)
+3. Swap WETH for USDC (SushiSwap V2)
+4. Repay USDC loan + fee (Aave)
+
+The contract includes basic slippage tolerance but does not account for gas costs in its on-chain profitability check.
