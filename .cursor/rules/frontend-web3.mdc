@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 The `Web3Provider` component (`frontend/components/web3/Web3Provider.tsx`) uses React Context (`useWeb3` hook) to manage wallet connection (MetaMask), account details, and network status (checking for Sepolia). 
 

@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+// import "./interfaces/IERC20.sol"; // Remove local import
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; // Use OpenZeppelin import
 import "./interfaces/IUniswapV2Router02.sol";
-import "./interfaces/IERC20.sol";
+import "./interfaces/IWETH.sol";
 
 contract UniswapInteractor {
     // Uniswap V2 Router address for Sepolia testnet

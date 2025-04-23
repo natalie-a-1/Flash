@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 Smart contract tests are located in `test/flashLoan.test.js` and run using `npm test` (which executes `truffle test`). 
 

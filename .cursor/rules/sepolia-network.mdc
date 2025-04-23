@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 The primary target network for deployment and testing (besides local development) is the Sepolia testnet (Chain ID: 11155111).
 

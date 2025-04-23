@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 The `copy-contracts.js` script is used to bridge the backend and frontend regarding contract artifacts.
 
