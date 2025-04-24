@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 The arbitrage strategy implemented in `FlashLoan.sol` aims to exploit potential price differences for the USDC/WETH pair between Uniswap V2 and SushiSwap V2 on the Sepolia testnet.
 
