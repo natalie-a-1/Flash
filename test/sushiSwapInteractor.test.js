@@ -29,7 +29,9 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
 
   before(async () => {
     const networkId = await web3.eth.net.getId();
-    console.log(`   Testing SushiSwap on Network ID: ${networkId} (Expected fork)`);
+    console.log(
+      `   Testing SushiSwap on Network ID: ${networkId} (Expected fork)`,
+    );
     weth = await IWETH.at(WETH_ADDRESS);
     usdc = await IERC20.at(USDC_ADDRESS);
     const initialEthBalance = await web3.eth.getBalance(fundingAccount);
@@ -71,20 +73,30 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
         );
       }
     } catch (e) {
-      console.error(`   [BeforeEach] ERROR during WETH check/wrap: ${e.message}`);
+      console.error(
+        `   [BeforeEach] ERROR during WETH check/wrap: ${e.message}`,
+      );
       throw e;
     }
 
     // --- Fund the Interactor Contract Instance ---
     try {
-      const balanceInteractorBefore = await weth.balanceOf(interactorInstance.address);
-      await weth.transfer(interactorInstance.address, amountToFundWeth, { from: fundingAccount });
-      const balanceInteractorAfter = await weth.balanceOf(interactorInstance.address);
+      const balanceInteractorBefore = await weth.balanceOf(
+        interactorInstance.address,
+      );
+      await weth.transfer(interactorInstance.address, amountToFundWeth, {
+        from: fundingAccount,
+      });
+      const balanceInteractorAfter = await weth.balanceOf(
+        interactorInstance.address,
+      );
       console.log(
         `   [BeforeEach] Funded Sushi interactor ${interactorInstance.address} with ${web3.utils.fromWei(amountToFundWeth)} WETH`,
       );
       assert(
-        new BN(balanceInteractorAfter).sub(new BN(balanceInteractorBefore)).eq(amountToFundWeth),
+        new BN(balanceInteractorAfter)
+          .sub(new BN(balanceInteractorBefore))
+          .eq(amountToFundWeth),
         "Interactor WETH funding failed",
       );
     } catch (e) {
@@ -110,7 +122,11 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
     );
     assert.isArray(amounts, "Amounts should be an array");
     assert.equal(amounts.length, 2, "Amounts array should have 2 elements");
-    assert.equal(amounts[0].toString(), pointOneWeth.toString(), "Input amount mismatch");
+    assert.equal(
+      amounts[0].toString(),
+      pointOneWeth.toString(),
+      "Input amount mismatch",
+    );
     console.log(
       `   SushiSwap: 0.1 WETH -> ${amounts[1].div(oneUsdc).toString()} USDC (approx)`,
     );
@@ -119,12 +135,18 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
 
   it("should swap WETH for USDC successfully via SushiSwap", async () => {
     const amountIn = pointOneWeth;
-    const amountsOut = await interactorInstance.getAmountsOut(WETH_ADDRESS, USDC_ADDRESS, amountIn);
+    const amountsOut = await interactorInstance.getAmountsOut(
+      WETH_ADDRESS,
+      USDC_ADDRESS,
+      amountIn,
+    );
     const amountOutMin = new BN(amountsOut[1]).mul(new BN(99)).div(new BN(100)); // 1% slippage
     const deadline = (await time.latest()).add(time.duration.minutes(10));
 
     const recipientUsdcBalanceBefore = await usdc.balanceOf(recipient);
-    const interactorWethBalanceBefore = await weth.balanceOf(interactorInstance.address);
+    const interactorWethBalanceBefore = await weth.balanceOf(
+      interactorInstance.address,
+    );
 
     const tx = await interactorInstance.swapExactTokensForTokens(
       WETH_ADDRESS,
@@ -140,28 +162,45 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
     let swapEvent;
     truffleAssert.eventEmitted(tx, "SwapExecuted", (ev) => {
       swapEvent = ev;
-      return ev.tokenIn === WETH_ADDRESS && ev.tokenOut === USDC_ADDRESS && ev.amountIn.eq(amountIn);
+      return (
+        ev.tokenIn === WETH_ADDRESS &&
+        ev.tokenOut === USDC_ADDRESS &&
+        ev.amountIn.eq(amountIn)
+      );
     });
-    assert(new BN(swapEvent.amounts[1]).gte(amountOutMin), "Event output lower than calc min");
+    assert(
+      new BN(swapEvent.amounts[1]).gte(amountOutMin),
+      "Event output lower than calc min",
+    );
 
     // Check balances
     const recipientUsdcBalanceAfter = await usdc.balanceOf(recipient);
-    const interactorWethBalanceAfter = await weth.balanceOf(interactorInstance.address);
-    const usdcReceived = new BN(recipientUsdcBalanceAfter).sub(new BN(recipientUsdcBalanceBefore));
+    const interactorWethBalanceAfter = await weth.balanceOf(
+      interactorInstance.address,
+    );
+    const usdcReceived = new BN(recipientUsdcBalanceAfter).sub(
+      new BN(recipientUsdcBalanceBefore),
+    );
 
     console.log(
       `   SushiSwap: Swapped ${web3.utils.fromWei(amountIn)} WETH for ${usdcReceived.div(oneUsdc).toString()} USDC`,
     );
     assert(usdcReceived.gte(amountOutMin), "Received USDC less than min");
     assert(
-      new BN(interactorWethBalanceBefore).sub(new BN(interactorWethBalanceAfter)).eq(amountIn),
+      new BN(interactorWethBalanceBefore)
+        .sub(new BN(interactorWethBalanceAfter))
+        .eq(amountIn),
       "Interactor WETH balance decrease incorrect",
     );
   });
 
   it("should revert swap via SushiSwap if deadline expired", async () => {
     const amountIn = pointOneWeth;
-    const amountsOut = await interactorInstance.getAmountsOut(WETH_ADDRESS, USDC_ADDRESS, amountIn);
+    const amountsOut = await interactorInstance.getAmountsOut(
+      WETH_ADDRESS,
+      USDC_ADDRESS,
+      amountIn,
+    );
     const amountOutMin = new BN(amountsOut[1]).mul(new BN(90)).div(new BN(100));
     const deadline = (await time.latest()).sub(time.duration.seconds(1)); // Past deadline
 
@@ -180,9 +219,15 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
 
   it("should revert swap via SushiSwap if minimum output not met", async () => {
     const amountIn = pointOneWeth;
-    const amountsOut = await interactorInstance.getAmountsOut(WETH_ADDRESS, USDC_ADDRESS, amountIn);
+    const amountsOut = await interactorInstance.getAmountsOut(
+      WETH_ADDRESS,
+      USDC_ADDRESS,
+      amountIn,
+    );
     // Set minimum ridiculously high
-    const amountOutMin = new BN(amountsOut[1]).mul(new BN(110)).div(new BN(100)); // Require 10% MORE
+    const amountOutMin = new BN(amountsOut[1])
+      .mul(new BN(110))
+      .div(new BN(100)); // Require 10% MORE
     const deadline = (await time.latest()).add(time.duration.minutes(10));
 
     await expectRevert.unspecified(
@@ -238,44 +283,74 @@ contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
   // --- Add tests for withdraw functions ---
   it("should allow owner to withdraw WETH from SushiSwap interactor", async () => {
     const contractOwner = await interactorInstance.owner(); // Fetch owner inside test
-    const interactorBalanceBefore = await weth.balanceOf(interactorInstance.address);
+    const interactorBalanceBefore = await weth.balanceOf(
+      interactorInstance.address,
+    );
     const ownerBalanceBefore = await weth.balanceOf(contractOwner); // Use fetched owner
-    assert(interactorBalanceBefore.gt(new BN(0)), "Interactor should have WETH to withdraw");
+    assert(
+      interactorBalanceBefore.gt(new BN(0)),
+      "Interactor should have WETH to withdraw",
+    );
 
     // Withdraw full balance (amount = 0)
-    await interactorInstance.withdrawToken(WETH_ADDRESS, 0, { from: contractOwner }); // Use fetched owner
+    await interactorInstance.withdrawToken(WETH_ADDRESS, 0, {
+      from: contractOwner,
+    }); // Use fetched owner
 
-    const interactorBalanceAfter = await weth.balanceOf(interactorInstance.address);
+    const interactorBalanceAfter = await weth.balanceOf(
+      interactorInstance.address,
+    );
     const ownerBalanceAfter = await weth.balanceOf(contractOwner); // Use fetched owner
 
-    assert(interactorBalanceAfter.isZero(), "Interactor balance should be zero");
-    assert(ownerBalanceAfter.eq(ownerBalanceBefore.add(interactorBalanceBefore)), "Owner did not receive WETH");
+    assert(
+      interactorBalanceAfter.isZero(),
+      "Interactor balance should be zero",
+    );
+    assert(
+      ownerBalanceAfter.eq(ownerBalanceBefore.add(interactorBalanceBefore)),
+      "Owner did not receive WETH",
+    );
   });
 
   it("should allow owner to withdraw Ether from SushiSwap interactor", async () => {
-        const contractOwner = await interactorInstance.owner(); // Fetch owner inside test
-        const ethToSend = web3.utils.toWei("0.5", "ether");
-        await web3.eth.sendTransaction({
-            from: deployer, // Any account with ETH can send
-            to: interactorInstance.address,
-            value: ethToSend
-        });
-
-        const interactorEthBalanceBefore = await web3.eth.getBalance(interactorInstance.address);
-        const ownerEthBalanceBefore = await web3.eth.getBalance(contractOwner); // Use fetched owner
-        assert.equal(interactorEthBalanceBefore.toString(), ethToSend, "Interactor ETH balance incorrect");
-
-        const tx = await interactorInstance.withdrawEther({ from: contractOwner }); // Use fetched owner
-        const gasUsed = new BN(tx.receipt.gasUsed);
-        const txInfo = await web3.eth.getTransaction(tx.tx);
-        const gasPrice = new BN(txInfo.gasPrice);
-        const txCost = gasUsed.mul(gasPrice);
-
-        const interactorEthBalanceAfter = await web3.eth.getBalance(interactorInstance.address);
-        const ownerEthBalanceAfter = await web3.eth.getBalance(contractOwner); // Use fetched owner
-
-        assert(new BN(interactorEthBalanceAfter).isZero(), "Interactor ETH balance should be zero");
-        assert(new BN(ownerEthBalanceAfter).eq(new BN(ownerEthBalanceBefore).add(new BN(ethToSend)).sub(txCost)), "Owner ETH balance incorrect after withdrawal");
+    const contractOwner = await interactorInstance.owner(); // Fetch owner inside test
+    const ethToSend = web3.utils.toWei("0.5", "ether");
+    await web3.eth.sendTransaction({
+      from: deployer, // Any account with ETH can send
+      to: interactorInstance.address,
+      value: ethToSend,
     });
 
-}); 
+    const interactorEthBalanceBefore = await web3.eth.getBalance(
+      interactorInstance.address,
+    );
+    const ownerEthBalanceBefore = await web3.eth.getBalance(contractOwner); // Use fetched owner
+    assert.equal(
+      interactorEthBalanceBefore.toString(),
+      ethToSend,
+      "Interactor ETH balance incorrect",
+    );
+
+    const tx = await interactorInstance.withdrawEther({ from: contractOwner }); // Use fetched owner
+    const gasUsed = new BN(tx.receipt.gasUsed);
+    const txInfo = await web3.eth.getTransaction(tx.tx);
+    const gasPrice = new BN(txInfo.gasPrice);
+    const txCost = gasUsed.mul(gasPrice);
+
+    const interactorEthBalanceAfter = await web3.eth.getBalance(
+      interactorInstance.address,
+    );
+    const ownerEthBalanceAfter = await web3.eth.getBalance(contractOwner); // Use fetched owner
+
+    assert(
+      new BN(interactorEthBalanceAfter).isZero(),
+      "Interactor ETH balance should be zero",
+    );
+    assert(
+      new BN(ownerEthBalanceAfter).eq(
+        new BN(ownerEthBalanceBefore).add(new BN(ethToSend)).sub(txCost),
+      ),
+      "Owner ETH balance incorrect after withdrawal",
+    );
+  });
+});

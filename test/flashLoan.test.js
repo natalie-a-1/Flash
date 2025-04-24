@@ -2,7 +2,9 @@ const FlashLoan = artifacts.require("FlashLoan");
 const IERC20 = artifacts.require(
   "@openzeppelin/contracts/token/ERC20/IERC20.sol",
 );
-const IUniswapV2Router02 = artifacts.require("./interfaces/IUniswapV2Router02.sol");
+const IUniswapV2Router02 = artifacts.require(
+  "./interfaces/IUniswapV2Router02.sol",
+);
 const IWETH = artifacts.require("./interfaces/IWETH.sol");
 const BN = web3.utils.BN;
 const { expectRevert, expectEvent } = require("@openzeppelin/test-helpers");
@@ -92,14 +94,14 @@ contract("FlashLoan", (accounts) => {
     it("should revert deployment if Uniswap Router address is zero", async () => {
       try {
         await FlashLoan.new(
-           AAVE_POOL_PROVIDER_SEPOLIA,
-           ZERO_ADDRESS,
-           SUSHISWAP_ROUTER_SEPOLIA,
-           USDC_SEPOLIA,
-           WETH_SEPOLIA,
-           { from: owner },
-         );
-         assert.fail("Deployment should have reverted but did not.");
+          AAVE_POOL_PROVIDER_SEPOLIA,
+          ZERO_ADDRESS,
+          SUSHISWAP_ROUTER_SEPOLIA,
+          USDC_SEPOLIA,
+          WETH_SEPOLIA,
+          { from: owner },
+        );
+        assert.fail("Deployment should have reverted but did not.");
       } catch (error) {
         // If we are here, an error was thrown, which is expected.
         // No need to check the error message itself, as it's inconsistent.
@@ -108,16 +110,16 @@ contract("FlashLoan", (accounts) => {
     });
 
     it("should revert deployment if SushiSwap Router address is zero", async () => {
-       try {
+      try {
         await FlashLoan.new(
-           AAVE_POOL_PROVIDER_SEPOLIA,
-           UNISWAP_ROUTER_SEPOLIA,
-           ZERO_ADDRESS,
-           USDC_SEPOLIA,
-           WETH_SEPOLIA,
-           { from: owner },
-         );
-         assert.fail("Deployment should have reverted but did not.");
+          AAVE_POOL_PROVIDER_SEPOLIA,
+          UNISWAP_ROUTER_SEPOLIA,
+          ZERO_ADDRESS,
+          USDC_SEPOLIA,
+          WETH_SEPOLIA,
+          { from: owner },
+        );
+        assert.fail("Deployment should have reverted but did not.");
       } catch (error) {
         // If we are here, an error was thrown, which is expected.
         assert(true);
@@ -125,16 +127,16 @@ contract("FlashLoan", (accounts) => {
     });
 
     it("should revert deployment if USDC address is zero", async () => {
-       try {
+      try {
         await FlashLoan.new(
-           AAVE_POOL_PROVIDER_SEPOLIA,
-           UNISWAP_ROUTER_SEPOLIA,
-           SUSHISWAP_ROUTER_SEPOLIA,
-           ZERO_ADDRESS,
-           WETH_SEPOLIA,
-           { from: owner },
-         );
-         assert.fail("Deployment should have reverted but did not.");
+          AAVE_POOL_PROVIDER_SEPOLIA,
+          UNISWAP_ROUTER_SEPOLIA,
+          SUSHISWAP_ROUTER_SEPOLIA,
+          ZERO_ADDRESS,
+          WETH_SEPOLIA,
+          { from: owner },
+        );
+        assert.fail("Deployment should have reverted but did not.");
       } catch (error) {
         // If we are here, an error was thrown, which is expected.
         assert(true);
@@ -142,16 +144,16 @@ contract("FlashLoan", (accounts) => {
     });
 
     it("should revert deployment if WETH address is zero", async () => {
-       try {
+      try {
         await FlashLoan.new(
-           AAVE_POOL_PROVIDER_SEPOLIA,
-           UNISWAP_ROUTER_SEPOLIA,
-           SUSHISWAP_ROUTER_SEPOLIA,
-           USDC_SEPOLIA,
-           ZERO_ADDRESS,
-           { from: owner },
-         );
-         assert.fail("Deployment should have reverted but did not.");
+          AAVE_POOL_PROVIDER_SEPOLIA,
+          UNISWAP_ROUTER_SEPOLIA,
+          SUSHISWAP_ROUTER_SEPOLIA,
+          USDC_SEPOLIA,
+          ZERO_ADDRESS,
+          { from: owner },
+        );
+        assert.fail("Deployment should have reverted but did not.");
       } catch (error) {
         // If we are here, an error was thrown, which is expected.
         assert(true);
@@ -267,7 +269,9 @@ contract("FlashLoan", (accounts) => {
       assert(wethBalance.eq(ethAmount), "WETH balance mismatch after deposit");
 
       // 2. Approve Uniswap Router to spend WETH
-      await weth.approve(uniswapRouter.address, wethBalance, { from: recipient });
+      await weth.approve(uniswapRouter.address, wethBalance, {
+        from: recipient,
+      });
 
       // 3. Swap WETH for USDC
       const path = [WETH_SEPOLIA, USDC_SEPOLIA];
@@ -280,13 +284,15 @@ contract("FlashLoan", (accounts) => {
         path,
         recipient,
         deadline,
-        { from: recipient }
+        { from: recipient },
       );
 
       const finalUsdcBalance = await usdcToken.balanceOf(recipient);
       const usdcReceived = finalUsdcBalance.sub(initialUsdcBalance);
       assert(usdcReceived.gtn(0), "Should have received some USDC from swap"); // gtn is greater than
-      console.log(`      Swapped ${web3.utils.fromWei(ethAmount)} ETH for ${usdcReceived.toString()} USDC (wei)`);
+      console.log(
+        `      Swapped ${web3.utils.fromWei(ethAmount)} ETH for ${usdcReceived.toString()} USDC (wei)`,
+      );
       return usdcReceived;
     };
 
@@ -295,33 +301,53 @@ contract("FlashLoan", (accounts) => {
       const ethToSwap = web3.utils.toWei("0.1", "ether"); // Swap 0.1 ETH for USDC
 
       // 1. Fund owner account with USDC by swapping ETH on the fork
-      const usdcReceivedByOwner = await swapEthForUsdc(new BN(ethToSwap), owner);
+      const usdcReceivedByOwner = await swapEthForUsdc(
+        new BN(ethToSwap),
+        owner,
+      );
 
       // 2. Transfer USDC to the flash loan contract
-      await usdcToken.transfer(flashLoanInstance.address, usdcReceivedByOwner, { from: owner });
-      const contractUsdcBalance = await usdcToken.balanceOf(flashLoanInstance.address);
-      assert(contractUsdcBalance.eq(usdcReceivedByOwner), "Contract should hold the transferred USDC");
+      await usdcToken.transfer(flashLoanInstance.address, usdcReceivedByOwner, {
+        from: owner,
+      });
+      const contractUsdcBalance = await usdcToken.balanceOf(
+        flashLoanInstance.address,
+      );
+      assert(
+        contractUsdcBalance.eq(usdcReceivedByOwner),
+        "Contract should hold the transferred USDC",
+      );
 
       // 3. Withdraw USDC
       const ownerUsdcBalanceBefore = await usdcToken.balanceOf(owner);
       await flashLoanInstance.withdrawToken(USDC_SEPOLIA, { from: owner });
       const ownerUsdcBalanceAfter = await usdcToken.balanceOf(owner);
-      const finalContractUsdcBalance = await usdcToken.balanceOf(flashLoanInstance.address);
+      const finalContractUsdcBalance = await usdcToken.balanceOf(
+        flashLoanInstance.address,
+      );
 
       // 4. Verify balances
-      assert(finalContractUsdcBalance.isZero(), "Contract USDC balance should be zero after withdrawal");
-      assert(ownerUsdcBalanceAfter.eq(ownerUsdcBalanceBefore.add(contractUsdcBalance)), "Owner should receive the withdrawn USDC");
+      assert(
+        finalContractUsdcBalance.isZero(),
+        "Contract USDC balance should be zero after withdrawal",
+      );
+      assert(
+        ownerUsdcBalanceAfter.eq(
+          ownerUsdcBalanceBefore.add(contractUsdcBalance),
+        ),
+        "Owner should receive the withdrawn USDC",
+      );
     });
 
     it("should revert if attempting to withdraw an unsupported token", async () => {
-        // Attempt to withdraw a token address that isn't USDC or WETH
-        const someOtherToken = otherAccount; // Use another account address as a dummy token
-        await expectRevert.unspecified(
-            flashLoanInstance.withdrawToken(someOtherToken, { from: owner }),
-            // Match the InvalidAsset error signature from the contract
-            // error InvalidAsset(address expected, address actual);
-            // The contract code uses: revert InvalidAsset(_tokenAddress, _tokenAddress);
-        );
+      // Attempt to withdraw a token address that isn't USDC or WETH
+      const someOtherToken = otherAccount; // Use another account address as a dummy token
+      await expectRevert.unspecified(
+        flashLoanInstance.withdrawToken(someOtherToken, { from: owner }),
+        // Match the InvalidAsset error signature from the contract
+        // error InvalidAsset(address expected, address actual);
+        // The contract code uses: revert InvalidAsset(_tokenAddress, _tokenAddress);
+      );
     });
   });
 
@@ -362,17 +388,30 @@ contract("FlashLoan", (accounts) => {
         // --- NEW: Check for event on success ---
         // expectEvent accepts the receipt object directly or the full transaction response
         const event = expectEvent(tx, "ArbitrageExecution", {
-           asset: USDC_SEPOLIA,
-           success: true
+          asset: USDC_SEPOLIA,
+          success: true,
         });
 
         // Manual check for BN values if expectEvent has issues comparing them directly
-        assert(event.args.amountBorrowed.eq(loanAmount), "Event: Incorrect borrowed amount");
-        assert(event.args.premiumPaid.gtn(-1), "Event: Premium should be non-negative");
-        assert.exists(event.args.wethReceived, "Event: wethReceived should exist");
-        assert.exists(event.args.usdcRecovered, "Event: usdcRecovered should exist");
-        console.log(`      ArbitrageEvent: Success=true, Premium=${event.args.premiumPaid.toString()}, WETH_Received=${event.args.wethReceived.toString()}, USDC_Recovered=${event.args.usdcRecovered.toString()}`);
-
+        assert(
+          event.args.amountBorrowed.eq(loanAmount),
+          "Event: Incorrect borrowed amount",
+        );
+        assert(
+          event.args.premiumPaid.gtn(-1),
+          "Event: Premium should be non-negative",
+        );
+        assert.exists(
+          event.args.wethReceived,
+          "Event: wethReceived should exist",
+        );
+        assert.exists(
+          event.args.usdcRecovered,
+          "Event: usdcRecovered should exist",
+        );
+        console.log(
+          `      ArbitrageEvent: Success=true, Premium=${event.args.premiumPaid.toString()}, WETH_Received=${event.args.wethReceived.toString()}, USDC_Recovered=${event.args.usdcRecovered.toString()}`,
+        );
       } catch (error) {
         // Check if the revert reason is one of the expected failures (ArbitrageFailed, RepayFailed)
         // or a generic revert. Due to potential decoding issues on the fork,
@@ -385,8 +424,8 @@ contract("FlashLoan", (accounts) => {
         // Note: Error strings might be ABI-encoded signatures with test-helpers/ganache
         assert(
           error.message.includes("ArbitrageSwapFailed") ||
-          error.message.includes("RepayFailed") ||
-          error.message.includes("revert"),
+            error.message.includes("RepayFailed") ||
+            error.message.includes("revert"),
           `Unexpected revert reason: ${error.message}`,
         );
       }
