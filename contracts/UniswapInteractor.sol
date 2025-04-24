@@ -7,8 +7,8 @@ import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/IWETH.sol";
 
 contract UniswapInteractor {
-  // Uniswap V2 Router address for Sepolia testnet
-  address private constant UNISWAP_V2_ROUTER = 0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008;
+  // Uniswap V2 Router address for Sepolia testnet (using consistent address from constants.json)
+  address private constant UNISWAP_V2_ROUTER = 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3;
 
   IUniswapV2Router02 public immutable uniswapRouter;
 

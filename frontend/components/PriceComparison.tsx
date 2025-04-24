@@ -3,16 +3,19 @@
 import { useState, useEffect, useMemo } from "react";
 import { ethers, BrowserProvider, JsonRpcProvider } from "ethers";
 import { useWeb3 } from "./web3/Web3Provider";
-import { NETWORK_IDS } from "../lib/web3/config";
+import { NETWORK_IDS, MAINNET_ADDRESSES } from "../lib/web3/config";
 
-// --- Mainnet Addresses ---
+// --- Use imported Mainnet Addresses ---
+const {
+  WETH: WETH_MAINNET,
+  USDC: USDC_MAINNET,
+  UNISWAP_V2_ROUTER: UNISWAP_V2_ROUTER_MAINNET,
+  SUSHISWAP_V2_ROUTER: SUSHISWAP_V2_ROUTER_MAINNET,
+} = MAINNET_ADDRESSES;
+
 // Read RPC URL from environment variable (must be prefixed with NEXT_PUBLIC_)
 const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_MAINNET_RPC_URL;
 console.log('Using Mainnet RPC URL:', MAINNET_RPC_URL);
-const UNISWAP_V2_ROUTER_MAINNET = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
-const SUSHISWAP_V2_ROUTER_MAINNET = '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F';
-const USDC_MAINNET = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-const WETH_MAINNET = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 
 // Router ABI
 const ROUTER_ABI = [

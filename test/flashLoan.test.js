@@ -8,6 +8,7 @@ const IUniswapV2Router02 = artifacts.require(
 const IWETH = artifacts.require("./interfaces/IWETH.sol");
 const BN = web3.utils.BN;
 const { expectRevert, expectEvent } = require("@openzeppelin/test-helpers");
+const constants = require("../constants.json"); // Load addresses
 
 contract("FlashLoan", (accounts) => {
   let flashLoanInstance;
@@ -15,15 +16,15 @@ contract("FlashLoan", (accounts) => {
   const nonOwner = accounts[1];
   const otherAccount = accounts[2];
 
-  // Constants representing addresses used in the FlashLoan contract for the Sepolia network.
-  // These are used here for verification purposes in tests.
+  // Load Sepolia addresses from constants file
   const AAVE_POOL_PROVIDER_SEPOLIA =
-    "0x012bAC54348C0E635dCAc9D5FB99f06F24136C9A";
-  const USDC_SEPOLIA = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"; // Address from contract
-  const WETH_SEPOLIA = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"; // Address from contract
-  const UNISWAP_ROUTER_SEPOLIA = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3"; // Address from contract
-  const SUSHISWAP_ROUTER_SEPOLIA = "0xeaBcE3E74EF41FB40024a21Cc2ee2F5dDc615791"; // Address from contract
-  const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+    "0x012bAC54348C0E635dCAc9D5FB99f06F24136C9A"; // Keep Aave provider specific for now
+  const {
+    WETH: WETH_SEPOLIA,
+    USDC: USDC_SEPOLIA,
+    UNISWAP_V2_ROUTER: UNISWAP_ROUTER_SEPOLIA,
+    SUSHISWAP_V2_ROUTER: SUSHISWAP_ROUTER_SEPOLIA,
+  } = constants.sepolia;
 
   const getLatestTimestamp = async () => {
     const block = await web3.eth.getBlock("latest");

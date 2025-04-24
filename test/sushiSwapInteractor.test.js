@@ -9,11 +9,14 @@ const {
   expectEvent,
 } = require("@openzeppelin/test-helpers");
 const truffleAssert = require("truffle-assertions");
+const constants = require("../constants.json"); // Load addresses
 
-// Sepolia Addresses (ensure these are correct)
-const WETH_ADDRESS = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
-const USDC_ADDRESS = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"; // 6 decimals
-const SUSHISWAP_ROUTER_ADDRESS = "0xeaBcE3E74EF41FB40024a21Cc2ee2F5dDc615791"; // Sepolia SushiSwap V2 Router
+// Sepolia Addresses from constants file
+const {
+  WETH: WETH_ADDRESS,
+  USDC: USDC_ADDRESS,
+  SUSHISWAP_V2_ROUTER: SUSHISWAP_ROUTER_ADDRESS,
+} = constants.sepolia;
 
 contract("SushiSwapInteractor (Forked Sepolia)", (accounts) => {
   let interactorInstance;

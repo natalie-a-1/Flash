@@ -10,19 +10,18 @@ const {
   expectEvent,
 } = require("@openzeppelin/test-helpers");
 const truffleAssert = require("truffle-assertions"); // Using truffle-assertions for revert checks
+const constants = require("../constants.json"); // Load addresses
 
 // Load environment variables (optional, if addresses are stored there)
 // require('dotenv').config();
 
-// --- IMPORTANT: Replace with ACTUAL Sepolia addresses ---
-// You can get these from Etherscan Sepolia or your project's constants
-const WETH_ADDRESS =
-  process.env.SEPOLIA_WETH_ADDRESS ||
-  "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"; // Example Sepolia WETH
-const USDC_ADDRESS =
-  process.env.SEPOLIA_USDC_ADDRESS ||
-  "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"; // Example Sepolia USDC (6 decimals)
-const UNISWAP_ROUTER_ADDRESS = "0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008"; // Sepolia V2 Router address
+// --- Sepolia Addresses from constants file ---
+const {
+  WETH: WETH_ADDRESS,
+  USDC: USDC_ADDRESS,
+  // Use the same Uniswap router as the main contract/test for consistency
+  UNISWAP_V2_ROUTER: UNISWAP_ROUTER_ADDRESS,
+} = constants.sepolia;
 
 contract("UniswapInteractor (Forked Sepolia)", (accounts) => {
   let interactorInstance;
