@@ -2,6 +2,7 @@
 
 import { useWeb3 } from "@/components/web3/Web3Provider";
 import { FAUCETS } from "@/lib/web3/config";
+import PriceComparison from '@/components/PriceComparison';
 
 export default function Home() {
   const {
@@ -110,6 +111,9 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        <PriceComparison />
+
       </div>
     </main>
   );
