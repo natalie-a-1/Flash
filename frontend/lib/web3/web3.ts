@@ -56,13 +56,61 @@ export const getAccounts = async (web3: Web3): Promise<string[]> => {
   return await web3.eth.getAccounts();
 };
 
-// Check if on Sepolia network
+// Check if on Ethereum Mainnet network
+export const isMainnetNetwork = async (): Promise<boolean> => {
+  const { id } = await getNetworkDetails();
+  return id === NETWORK_IDS.MAINNET;
+};
+
+// Switch to Ethereum Mainnet network
+export const switchToMainnet = async (): Promise<boolean> => {
+  if (typeof window !== "undefined" && window.ethereum) {
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: `0x${NETWORK_IDS.MAINNET.toString(16)}` }],
+      });
+      return true;
+    } catch (error: any) {
+      // This error code indicates that the chain has not been added to MetaMask
+      // (Should not happen for mainnet as it's the default network)
+      if (error.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: `0x${NETWORK_IDS.MAINNET.toString(16)}`,
+                chainName: "Ethereum Mainnet",
+                nativeCurrency: {
+                  name: "Ether",
+                  symbol: "ETH",
+                  decimals: 18,
+                },
+                rpcUrls: ["https://mainnet.infura.io/v3/"],
+                blockExplorerUrls: ["https://etherscan.io/"],
+              },
+            ],
+          });
+          return true;
+        } catch (addError) {
+          console.error("Error adding Ethereum Mainnet network", addError);
+          return false;
+        }
+      }
+      console.error("Error switching to Ethereum Mainnet network", error);
+      return false;
+    }
+  }
+  return false;
+};
+
+// Legacy functions (kept for reference)
 export const isSepoliaNetwork = async (): Promise<boolean> => {
   const { id } = await getNetworkDetails();
   return id === NETWORK_IDS.SEPOLIA;
 };
 
-// Switch to Sepolia network
 export const switchToSepolia = async (): Promise<boolean> => {
   if (typeof window !== "undefined" && window.ethereum) {
     try {

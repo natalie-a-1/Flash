@@ -10,8 +10,8 @@ import {
 import {
   getWeb3,
   getAccounts,
-  isSepoliaNetwork,
-  switchToSepolia,
+  isMainnetNetwork,
+  switchToMainnet,
 } from "@/lib/web3/web3";
 import Web3 from "web3";
 import { NETWORK_IDS, NETWORK_NAMES } from "@/lib/web3/config";
@@ -62,18 +62,18 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       const name = NETWORK_NAMES[networkId] || `Unknown Network (${networkId})`;
       setNetworkName(name);
 
-      // Check if we're on Sepolia
-      const onSepoliaNetwork = networkId === NETWORK_IDS.SEPOLIA;
-      setIsCorrectNetwork(onSepoliaNetwork);
+      // Check if we're on Ethereum Mainnet
+      const onMainnetNetwork = networkId === NETWORK_IDS.MAINNET;
+      setIsCorrectNetwork(onMainnetNetwork);
     } catch (error) {
       console.error("Error getting network info", error);
     }
   };
 
-  // Function to switch to Sepolia network
+  // Function to switch to Ethereum Mainnet
   const switchNetwork = async (): Promise<boolean> => {
     try {
-      const result = await switchToSepolia();
+      const result = await switchToMainnet();
       if (result && web3) {
         await updateNetworkInfo(web3);
       }

@@ -2,85 +2,63 @@
 
 import { useState, useEffect } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
-import { formatTokenAmount, calculateArbitragePercentage, isArbitrageOpportunity } from "@/lib/web3/utils";
-import { SEPOLIA_ADDRESSES } from "@/lib/web3/config";
-
-// Exchange objects with name, router address, and icon
-const EXCHANGES = [
-  {
-    name: "Uniswap V2",
-    router: SEPOLIA_ADDRESSES.UNISWAP_V2_ROUTER,
-    icon: "🦄"
-  },
-  {
-    name: "SushiSwap",
-    router: SEPOLIA_ADDRESSES.SUSHISWAP_V2_ROUTER,
-    icon: "🍣"
-  }
-];
-
-// Token pairs for arbitrage
-const PAIRS = [
-  {
-    name: "USDC/WETH",
-    tokens: [SEPOLIA_ADDRESSES.USDC, SEPOLIA_ADDRESSES.WETH],
-    baseSymbol: "USDC",
-    quoteSymbol: "WETH"
-  }
-];
+import { formatTokenAmount } from "@/lib/web3/utils";
+import { BrowserProvider } from "ethers";
+import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
+import { TokenPairPrices, ArbitragePath } from "@/types/arbitrage";
+import { getTimeElapsed } from "@/lib/utils/timeUtils";
+import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
+import { ethers } from "ethers";
 
 export default function ArbitrageOpportunities() {
+  // Web3 context
   const { web3, isConnected, isCorrectNetwork } = useWeb3();
   
-  const [prices, setPrices] = useState<Record<string, Record<string, number>>>({});
+  // Component state
+  const [prices, setPrices] = useState<TokenPairPrices>({});
   const [isLoading, setIsLoading] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
   
-  // Function to fetch price data (mock implementation)
+  // Fetch price data from DEXs
   const fetchPrices = async () => {
+    if (!window.ethereum || !isConnected || !isCorrectNetwork) {
+      console.log("Cannot fetch prices: Wallet not connected or not on Ethereum Mainnet.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setPrices({});
+
     try {
-      setIsLoading(true);
-      
-      // Mock data - In a real app, you would query the actual DEX routers
-      // The structure is: prices[pairName][exchangeName] = priceValue
-      const mockPrices: Record<string, Record<string, number>> = {
-        "USDC/WETH": {
-          "Uniswap V2": 0.000512, // 1 USDC = 0.000512 WETH
-          "SushiSwap": 0.000517,  // 1 USDC = 0.000517 WETH
-        }
-      };
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Add some randomness to the mock prices to simulate market movement
-      for (const pair in mockPrices) {
-        for (const exchange in mockPrices[pair]) {
-          // Add +/- 0.5% random variation
-          const variation = 1 + (Math.random() * 0.01 - 0.005);
-          mockPrices[pair][exchange] *= variation;
-        }
-      }
-      
-      setPrices(mockPrices);
+      const provider = new BrowserProvider(window.ethereum);
+      const fetchedPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
+      setPrices(fetchedPrices);
       setLastUpdated(new Date());
     } catch (error) {
       console.error("Error fetching prices:", error);
+      setPrices({});
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Client-side only
+  // Set mounted flag for client-side rendering
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  // Setup polling for price updates - only on client side
+  // Setup polling for price updates
   useEffect(() => {
     if (!mounted) return;
+    
+    // Clear existing interval if dependencies change
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+      setRefreshInterval(null);
+    }
     
     if (isConnected && isCorrectNetwork) {
       // Fetch initial data
@@ -91,68 +69,15 @@ export default function ArbitrageOpportunities() {
       setRefreshInterval(interval);
       
       return () => {
-        if (interval) {
-          clearInterval(interval);
-        }
+        if (interval) clearInterval(interval);
       };
     } else {
-      // Clear any existing interval if not connected
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        setRefreshInterval(null);
-      }
+      // Not connected or wrong network
+      setPrices({});
+      setLastUpdated(null);
+      setIsLoading(false);
     }
   }, [isConnected, isCorrectNetwork, mounted]);
-  
-  // Format the time since last update
-  const getTimeSinceUpdate = () => {
-    if (!lastUpdated) return "Never";
-    
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
-    
-    if (seconds < 60) {
-      return `${seconds} sec ago`;
-    } else {
-      return `${Math.floor(seconds / 60)} min ago`;
-    }
-  };
-  
-  // Determine the best path for arbitrage
-  const findBestArbitragePath = (pair: string) => {
-    if (!prices[pair]) return null;
-    
-    const exchanges = Object.keys(prices[pair]);
-    if (exchanges.length < 2) return null;
-    
-    let bestDiff = 0;
-    let bestPath = null;
-    
-    // Compare all possible exchange combinations
-    for (let i = 0; i < exchanges.length; i++) {
-      for (let j = 0; j < exchanges.length; j++) {
-        if (i === j) continue;
-        
-        const buyExchange = exchanges[i];
-        const sellExchange = exchanges[j];
-        const buyPrice = prices[pair][buyExchange];
-        const sellPrice = prices[pair][sellExchange];
-        
-        const diff = calculateArbitragePercentage(buyPrice, sellPrice);
-        
-        if (diff > bestDiff && diff > 0.5) { // Only consider opportunities above 0.5%
-          bestDiff = diff;
-          bestPath = {
-            buy: buyExchange,
-            sell: sellExchange,
-            percentage: diff
-          };
-        }
-      }
-    }
-    
-    return bestPath;
-  };
   
   // Show skeleton during server rendering
   if (!mounted) {
@@ -199,7 +124,7 @@ export default function ArbitrageOpportunities() {
             </svg>
           </button>
           <span className="text-xs text-white/60">
-            Updated: {isLoading ? "Updating..." : getTimeSinceUpdate()}
+            Updated: {isLoading ? "Updating..." : getTimeElapsed(lastUpdated)}
           </span>
         </div>
       </div>
@@ -210,13 +135,18 @@ export default function ArbitrageOpportunities() {
         </div>
       ) : !isCorrectNetwork ? (
         <div className="text-center py-10 text-white/60">
-          <p>Please switch to Sepolia network</p>
+          <p>Please switch to Ethereum Mainnet</p>
         </div>
       ) : (
         <div className="space-y-4">
+          {/* <div className="text-base font-normal mb-4 p-3 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-white">
+            <p className="font-medium">Price Format: WETH per 1 USDC</p>
+            <p className="text-sm mt-1">• Higher value = more WETH received when buying with USDC</p>
+            <p className="text-sm">• Lower value = less USDC needed when buying WETH</p>
+          </div> */}
           {PAIRS.map((pair) => {
-            const pairPrices = prices[pair.name];
-            const bestPath = findBestArbitragePath(pair.name);
+            const pairPrices = prices[pair.name] || {};
+            const bestPath = pairPrices ? findBestArbitragePath(pairPrices) : null;
             
             return (
               <div key={pair.name} className="border border-white/10 rounded-xl overflow-hidden">
@@ -234,6 +164,10 @@ export default function ArbitrageOpportunities() {
                 </div>
                 
                 <div className="p-4">
+                  <div className="text-sm text-white/70 mb-3">
+                    Prices shown as <span className="font-medium">WETH per 1 USDC</span> (higher is better for selling WETH)
+                  </div>
+                  
                   {isLoading ? (
                     <div className="space-y-3">
                       {EXCHANGES.map((exchange) => (
@@ -247,33 +181,48 @@ export default function ArbitrageOpportunities() {
                       ))}
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {EXCHANGES.map((exchange) => {
-                        const price = pairPrices?.[exchange.name] || 0;
-                        const isBestBuy = bestPath?.buy === exchange.name;
-                        const isBestSell = bestPath?.sell === exchange.name;
-                        
-                        return (
-                          <div key={exchange.name} className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <span className="text-lg mr-2">{exchange.icon}</span>
-                              <span className="text-white/70">{exchange.name}</span>
-                            </div>
-                            <div className={`font-mono ${
-                              isBestBuy ? "text-red-400" : isBestSell ? "text-green-400" : "text-white"
-                            }`}>
-                              {price ? formatTokenAmount(price, 6) : "N/A"}
-                              
-                              {isBestBuy && (
-                                <span className="ml-2 text-xs">BUY</span>
-                              )}
-                              {isBestSell && (
-                                <span className="ml-2 text-xs">SELL</span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                    <div className="flex flex-col space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <span className="text-lg mr-2">🦄</span>
+                          <span className="text-white">Uniswap V2</span>
+                        </div>
+                        <div className="flex items-center">
+                          {bestPath?.buy === "Uniswap V2" && (
+                            <span className="mr-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">Best for Buying WETH</span>
+                          )}
+                          {bestPath?.sell === "Uniswap V2" && (
+                            <span className="mr-2 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">Best for Selling WETH</span>
+                          )}
+                          <span className={`font-medium ${
+                            bestPath?.buy === "Uniswap V2" ? "text-green-400" : 
+                            bestPath?.sell === "Uniswap V2" ? "text-amber-400" : "text-white"
+                          }`}>
+                            {pairPrices["Uniswap V2"] ? pairPrices["Uniswap V2"].toFixed(18) : "0.00"}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <span className="text-lg mr-2">🍣</span>
+                          <span className="text-white">SushiSwap</span>
+                        </div>
+                        <div className="flex items-center">
+                          {bestPath?.buy === "SushiSwap" && (
+                            <span className="mr-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">Best for Buying WETH</span>
+                          )}
+                          {bestPath?.sell === "SushiSwap" && (
+                            <span className="mr-2 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">Best for Selling WETH</span>
+                          )}
+                          <span className={`font-medium ${
+                            bestPath?.buy === "SushiSwap" ? "text-green-400" : 
+                            bestPath?.sell === "SushiSwap" ? "text-amber-400" : "text-white"
+                          }`}>
+                            {pairPrices["SushiSwap"] ? pairPrices["SushiSwap"].toFixed(18) : "0.00"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
@@ -282,10 +231,10 @@ export default function ArbitrageOpportunities() {
                       <div className="bg-white/5 rounded-lg p-3">
                         <h3 className="text-sm text-white/70 mb-2">Suggested Strategy</h3>
                         <div className="text-sm text-white">
-                          1. Buy on <span className="font-medium text-cyan-400">{bestPath.buy}</span> at lower price
+                          1. Buy WETH on <span className="font-medium text-green-400">{bestPath.buy}</span> (Lower price = costs less USDC)
                         </div>
                         <div className="text-sm text-white">
-                          2. Sell on <span className="font-medium text-cyan-400">{bestPath.sell}</span> at higher price
+                          2. Sell WETH on <span className="font-medium text-amber-400">{bestPath.sell}</span> (Higher price = gets more USDC)
                         </div>
                         <div className="text-sm text-white mt-1">
                           Potential profit: <span className="font-medium text-green-400">{bestPath.percentage.toFixed(2)}%</span>
