@@ -192,42 +192,60 @@ const PriceComparison = () => {
   }
 
   return (
-    <div className="mt-6 p-4 border rounded-lg shadow-sm bg-gray-50">
-      <h3 className="text-lg font-semibold mb-3 text-gray-800">
-        Live <span className='font-bold text-blue-600'>Mainnet</span> DEX Rates (USDC/WETH)
+    <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-6 shadow-xl border border-white/20">
+      <h3 className="text-xl font-semibold mb-4 text-white">
+        Live <span className='font-bold text-cyan-400'>Mainnet</span> DEX Rates (USDC/WETH)
       </h3>
       {/* Show mainnet fetch error */}
       {error && !isLoading && (
-        <p className="text-red-600 text-sm mb-2 bg-red-50 p-2 rounded">{error}</p>
+        <p className="text-red-400 text-sm mb-4 bg-red-900/20 p-3 rounded-lg">{error}</p>
       )}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <div className="font-medium text-gray-600">Uniswap V2:</div>
-        <div className="font-medium text-gray-600">SushiSwap V2:</div>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        <div className="font-medium text-white/70">Uniswap V2:</div>
+        <div className="font-medium text-white/70">SushiSwap V2:</div>
 
-        <div className="text-gray-800 flex items-center space-x-1">
-          <span>1 USDC =&gt;</span> {renderRate('Uni USDC->WETH', uniUsdcToWethRate)} <span>WETH</span>
+        <div className="text-white flex items-center space-x-2 bg-white/5 p-3 rounded-lg">
+          <span>1 USDC =&gt;</span> 
+          <span className="font-mono text-cyan-400">{renderRate('Uni USDC->WETH', uniUsdcToWethRate)}</span> 
+          <span>WETH</span>
         </div>
-        <div className="text-gray-800 flex items-center space-x-1">
-          <span>1 USDC =&gt;</span> {renderRate('Sushi USDC->WETH', sushiUsdcToWethRate)} <span>WETH</span>
+        <div className="text-white flex items-center space-x-2 bg-white/5 p-3 rounded-lg">
+          <span>1 USDC =&gt;</span> 
+          <span className="font-mono text-cyan-400">{renderRate('Sushi USDC->WETH', sushiUsdcToWethRate)}</span> 
+          <span>WETH</span>
         </div>
 
-        <div className="text-gray-800 flex items-center space-x-1">
-          <span>1 WETH =&gt;</span> {renderRate('Uni WETH->USDC', uniWethToUsdcRate)} <span>USDC</span>
+        <div className="text-white flex items-center space-x-2 bg-white/5 p-3 rounded-lg">
+          <span>1 WETH =&gt;</span> 
+          <span className="font-mono text-green-400">{renderRate('Uni WETH->USDC', uniWethToUsdcRate)}</span> 
+          <span>USDC</span>
         </div>
-        <div className="text-gray-800 flex items-center space-x-1">
-          <span>1 WETH =&gt;</span> {renderRate('Sushi WETH->USDC', sushiWethToUsdcRate)} <span>USDC</span>
+        <div className="text-white flex items-center space-x-2 bg-white/5 p-3 rounded-lg">
+          <span>1 WETH =&gt;</span> 
+          <span className="font-mono text-green-400">{renderRate('Sushi WETH->USDC', sushiWethToUsdcRate)}</span> 
+          <span>USDC</span>
         </div>
       </div>
-       {/* Status of the mainnet data fetching */}
-       {isLoading ? (
-         <p className="text-xs text-gray-500 mt-3 animate-pulse">Fetching mainnet rates...</p>
-       ) : error ? (
-         <p className="text-xs text-red-600 mt-3">Error fetching mainnet rates.</p>
-       ) : (
-         <p className="text-xs text-green-600 mt-3">Mainnet rates updated.</p>
-       )}
-       {/* Show wallet status separately */}
-       {walletStatusMessage}
+      {/* Status of the mainnet data fetching */}
+      <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+        <div>
+          {isLoading ? (
+            <p className="text-xs text-white/60 animate-pulse flex items-center">
+              <svg className="w-3 h-3 mr-1 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Fetching mainnet rates...
+            </p>
+          ) : error ? (
+            <p className="text-xs text-red-400">Error fetching mainnet rates.</p>
+          ) : (
+            <p className="text-xs text-green-400">Mainnet rates updated.</p>
+          )}
+        </div>
+        {/* Show wallet status separately */}
+        {walletStatusMessage}
+      </div>
     </div>
   );
 };
