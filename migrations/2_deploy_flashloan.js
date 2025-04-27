@@ -27,14 +27,18 @@ module.exports = function (deployer, network, accounts) {
     deployer
       .deploy(
         FlashLoan,
-        AAVE_POOL_PROVIDER_SEPOLIA,
-        UNISWAP_V2_ROUTER,
-        SUSHISWAP_V2_ROUTER,
-        USDC,
-        WETH,
+        AAVE_POOL_PROVIDER_SEPOLIA
       )
-      .then(() => {
+      .then(async (flashLoanInstance) => {
         console.log(`FlashLoan contract deployed successfully to ${network}.`);
+        
+        // Approve the routers for use with the contract
+        console.log("Setting up approved routers...");
+        await flashLoanInstance.setRouterApproval(UNISWAP_V2_ROUTER, true);
+        await flashLoanInstance.setRouterApproval(SUSHISWAP_V2_ROUTER, true);
+        console.log("Routers approved successfully.");
+        
+        console.log(`FlashLoan contract setup completed at: ${flashLoanInstance.address}`);
       })
       .catch((error) => {
         console.error(
