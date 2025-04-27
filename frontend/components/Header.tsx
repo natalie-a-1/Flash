@@ -6,7 +6,7 @@ import { useWeb3 } from "./web3/Web3Provider";
 
 export default function Header() {
   const pathname = usePathname();
-  const { isConnected, isCorrectNetwork, account } = useWeb3();
+  const { isConnected, isCorrectNetwork, account, connectWallet } = useWeb3();
 
   return (
     <header className="backdrop-blur-lg bg-black/20 border-b border-white/10">
@@ -14,7 +14,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-1">
             <Link 
-              href="/" 
+              href={isConnected ? "/dashboard" : "/"} 
               className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500"
             >
               Flash Blockchain
@@ -26,19 +26,14 @@ export default function Header() {
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <Link 
-              href="/" 
-              className={`text-sm ${pathname === '/' ? 'text-white font-medium' : 'text-white/70 hover:text-white'}`}
-            >
-              Home
-            </Link>
-            
-            <Link 
-              href="/dashboard" 
-              className={`text-sm ${pathname === '/dashboard' ? 'text-white font-medium' : 'text-white/70 hover:text-white'}`}
-            >
-              Dashboard
-            </Link>
+            {isConnected && (
+              <Link 
+                href="/dashboard" 
+                className={`text-sm ${pathname === '/dashboard' ? 'text-white font-medium' : 'text-white/70 hover:text-white'}`}
+              >
+                Dashboard
+              </Link>
+            )}
           </nav>
           
           <div className="flex items-center">
@@ -50,7 +45,12 @@ export default function Header() {
                 </span>
               </div>
             ) : (
-              <div className="text-xs text-amber-400">Not Connected</div>
+              <button
+                onClick={connectWallet}
+                className="text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors px-3 py-1.5 rounded-full"
+              >
+                Connect Wallet
+              </button>
             )}
           </div>
         </div>
