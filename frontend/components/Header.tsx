@@ -17,7 +17,7 @@ export default function Header() {
               href={isConnected ? "/dashboard" : "/"} 
               className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500"
             >
-              Flash Blockchain
+              Flash
             </Link>
             
             <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-indigo-900/50 text-indigo-300 rounded ml-2">
@@ -25,7 +25,7 @@ export default function Header() {
             </span>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-6">
+          {/* <nav className="hidden md:flex items-center space-x-6">
             {isConnected && (
               <Link 
                 href="/dashboard" 
@@ -34,7 +34,7 @@ export default function Header() {
                 Dashboard
               </Link>
             )}
-          </nav>
+          </nav> */}
           
           <div className="flex items-center">
             {isConnected ? (

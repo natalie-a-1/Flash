@@ -6,15 +6,17 @@ import FlashLoanOptions from "@/components/FlashLoanOptions";
 import WalletConnection from "@/components/web3/WalletConnection";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 export default function Dashboard() {
   const { isConnected, isCorrectNetwork, connectWallet } = useWeb3();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Effect for auth check and redirection
+  // Effect for client-side rendering and auth check
   useEffect(() => {
+    setMounted(true);
+    
     // Small timeout to prevent flickering during hydration
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -26,6 +28,32 @@ export default function Dashboard() {
     
     return () => clearTimeout(timer);
   }, [isConnected, router]);
+
+  // During server rendering, return a skeleton with the same structure
+  if (!mounted) {
+    return (
+      <main className="min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          {/* Skeleton for dashboard layout */}
+          <div className="animate-pulse">
+            <div className="h-8 bg-white/10 rounded w-1/3 mb-2"></div>
+            <div className="h-4 bg-white/10 rounded w-1/4 mb-8"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-1">
+                <div className="h-64 bg-white/10 rounded-2xl mb-6"></div>
+                <div className="h-64 bg-white/10 rounded-2xl"></div>
+              </div>
+              <div className="md:col-span-2">
+                <div className="h-96 bg-white/10 rounded-2xl mb-6"></div>
+                <div className="h-64 bg-white/10 rounded-2xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   // Show loading state initially
   if (isLoading) {
@@ -68,10 +96,8 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Flash Loan Dashboard</h1>
-          <p className="text-slate-300">Monitor arbitrage opportunities and execute flash loans</p>
-        </header>
+        <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-slate-300 mb-8">Monitor arbitrage opportunities and execute flash loans</p>
 
         {!isCorrectNetwork && (
           <div className="mb-8 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg p-4 flex items-center">

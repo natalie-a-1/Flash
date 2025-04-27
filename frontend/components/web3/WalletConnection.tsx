@@ -2,7 +2,7 @@
 
 import { useWeb3 } from "./Web3Provider";
 import { truncateAddress } from "@/lib/web3/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function WalletConnection() {
   const {
@@ -17,6 +17,32 @@ export default function WalletConnection() {
   } = useWeb3();
 
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Only run on client-side
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Show a skeleton during server-side rendering to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
+        <h2 className="text-2xl font-medium text-white mb-4">Wallet Connection</h2>
+        <div className="animate-pulse space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="h-5 bg-white/10 rounded w-1/3"></div>
+            <div className="h-5 bg-white/10 rounded-full w-1/4"></div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="h-5 bg-white/10 rounded w-1/4"></div>
+            <div className="h-5 bg-white/10 rounded-full w-1/3"></div>
+          </div>
+          <div className="h-10 bg-white/10 rounded-lg w-full mt-2"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">

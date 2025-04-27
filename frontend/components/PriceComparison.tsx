@@ -36,11 +36,16 @@ const USDC_DECIMALS = 6;
 const WETH_DECIMALS = 18;
 
 const PriceComparison = () => {
+  // Add mounted state to handle hydration
+  const [mounted, setMounted] = useState(false);
+  
   // Get wallet connection info from context (for UI messages)
   const { isConnected, isCorrectNetwork } = useWeb3();
 
   // Create a separate, read-only provider for Mainnet
   const mainnetProvider = useMemo(() => {
+    if (!mounted) return null;
+    
     if (!MAINNET_RPC_URL) {
       console.error("Error: NEXT_PUBLIC_MAINNET_RPC_URL environment variable not set.");
       return null;
@@ -51,7 +56,7 @@ const PriceComparison = () => {
       console.error('Failed to create mainnet provider:', e);
       return null;
     }
-  }, []);
+  }, [mounted]);
 
   const [uniUsdcToWethRate, setUniUsdcToWethRate] = useState<string | null>(null);
   const [sushiWethToUsdcRate, setSushiWethToUsdcRate] = useState<string | null>(null);
@@ -60,7 +65,15 @@ const PriceComparison = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Set mounted state after component mounts
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Only run this effect on the client side after mounting
+    if (!mounted) return;
+    
     const fetchPrices = async () => {
       // Ensure mainnet provider exists
       if (!mainnetProvider) {
@@ -164,8 +177,8 @@ const PriceComparison = () => {
     return () => {
       clearInterval(intervalId);
     };
-    // Run effect only when mainnetProvider is available (should only run once unless RPC fails)
-  }, [mainnetProvider]);
+    // Run effect only when mainnetProvider is available and component is mounted
+  }, [mainnetProvider, mounted]);
 
   const renderRate = (label: string, rate: string | null) => {
     if (isLoading && !rate) return <span className="text-gray-500 animate-pulse">...</span>;
@@ -177,17 +190,45 @@ const PriceComparison = () => {
 
   // Determine overall status message based on *wallet* connection (for dApp interaction)
   let walletStatusMessage = <></>;
-  if (!isConnected) {
-    walletStatusMessage = (
-      <p className="text-xs text-orange-600 mt-1">
-        Connect wallet to Sepolia for dApp features.
-      </p>
-    );
-  } else if (!isCorrectNetwork) {
-    walletStatusMessage = (
-      <p className="text-xs text-orange-600 mt-1">
-        Switch wallet to Sepolia for dApp features.
-      </p>
+  if (mounted) {
+    if (!isConnected) {
+      walletStatusMessage = (
+        <p className="text-xs text-orange-600 mt-1">
+          Connect wallet to Sepolia for dApp features.
+        </p>
+      );
+    } else if (!isCorrectNetwork) {
+      walletStatusMessage = (
+        <p className="text-xs text-orange-600 mt-1">
+          Switch wallet to Sepolia for dApp features.
+        </p>
+      );
+    }
+  }
+
+  // Show skeleton UI during server-side rendering and initial mount
+  if (!mounted) {
+    return (
+      <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-6 shadow-xl border border-white/20">
+        <h3 className="text-xl font-semibold mb-4 text-white">
+          Live <span className='font-bold text-cyan-400'>Mainnet</span> DEX Rates (USDC/WETH)
+        </h3>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+          <div className="font-medium text-white/70">Uniswap V2:</div>
+          <div className="font-medium text-white/70">SushiSwap V2:</div>
+          
+          {/* Loading skeleton for rates */}
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="text-white flex items-center space-x-2 bg-white/5 p-3 rounded-lg">
+              <div className="w-24 h-4 bg-white/10 animate-pulse rounded"></div>
+              <div className="w-20 h-4 bg-white/10 animate-pulse rounded"></div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="w-32 h-4 bg-white/10 animate-pulse rounded"></div>
+        </div>
+      </div>
     );
   }
 

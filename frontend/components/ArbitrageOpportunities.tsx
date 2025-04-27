@@ -36,6 +36,7 @@ export default function ArbitrageOpportunities() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [mounted, setMounted] = useState(false);
   
   // Function to fetch price data (mock implementation)
   const fetchPrices = async () => {
@@ -72,8 +73,15 @@ export default function ArbitrageOpportunities() {
     }
   };
   
-  // Setup polling for price updates
+  // Client-side only
   useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Setup polling for price updates - only on client side
+  useEffect(() => {
+    if (!mounted) return;
+    
     if (isConnected && isCorrectNetwork) {
       // Fetch initial data
       fetchPrices();
@@ -94,7 +102,7 @@ export default function ArbitrageOpportunities() {
         setRefreshInterval(null);
       }
     }
-  }, [isConnected, isCorrectNetwork]);
+  }, [isConnected, isCorrectNetwork, mounted]);
   
   // Format the time since last update
   const getTimeSinceUpdate = () => {
@@ -145,6 +153,21 @@ export default function ArbitrageOpportunities() {
     
     return bestPath;
   };
+  
+  // Show skeleton during server rendering
+  if (!mounted) {
+    return (
+      <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-medium text-white">Arbitrage Opportunities</h2>
+          <div className="h-6 w-24 bg-white/10 rounded animate-pulse"></div>
+        </div>
+        <div className="animate-pulse space-y-4">
+          <div className="h-40 bg-white/5 rounded-xl w-full"></div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">

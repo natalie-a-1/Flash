@@ -1,26 +1,61 @@
 "use client";
 
 import { useWeb3 } from "@/components/web3/Web3Provider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const { isConnected, connectWallet } = useWeb3();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
-  // Redirect to dashboard if wallet is already connected
+  // Only run client-side
   useEffect(() => {
+    setMounted(true);
+    
+    // Redirect to dashboard if wallet is already connected
     if (isConnected) {
       router.push("/dashboard");
     }
   }, [isConnected, router]);
+
+  // During server rendering and first mount, return a placeholder with same structure
+  if (!mounted) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md w-full px-4">
+          <div className="text-center mb-10">
+            <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+              Flash
+            </h1>
+            <p className="text-xl text-white/80">
+              Flash loan arbitrage platform using Aave V3
+            </p>
+          </div>
+          
+          <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-8 shadow-xl border border-white/20">
+            {/* Pre-rendering placeholder */}
+            <div className="animate-pulse">
+              <div className="flex items-center justify-center">
+                <div className="w-16 h-16 bg-white/10 rounded-full"></div>
+              </div>
+              <div className="h-6 bg-white/10 rounded w-3/4 mx-auto mt-5"></div>
+              <div className="h-4 bg-white/10 rounded w-1/2 mx-auto mt-3 mb-8"></div>
+              <div className="h-12 bg-white/10 rounded-lg w-full mb-6"></div>
+              <div className="h-4 bg-white/10 rounded w-3/4 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center">
       <div className="max-w-md w-full px-4">
         <div className="text-center mb-10">
           <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
-            Flash Blockchain
+            Flash
           </h1>
           <p className="text-xl text-white/80">
             Flash loan arbitrage platform using Aave V3
@@ -57,7 +92,7 @@ export default function LoginPage() {
           
           <div className="mt-8 pt-6 border-t border-white/10">
             <div className="text-sm text-white/70">
-              <p className="mb-2">With Flash Blockchain, you can:</p>
+              <p className="mb-2">With Flash, you can:</p>
               <ul className="space-y-1">
                 <li className="flex items-center">
                   <svg className="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

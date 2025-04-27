@@ -8,12 +8,12 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-medium text-white mb-4">Flash Blockchain</h3>
+            <h3 className="text-lg font-medium text-white mb-4">Flash</h3>
             <p className="text-sm text-white/60 mb-4">
               Flash loan arbitrage platform built on Ethereum.
             </p>
             <p className="text-xs text-white/40">
-              © {new Date().getFullYear()} Flash Blockchain
+              © {new Date().getFullYear()} Flash
             </p>
           </div>
           

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flash Blockchain | Flash Loan Arbitrage",
+  title: "Flash | Flash Loan Arbitrage",
   description: "Flash loan arbitrage platform using Aave, Uniswap, and SushiSwap on Ethereum.",
   keywords: "flash loan, arbitrage, defi, ethereum, aave, uniswap, sushiswap, blockchain",
 };
