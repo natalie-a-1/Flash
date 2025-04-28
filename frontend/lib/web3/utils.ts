@@ -76,31 +76,12 @@ export function formatTokenAmount(
   return symbol ? `${formattedAmount} ${symbol}` : formattedAmount;
 }
 
-/**
- * Calculates the arbitrage opportunity percentage
- * @param buyPrice Price to buy the token
- * @param sellPrice Price to sell the token
- * @returns Percentage profit/loss as a number (e.g., 1.5 for 1.5%)
- */
-export function calculateArbitragePercentage(buyPrice: number, sellPrice: number): number {
-  if (buyPrice <= 0) return 0;
-  
-  const percentageDifference = ((sellPrice - buyPrice) / buyPrice) * 100;
-  return parseFloat(percentageDifference.toFixed(2));
-}
-
-/**
- * Checks if there's a potential arbitrage opportunity based on a threshold
- * @param buyPrice Price to buy the token
- * @param sellPrice Price to sell the token
- * @param minThresholdPercent Minimum percentage difference to consider it an opportunity (default: 0.5)
- * @returns True if there's a potential arbitrage opportunity
- */
-export function isArbitrageOpportunity(
-  buyPrice: number,
-  sellPrice: number,
-  minThresholdPercent: number = 0.5
-): boolean {
-  const percentageDifference = calculateArbitragePercentage(buyPrice, sellPrice);
-  return percentageDifference >= minThresholdPercent;
-} 
+// Removed duplicate calculateArbitragePercentage as it's specific to priceService
+// export function calculateArbitragePercentage(
+//   buyPrice: number,
+//   sellPrice: number
+// ): number {
+//   if (buyPrice <= 0) return 0;
+//   const percentageDifference = ((sellPrice - buyPrice) / buyPrice) * 100;
+//   return parseFloat(percentageDifference.toFixed(2));
+// } 

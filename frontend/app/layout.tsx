@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Web3Provider from "@/components/web3/Web3Provider";
+import { Web3Provider } from "@/components/web3/Web3Provider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
