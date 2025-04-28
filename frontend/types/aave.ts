@@ -81,4 +81,54 @@ export interface FlashLoanResult {
   success: boolean;
   txHash?: string;
   error?: string;
+}
+
+/**
+ * A single reserve's humanized data from Aave's UiPoolDataProvider.getReservesHumanized()
+ */
+export interface HumanizedReserveData {
+  symbol: string;
+  underlyingAsset: string;
+  name: string;
+  decimals: number;
+  availableLiquidity: string;
+  availableLiquidityUSD?: string;
+  totalLiquidity?: string;
+  totalLiquidityUSD?: string;
+  totalDebt?: string;
+  totalDebtUSD?: string;
+  priceInMarketReferenceCurrency?: string;
+  priceOracle?: string;
+  variableBorrowRate?: string;
+  variableBorrowAPY?: string;
+  stableBorrowRate?: string;
+  stableBorrowAPY?: string;
+  supplyRate?: string;
+  supplyAPY?: string;
+  isActive: boolean;
+  isFrozen: boolean;
+  isPaused: boolean;
+  isSiloedBorrowing?: boolean;
+  borrowingEnabled: boolean;
+  stableBorrowRateEnabled: boolean;
+  reserveFactor?: string;
+  borrowCap?: string;
+  supplyCap?: string;
+  debtCeiling?: string;
+  debtCeilingDecimals?: number;
+  aIncentivesData?: any[];
+  vIncentivesData?: any[];
+  sIncentivesData?: any[];
+  usageAsCollateralEnabled: boolean;
+  eModeCategoryId?: number;
+  liquidationThreshold?: string;
+  liquidationBonus?: string;
+  unbacked?: string;
+  baseLTVasCollateral?: string;
+  reserveLiquidationThreshold?: string;
+  reserveLiquidationBonus?: string;
+  isolationModeTotalDebtUSD?: string;
+  isIsolated?: boolean;
+  flashLoanEnabled: boolean;
+  accruedToTreasury?: string;
 } 

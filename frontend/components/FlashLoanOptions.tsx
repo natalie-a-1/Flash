@@ -7,60 +7,9 @@ import { ethers } from "ethers";
 import { executeAaveFlashLoan } from "@/lib/web3/aave"; // Import execute function
 import { UiPoolDataProvider, ChainId } from '@aave/contract-helpers';
 import * as markets from '@bgd-labs/aave-address-book';
-import { TokenInfo } from "@/types/aave"; // Import TokenInfo type
+import { TokenInfo, HumanizedReserveData } from "@/types/aave"; // Import types
 import { TOKENS } from "@/lib/constants/tokens";
 import { getEthersV5Provider } from "@/lib/web3/web3"; // Import the v5 provider getter
-
-/**
- * Interface for humanized reserve data from Aave.
- * Optional fields are marked to avoid lint errors.
- */
-interface HumanizedReserveData {
-  symbol: string;
-  underlyingAsset: string;
-  name: string;
-  decimals: number;
-  availableLiquidity: string; // Humanized string like "1234.56"
-  availableLiquidityUSD?: string;
-  totalLiquidity?: string;
-  totalLiquidityUSD?: string;
-  totalDebt?: string;
-  totalDebtUSD?: string;
-  priceInMarketReferenceCurrency?: string;
-  priceOracle?: string;
-  variableBorrowRate?: string;
-  variableBorrowAPY?: string;
-  stableBorrowRate?: string;
-  stableBorrowAPY?: string;
-  supplyRate?: string;
-  supplyAPY?: string;
-  isActive: boolean;
-  isFrozen: boolean;
-  isPaused: boolean;
-  isSiloedBorrowing?: boolean;
-  borrowingEnabled: boolean;
-  stableBorrowRateEnabled: boolean;
-  reserveFactor?: string;
-  borrowCap?: string;
-  supplyCap?: string;
-  debtCeiling?: string;
-  debtCeilingDecimals?: number;
-  aIncentivesData?: Array<any>;
-  vIncentivesData?: Array<any>;
-  sIncentivesData?: Array<any>;
-  usageAsCollateralEnabled: boolean;
-  eModeCategoryId?: number;
-  liquidationThreshold?: string;
-  liquidationBonus?: string;
-  unbacked?: string;
-  baseLTVasCollateral?: string;
-  reserveLiquidationThreshold?: string;
-  reserveLiquidationBonus?: string;
-  isolationModeTotalDebtUSD?: string;
-  isIsolated?: boolean;
-  flashLoanEnabled: boolean;
-  accruedToTreasury?: string;
-}
 
 /**
  * FlashLoanOptions component provides the interface for executing flash loans.
