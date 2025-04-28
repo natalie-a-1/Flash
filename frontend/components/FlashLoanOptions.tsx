@@ -18,6 +18,7 @@ export default function FlashLoanOptions() {
   const [loanAmount, setLoanAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingTokenData, setLoadingTokenData] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   
   /**
    * Fetches flash loan limits from Aave for the available tokens
@@ -25,25 +26,31 @@ export default function FlashLoanOptions() {
   const getFlashLoanLimits = async () => {
     if (!isConnected || !isCorrectNetwork || !web3) {
       setLoadingTokenData(false);
+      setError("Connect wallet and switch to Ethereum Mainnet to see available liquidity");
       return;
     }
     
     setLoadingTokenData(true);
+    setError(null);
     
     try {
       // Use the service function to fetch flash loan limits
       const tokenAvailability = await fetchAaveFlashLoanLimits(web3, TOKENS);
       setAmounts(tokenAvailability);
+      
+      // Check if we got any valid data
+      const hasData = Object.values(tokenAvailability).some(amount => 
+        amount && amount !== "0"
+      );
+      
+      if (!hasData) {
+        setError("No liquidity data available from Aave. Pool may be unavailable.");
+      }
     } catch (error) {
       console.error("Error fetching flash loan limits:", error);
-      
-      // Fallback to some default values if the API call fails
-      const fallbackAmounts = {
-        [TOKENS[0].address]: "100000000", // 100 USDC (with 6 decimals)
-        [TOKENS[1].address]: "10000000000000000000", // 10 WETH (with 18 decimals)
-      };
-      
-      setAmounts(fallbackAmounts);
+      setError("Failed to fetch Aave liquidity data. Please try again later.");
+      // Set empty amounts instead of fallback values
+      setAmounts({});
     } finally {
       setLoadingTokenData(false);
     }
@@ -57,9 +64,28 @@ export default function FlashLoanOptions() {
     
     try {
       setIsLoading(true);
+      setError(null);
+      
+      // Check if we have a deployed contract
+      if (!window.flashLoanContract) {
+        alert("Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits without the ability to execute loans.");
+        setIsLoading(false);
+        return;
+      }
       
       // Convert user-friendly amount to token units
       const amountInWei = ethers.parseUnits(loanAmount, selectedToken.decimals).toString();
+      
+      // Check if the requested amount is within available liquidity
+      const availableLiquidity = amounts[selectedToken.address] || "0";
+      if (ethers.getBigInt(amountInWei) > ethers.getBigInt(availableLiquidity)) {
+        setError(`Requested amount exceeds available liquidity (${formatTokenAmount(
+          ethers.formatUnits(availableLiquidity, selectedToken.decimals),
+          selectedToken.symbol === "USDC" ? 2 : 4
+        )} ${selectedToken.symbol})`);
+        setIsLoading(false);
+        return;
+      }
       
       // Call the service function to execute the flash loan
       const success = await executeAaveFlashLoan(selectedToken.address, amountInWei);
@@ -79,12 +105,14 @@ export default function FlashLoanOptions() {
           errorMessage = "Transaction was rejected in your wallet.";
         } else if (error.message.includes("insufficient funds")) {
           errorMessage = "Insufficient funds for gas fees.";
+        } else if (error.message.includes("contract not loaded")) {
+          errorMessage = "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits.";
         } else {
           errorMessage += " " + error.message;
         }
       }
       
-      alert(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -130,20 +158,15 @@ export default function FlashLoanOptions() {
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
       <h2 className="text-2xl font-medium text-white mb-4">Flash Loan Options</h2>
       
-      {/* Contract Owner Status */}
-      {/* <div className="mb-6">
-        <ContractOwnerStatus />
-      </div> */}
-      
-      {/* Testnet Notice Banner */}
+      {/* Network Information Banner */}
       <div className="mb-6 p-3 bg-amber-600/20 border border-amber-600/30 rounded-xl text-amber-300 text-sm">
         <div className="flex items-center mb-1">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
-          <span className="font-medium">Testnet Information</span>
+          <span className="font-medium">Ethereum Mainnet Information</span>
         </div>
-        <p>This is a demonstration of flash loan arbitrage on the Sepolia testnet.</p>
+        <p>This is a demonstration of flash loan arbitrage on the Ethereum Mainnet.</p>
         <p className="mt-1">Note: You must be the owner of the deployed FlashLoan contract to execute flash loans.</p>
         <p className="mt-1">You also need to ensure routers are approved in the contract before executing.</p>
       </div>
@@ -189,7 +212,7 @@ export default function FlashLoanOptions() {
             <button
               onClick={setMaxAmount}
               className="text-cyan-400 text-xs hover:underline"
-              disabled={loadingTokenData}
+              disabled={loadingTokenData || !amounts[selectedToken.address]}
               aria-label="Set maximum amount"
             >
               MAX
@@ -211,12 +234,30 @@ export default function FlashLoanOptions() {
           </div>
         </div>
         
+        {/* Error Message */}
+        {error && (
+          <div className="p-3 bg-red-900/20 border border-red-600/30 rounded-xl text-red-300 text-sm">
+            {error}
+          </div>
+        )}
+        
+        {/* Data Loading Indicator */}
+        {loadingTokenData && (
+          <div className="flex items-center justify-center py-3 text-cyan-300 text-sm">
+            <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading Aave liquidity data...
+          </div>
+        )}
+        
         {/* Execute Button */}
         <button
           onClick={handleFlashLoan}
-          disabled={!isConnected || !isCorrectNetwork || !loanAmount || isLoading || loadingTokenData}
+          disabled={!isConnected || !isCorrectNetwork || !loanAmount || isLoading || loadingTokenData || error !== null}
           className={`w-full py-3 rounded-xl font-medium transition-all duration-200 ${
-            !isConnected || !isCorrectNetwork || !loanAmount || isLoading || loadingTokenData
+            !isConnected || !isCorrectNetwork || !loanAmount || isLoading || loadingTokenData || error !== null
               ? "bg-gray-600 text-white/50 cursor-not-allowed"
               : "bg-cyan-500 hover:bg-cyan-600 text-white cursor-pointer"
           }`}
@@ -241,7 +282,7 @@ export default function FlashLoanOptions() {
         )}
         
         {isConnected && !isCorrectNetwork && (
-          <p className="text-amber-400 text-xs text-center">Please switch to Sepolia network</p>
+          <p className="text-amber-400 text-xs text-center">Please switch to Ethereum Mainnet</p>
         )}
       </div>
     </div>

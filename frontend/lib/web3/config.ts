@@ -20,7 +20,7 @@ export const NETWORK_NAMES = {
 
 // RPC URLs
 export const RPC_URLS = {
-  [NETWORK_IDS.MAINNET]: "https://mainnet.infura.io/v3/YOUR_INFURA_ID", // Replace with your Infura ID or use other provider
+  [NETWORK_IDS.MAINNET]: "https://eth.llamarpc.com", // Using LlamaRPC public endpoint for Ethereum
   [NETWORK_IDS.LOCALHOST]: "http://localhost:8545", // Local Ganache fork
 };
 
@@ -72,4 +72,8 @@ export const SEPOLIA_ADDRESSES = {
   // DEX addresses
   UNISWAP_V2_ROUTER: "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3",
   SUSHISWAP_V2_ROUTER: "0xeaBcE3E74EF41FB40024a21Cc2ee2F5dDc615791",
+  
+  // Contract addresses
+  // This is a placeholder - replace with your actual deployed address from Sepolia
+  FLASH_LOAN: "0x0000000000000000000000000000000000000000", 
 };

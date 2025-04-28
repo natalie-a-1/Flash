@@ -1,0 +1,3090 @@
+{
+  "contractName": "IPoolAddressesProvider",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ACLAdminUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ACLManagerUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "AddressSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proxyAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldImplementationAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "AddressSetAsProxy",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "oldMarketId",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "newMarketId",
+          "type": "string"
+        }
+      ],
+      "name": "MarketIdSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PoolConfiguratorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PoolDataProviderUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PoolUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PriceOracleSentinelUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PriceOracleUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proxyAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "implementationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ProxyCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "getMarketId",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "newMarketId",
+          "type": "string"
+        }
+      ],
+      "name": "setMarketId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "newImplementationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setAddressAsProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPool",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPoolImpl",
+          "type": "address"
+        }
+      ],
+      "name": "setPoolImpl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPoolConfigurator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPoolConfiguratorImpl",
+          "type": "address"
+        }
+      ],
+      "name": "setPoolConfiguratorImpl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPriceOracle",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPriceOracle",
+          "type": "address"
+        }
+      ],
+      "name": "setPriceOracle",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getACLManager",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newAclManager",
+          "type": "address"
+        }
+      ],
+      "name": "setACLManager",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getACLAdmin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newAclAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "setACLAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPriceOracleSentinel",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPriceOracleSentinel",
+          "type": "address"
+        }
+      ],
+      "name": "setPriceOracleSentinel",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPoolDataProvider",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newDataProvider",
+          "type": "address"
+        }
+      ],
+      "name": "setPoolDataProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"ACLAdminUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"ACLManagerUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"AddressSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proxyAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"oldImplementationAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newImplementationAddress\",\"type\":\"address\"}],\"name\":\"AddressSetAsProxy\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"oldMarketId\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"newMarketId\",\"type\":\"string\"}],\"name\":\"MarketIdSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PoolConfiguratorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PoolDataProviderUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PoolUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PriceOracleSentinelUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PriceOracleUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proxyAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementationAddress\",\"type\":\"address\"}],\"name\":\"ProxyCreated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getACLAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getACLManager\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"}],\"name\":\"getAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMarketId\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPool\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPoolConfigurator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPoolDataProvider\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPriceOracle\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPriceOracleSentinel\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAclAdmin\",\"type\":\"address\"}],\"name\":\"setACLAdmin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAclManager\",\"type\":\"address\"}],\"name\":\"setACLManager\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"setAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"newImplementationAddress\",\"type\":\"address\"}],\"name\":\"setAddressAsProxy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"newMarketId\",\"type\":\"string\"}],\"name\":\"setMarketId\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPoolConfiguratorImpl\",\"type\":\"address\"}],\"name\":\"setPoolConfiguratorImpl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newDataProvider\",\"type\":\"address\"}],\"name\":\"setPoolDataProvider\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPoolImpl\",\"type\":\"address\"}],\"name\":\"setPoolImpl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPriceOracle\",\"type\":\"address\"}],\"name\":\"setPriceOracle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPriceOracleSentinel\",\"type\":\"address\"}],\"name\":\"setPriceOracleSentinel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Aave\",\"events\":{\"ACLAdminUpdated(address,address)\":{\"details\":\"Emitted when the ACL admin is updated.\",\"params\":{\"newAddress\":\"The new address of the ACLAdmin\",\"oldAddress\":\"The old address of the ACLAdmin\"}},\"ACLManagerUpdated(address,address)\":{\"details\":\"Emitted when the ACL manager is updated.\",\"params\":{\"newAddress\":\"The new address of the ACLManager\",\"oldAddress\":\"The old address of the ACLManager\"}},\"AddressSet(bytes32,address,address)\":{\"details\":\"Emitted when a new non-proxied contract address is registered.\",\"params\":{\"id\":\"The identifier of the contract\",\"newAddress\":\"The address of the new contract\",\"oldAddress\":\"The address of the old contract\"}},\"AddressSetAsProxy(bytes32,address,address,address)\":{\"details\":\"Emitted when the implementation of the proxy registered with id is updated\",\"params\":{\"id\":\"The identifier of the contract\",\"newImplementationAddress\":\"The address of the new implementation contract\",\"oldImplementationAddress\":\"The address of the old implementation contract\",\"proxyAddress\":\"The address of the proxy contract\"}},\"MarketIdSet(string,string)\":{\"details\":\"Emitted when the market identifier is updated.\",\"params\":{\"newMarketId\":\"The new id of the market\",\"oldMarketId\":\"The old id of the market\"}},\"PoolConfiguratorUpdated(address,address)\":{\"details\":\"Emitted when the pool configurator is updated.\",\"params\":{\"newAddress\":\"The new address of the PoolConfigurator\",\"oldAddress\":\"The old address of the PoolConfigurator\"}},\"PoolDataProviderUpdated(address,address)\":{\"details\":\"Emitted when the pool data provider is updated.\",\"params\":{\"newAddress\":\"The new address of the PoolDataProvider\",\"oldAddress\":\"The old address of the PoolDataProvider\"}},\"PoolUpdated(address,address)\":{\"details\":\"Emitted when the pool is updated.\",\"params\":{\"newAddress\":\"The new address of the Pool\",\"oldAddress\":\"The old address of the Pool\"}},\"PriceOracleSentinelUpdated(address,address)\":{\"details\":\"Emitted when the price oracle sentinel is updated.\",\"params\":{\"newAddress\":\"The new address of the PriceOracleSentinel\",\"oldAddress\":\"The old address of the PriceOracleSentinel\"}},\"PriceOracleUpdated(address,address)\":{\"details\":\"Emitted when the price oracle is updated.\",\"params\":{\"newAddress\":\"The new address of the PriceOracle\",\"oldAddress\":\"The old address of the PriceOracle\"}},\"ProxyCreated(bytes32,address,address)\":{\"details\":\"Emitted when a new proxy is created.\",\"params\":{\"id\":\"The identifier of the proxy\",\"implementationAddress\":\"The address of the implementation contract\",\"proxyAddress\":\"The address of the created proxy contract\"}}},\"kind\":\"dev\",\"methods\":{\"getACLAdmin()\":{\"returns\":{\"_0\":\"The address of the ACL admin\"}},\"getACLManager()\":{\"returns\":{\"_0\":\"The address of the ACLManager\"}},\"getAddress(bytes32)\":{\"details\":\"The returned address might be an EOA or a contract, potentially proxiedIt returns ZERO if there is no registered address with the given id\",\"params\":{\"id\":\"The id\"},\"returns\":{\"_0\":\"The address of the registered for the specified id\"}},\"getMarketId()\":{\"returns\":{\"_0\":\"The market id\"}},\"getPool()\":{\"returns\":{\"_0\":\"The Pool proxy address\"}},\"getPoolConfigurator()\":{\"returns\":{\"_0\":\"The PoolConfigurator proxy address\"}},\"getPoolDataProvider()\":{\"returns\":{\"_0\":\"The address of the DataProvider\"}},\"getPriceOracle()\":{\"returns\":{\"_0\":\"The address of the PriceOracle\"}},\"getPriceOracleSentinel()\":{\"returns\":{\"_0\":\"The address of the PriceOracleSentinel\"}},\"setACLAdmin(address)\":{\"params\":{\"newAclAdmin\":\"The address of the new ACL admin\"}},\"setACLManager(address)\":{\"params\":{\"newAclManager\":\"The address of the new ACLManager\"}},\"setAddress(bytes32,address)\":{\"details\":\"IMPORTANT Use this function carefully, as it will do a hard replacement\",\"params\":{\"id\":\"The id\",\"newAddress\":\"The address to set\"}},\"setAddressAsProxy(bytes32,address)\":{\"details\":\"IMPORTANT Use this function carefully, only for ids that don't have an explicit setter function, in order to avoid unexpected consequences\",\"params\":{\"id\":\"The id\",\"newImplementationAddress\":\"The address of the new implementation\"}},\"setMarketId(string)\":{\"details\":\"This can be used to create an onchain registry of PoolAddressesProviders to identify and validate multiple Aave markets.\",\"params\":{\"newMarketId\":\"The market id\"}},\"setPoolConfiguratorImpl(address)\":{\"params\":{\"newPoolConfiguratorImpl\":\"The new PoolConfigurator implementation\"}},\"setPoolDataProvider(address)\":{\"params\":{\"newDataProvider\":\"The address of the new DataProvider\"}},\"setPoolImpl(address)\":{\"params\":{\"newPoolImpl\":\"The new Pool implementation\"}},\"setPriceOracle(address)\":{\"params\":{\"newPriceOracle\":\"The address of the new PriceOracle\"}},\"setPriceOracleSentinel(address)\":{\"params\":{\"newPriceOracleSentinel\":\"The address of the new PriceOracleSentinel\"}}},\"title\":\"IPoolAddressesProvider\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getACLAdmin()\":{\"notice\":\"Returns the address of the ACL admin.\"},\"getACLManager()\":{\"notice\":\"Returns the address of the ACL manager.\"},\"getAddress(bytes32)\":{\"notice\":\"Returns an address by its identifier.\"},\"getMarketId()\":{\"notice\":\"Returns the id of the Aave market to which this contract points to.\"},\"getPool()\":{\"notice\":\"Returns the address of the Pool proxy.\"},\"getPoolConfigurator()\":{\"notice\":\"Returns the address of the PoolConfigurator proxy.\"},\"getPoolDataProvider()\":{\"notice\":\"Returns the address of the data provider.\"},\"getPriceOracle()\":{\"notice\":\"Returns the address of the price oracle.\"},\"getPriceOracleSentinel()\":{\"notice\":\"Returns the address of the price oracle sentinel.\"},\"setACLAdmin(address)\":{\"notice\":\"Updates the address of the ACL admin.\"},\"setACLManager(address)\":{\"notice\":\"Updates the address of the ACL manager.\"},\"setAddress(bytes32,address)\":{\"notice\":\"Sets an address for an id replacing the address saved in the addresses map.\"},\"setAddressAsProxy(bytes32,address)\":{\"notice\":\"General function to update the implementation of a proxy registered with certain `id`. If there is no proxy registered, it will instantiate one and set as implementation the `newImplementationAddress`.\"},\"setMarketId(string)\":{\"notice\":\"Associates an id with a specific PoolAddressesProvider.\"},\"setPoolConfiguratorImpl(address)\":{\"notice\":\"Updates the implementation of the PoolConfigurator, or creates a proxy setting the new `PoolConfigurator` implementation when the function is called for the first time.\"},\"setPoolDataProvider(address)\":{\"notice\":\"Updates the address of the data provider.\"},\"setPoolImpl(address)\":{\"notice\":\"Updates the implementation of the Pool, or creates a proxy setting the new `pool` implementation when the function is called for the first time.\"},\"setPriceOracle(address)\":{\"notice\":\"Updates the address of the price oracle.\"},\"setPriceOracleSentinel(address)\":{\"notice\":\"Updates the address of the price oracle sentinel.\"}},\"notice\":\"Defines the basic interface for a Pool Addresses Provider.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol\":\"IPoolAddressesProvider\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol\":{\"keccak256\":\"0x33d4308d9407b4ee2297fc4ba5acce1a96a6c658189e2778a4f6b90e032fb3b5\",\"license\":\"AGPL-3.0\",\"urls\":[\"bzz-raw://978336a2a40229ccc7749344be890862ea12e17e9fffe5bb977ba3841de07b5a\",\"dweb:/ipfs/QmScNrQfDSPg1afJmkCty6fZkETUrWTmEXWeTmHoe7mSqa\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: AGPL-3.0\npragma solidity ^0.8.0;\n\n/**\n * @title IPoolAddressesProvider\n * @author Aave\n * @notice Defines the basic interface for a Pool Addresses Provider.\n */\ninterface IPoolAddressesProvider {\n  /**\n   * @dev Emitted when the market identifier is updated.\n   * @param oldMarketId The old id of the market\n   * @param newMarketId The new id of the market\n   */\n  event MarketIdSet(string indexed oldMarketId, string indexed newMarketId);\n\n  /**\n   * @dev Emitted when the pool is updated.\n   * @param oldAddress The old address of the Pool\n   * @param newAddress The new address of the Pool\n   */\n  event PoolUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the pool configurator is updated.\n   * @param oldAddress The old address of the PoolConfigurator\n   * @param newAddress The new address of the PoolConfigurator\n   */\n  event PoolConfiguratorUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the price oracle is updated.\n   * @param oldAddress The old address of the PriceOracle\n   * @param newAddress The new address of the PriceOracle\n   */\n  event PriceOracleUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the ACL manager is updated.\n   * @param oldAddress The old address of the ACLManager\n   * @param newAddress The new address of the ACLManager\n   */\n  event ACLManagerUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the ACL admin is updated.\n   * @param oldAddress The old address of the ACLAdmin\n   * @param newAddress The new address of the ACLAdmin\n   */\n  event ACLAdminUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the price oracle sentinel is updated.\n   * @param oldAddress The old address of the PriceOracleSentinel\n   * @param newAddress The new address of the PriceOracleSentinel\n   */\n  event PriceOracleSentinelUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the pool data provider is updated.\n   * @param oldAddress The old address of the PoolDataProvider\n   * @param newAddress The new address of the PoolDataProvider\n   */\n  event PoolDataProviderUpdated(address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when a new proxy is created.\n   * @param id The identifier of the proxy\n   * @param proxyAddress The address of the created proxy contract\n   * @param implementationAddress The address of the implementation contract\n   */\n  event ProxyCreated(\n    bytes32 indexed id,\n    address indexed proxyAddress,\n    address indexed implementationAddress\n  );\n\n  /**\n   * @dev Emitted when a new non-proxied contract address is registered.\n   * @param id The identifier of the contract\n   * @param oldAddress The address of the old contract\n   * @param newAddress The address of the new contract\n   */\n  event AddressSet(bytes32 indexed id, address indexed oldAddress, address indexed newAddress);\n\n  /**\n   * @dev Emitted when the implementation of the proxy registered with id is updated\n   * @param id The identifier of the contract\n   * @param proxyAddress The address of the proxy contract\n   * @param oldImplementationAddress The address of the old implementation contract\n   * @param newImplementationAddress The address of the new implementation contract\n   */\n  event AddressSetAsProxy(\n    bytes32 indexed id,\n    address indexed proxyAddress,\n    address oldImplementationAddress,\n    address indexed newImplementationAddress\n  );\n\n  /**\n   * @notice Returns the id of the Aave market to which this contract points to.\n   * @return The market id\n   */\n  function getMarketId() external view returns (string memory);\n\n  /**\n   * @notice Associates an id with a specific PoolAddressesProvider.\n   * @dev This can be used to create an onchain registry of PoolAddressesProviders to\n   * identify and validate multiple Aave markets.\n   * @param newMarketId The market id\n   */\n  function setMarketId(string calldata newMarketId) external;\n\n  /**\n   * @notice Returns an address by its identifier.\n   * @dev The returned address might be an EOA or a contract, potentially proxied\n   * @dev It returns ZERO if there is no registered address with the given id\n   * @param id The id\n   * @return The address of the registered for the specified id\n   */\n  function getAddress(bytes32 id) external view returns (address);\n\n  /**\n   * @notice General function to update the implementation of a proxy registered with\n   * certain `id`. If there is no proxy registered, it will instantiate one and\n   * set as implementation the `newImplementationAddress`.\n   * @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit\n   * setter function, in order to avoid unexpected consequences\n   * @param id The id\n   * @param newImplementationAddress The address of the new implementation\n   */\n  function setAddressAsProxy(bytes32 id, address newImplementationAddress) external;\n\n  /**\n   * @notice Sets an address for an id replacing the address saved in the addresses map.\n   * @dev IMPORTANT Use this function carefully, as it will do a hard replacement\n   * @param id The id\n   * @param newAddress The address to set\n   */\n  function setAddress(bytes32 id, address newAddress) external;\n\n  /**\n   * @notice Returns the address of the Pool proxy.\n   * @return The Pool proxy address\n   */\n  function getPool() external view returns (address);\n\n  /**\n   * @notice Updates the implementation of the Pool, or creates a proxy\n   * setting the new `pool` implementation when the function is called for the first time.\n   * @param newPoolImpl The new Pool implementation\n   */\n  function setPoolImpl(address newPoolImpl) external;\n\n  /**\n   * @notice Returns the address of the PoolConfigurator proxy.\n   * @return The PoolConfigurator proxy address\n   */\n  function getPoolConfigurator() external view returns (address);\n\n  /**\n   * @notice Updates the implementation of the PoolConfigurator, or creates a proxy\n   * setting the new `PoolConfigurator` implementation when the function is called for the first time.\n   * @param newPoolConfiguratorImpl The new PoolConfigurator implementation\n   */\n  function setPoolConfiguratorImpl(address newPoolConfiguratorImpl) external;\n\n  /**\n   * @notice Returns the address of the price oracle.\n   * @return The address of the PriceOracle\n   */\n  function getPriceOracle() external view returns (address);\n\n  /**\n   * @notice Updates the address of the price oracle.\n   * @param newPriceOracle The address of the new PriceOracle\n   */\n  function setPriceOracle(address newPriceOracle) external;\n\n  /**\n   * @notice Returns the address of the ACL manager.\n   * @return The address of the ACLManager\n   */\n  function getACLManager() external view returns (address);\n\n  /**\n   * @notice Updates the address of the ACL manager.\n   * @param newAclManager The address of the new ACLManager\n   */\n  function setACLManager(address newAclManager) external;\n\n  /**\n   * @notice Returns the address of the ACL admin.\n   * @return The address of the ACL admin\n   */\n  function getACLAdmin() external view returns (address);\n\n  /**\n   * @notice Updates the address of the ACL admin.\n   * @param newAclAdmin The address of the new ACL admin\n   */\n  function setACLAdmin(address newAclAdmin) external;\n\n  /**\n   * @notice Returns the address of the price oracle sentinel.\n   * @return The address of the PriceOracleSentinel\n   */\n  function getPriceOracleSentinel() external view returns (address);\n\n  /**\n   * @notice Updates the address of the price oracle sentinel.\n   * @param newPriceOracleSentinel The address of the new PriceOracleSentinel\n   */\n  function setPriceOracleSentinel(address newPriceOracleSentinel) external;\n\n  /**\n   * @notice Returns the address of the data provider.\n   * @return The address of the DataProvider\n   */\n  function getPoolDataProvider() external view returns (address);\n\n  /**\n   * @notice Updates the address of the data provider.\n   * @param newDataProvider The address of the new DataProvider\n   */\n  function setPoolDataProvider(address newDataProvider) external;\n}\n",
+  "sourcePath": "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol",
+  "ast": {
+    "absolutePath": "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol",
+    "exportedSymbols": {
+      "IPoolAddressesProvider": [
+        922
+      ]
+    },
+    "id": 923,
+    "license": "AGPL-3.0",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 715,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "37:23:3"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IPoolAddressesProvider",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 716,
+          "nodeType": "StructuredDocumentation",
+          "src": "62:126:3",
+          "text": " @title IPoolAddressesProvider\n @author Aave\n @notice Defines the basic interface for a Pool Addresses Provider."
+        },
+        "fullyImplemented": false,
+        "id": 922,
+        "linearizedBaseContracts": [
+          922
+        ],
+        "name": "IPoolAddressesProvider",
+        "nameLocation": "199:22:3",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 717,
+              "nodeType": "StructuredDocumentation",
+              "src": "226:164:3",
+              "text": " @dev Emitted when the market identifier is updated.\n @param oldMarketId The old id of the market\n @param newMarketId The new id of the market"
+            },
+            "eventSelector": "e685c8cdecc6030c45030fd54778812cb84ed8e4467c38294403d68ba7860823",
+            "id": 723,
+            "name": "MarketIdSet",
+            "nameLocation": "399:11:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 722,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 719,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldMarketId",
+                  "nameLocation": "426:11:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 723,
+                  "src": "411:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 718,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "411:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 721,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newMarketId",
+                  "nameLocation": "454:11:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 723,
+                  "src": "439:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 720,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "439:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "410:56:3"
+            },
+            "src": "393:74:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 724,
+              "nodeType": "StructuredDocumentation",
+              "src": "471:155:3",
+              "text": " @dev Emitted when the pool is updated.\n @param oldAddress The old address of the Pool\n @param newAddress The new address of the Pool"
+            },
+            "eventSelector": "90affc163f1a2dfedcd36aa02ed992eeeba8100a4014f0b4cdc20ea265a66627",
+            "id": 730,
+            "name": "PoolUpdated",
+            "nameLocation": "635:11:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 729,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 726,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "663:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 730,
+                  "src": "647:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 725,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "647:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 728,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "691:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 730,
+                  "src": "675:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 727,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "675:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "646:56:3"
+            },
+            "src": "629:74:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 731,
+              "nodeType": "StructuredDocumentation",
+              "src": "707:192:3",
+              "text": " @dev Emitted when the pool configurator is updated.\n @param oldAddress The old address of the PoolConfigurator\n @param newAddress The new address of the PoolConfigurator"
+            },
+            "eventSelector": "8932892569eba59c8382a089d9b732d1f49272878775235761a2a6b0309cd465",
+            "id": 737,
+            "name": "PoolConfiguratorUpdated",
+            "nameLocation": "908:23:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 736,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 733,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "948:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 737,
+                  "src": "932:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 732,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "932:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 735,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "976:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 737,
+                  "src": "960:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 734,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "960:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "931:56:3"
+            },
+            "src": "902:86:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 738,
+              "nodeType": "StructuredDocumentation",
+              "src": "992:177:3",
+              "text": " @dev Emitted when the price oracle is updated.\n @param oldAddress The old address of the PriceOracle\n @param newAddress The new address of the PriceOracle"
+            },
+            "eventSelector": "56b5f80d8cac1479698aa7d01605fd6111e90b15fc4d2b377417f46034876cbd",
+            "id": 744,
+            "name": "PriceOracleUpdated",
+            "nameLocation": "1178:18:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 743,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 740,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "1213:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 744,
+                  "src": "1197:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 739,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1197:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 742,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "1241:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 744,
+                  "src": "1225:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 741,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1225:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1196:56:3"
+            },
+            "src": "1172:81:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 745,
+              "nodeType": "StructuredDocumentation",
+              "src": "1257:174:3",
+              "text": " @dev Emitted when the ACL manager is updated.\n @param oldAddress The old address of the ACLManager\n @param newAddress The new address of the ACLManager"
+            },
+            "eventSelector": "b30efa04327bb8a537d61cc1e5c48095345ad18ef7cc04e6bacf7dfb6caaf507",
+            "id": 751,
+            "name": "ACLManagerUpdated",
+            "nameLocation": "1440:17:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 750,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 747,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "1474:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 751,
+                  "src": "1458:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 746,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1458:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 749,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "1502:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 751,
+                  "src": "1486:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 748,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1486:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1457:56:3"
+            },
+            "src": "1434:80:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 752,
+              "nodeType": "StructuredDocumentation",
+              "src": "1518:168:3",
+              "text": " @dev Emitted when the ACL admin is updated.\n @param oldAddress The old address of the ACLAdmin\n @param newAddress The new address of the ACLAdmin"
+            },
+            "eventSelector": "e9cf53972264dc95304fd424458745019ddfca0e37ae8f703d74772c41ad115b",
+            "id": 758,
+            "name": "ACLAdminUpdated",
+            "nameLocation": "1695:15:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 757,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 754,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "1727:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 758,
+                  "src": "1711:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 753,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1711:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 756,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "1755:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 758,
+                  "src": "1739:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 755,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1739:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1710:56:3"
+            },
+            "src": "1689:78:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 759,
+              "nodeType": "StructuredDocumentation",
+              "src": "1771:202:3",
+              "text": " @dev Emitted when the price oracle sentinel is updated.\n @param oldAddress The old address of the PriceOracleSentinel\n @param newAddress The new address of the PriceOracleSentinel"
+            },
+            "eventSelector": "5326514eeca90494a14bedabcff812a0e683029ee85d1e23824d44fd14cd6ae7",
+            "id": 765,
+            "name": "PriceOracleSentinelUpdated",
+            "nameLocation": "1982:26:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 764,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 761,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "2025:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 765,
+                  "src": "2009:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 760,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2009:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 763,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "2053:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 765,
+                  "src": "2037:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 762,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2037:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2008:56:3"
+            },
+            "src": "1976:89:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 766,
+              "nodeType": "StructuredDocumentation",
+              "src": "2069:193:3",
+              "text": " @dev Emitted when the pool data provider is updated.\n @param oldAddress The old address of the PoolDataProvider\n @param newAddress The new address of the PoolDataProvider"
+            },
+            "eventSelector": "c853974cfbf81487a14a23565917bee63f527853bcb5fa54f2ae1cdf8a38356d",
+            "id": 772,
+            "name": "PoolDataProviderUpdated",
+            "nameLocation": "2271:23:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 771,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 768,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "2311:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 772,
+                  "src": "2295:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 767,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2295:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 770,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "2339:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 772,
+                  "src": "2323:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 769,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2323:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2294:56:3"
+            },
+            "src": "2265:86:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 773,
+              "nodeType": "StructuredDocumentation",
+              "src": "2355:243:3",
+              "text": " @dev Emitted when a new proxy is created.\n @param id The identifier of the proxy\n @param proxyAddress The address of the created proxy contract\n @param implementationAddress The address of the implementation contract"
+            },
+            "eventSelector": "4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d478",
+            "id": 781,
+            "name": "ProxyCreated",
+            "nameLocation": "2607:12:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 780,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 775,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "2641:2:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 781,
+                  "src": "2625:18:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 774,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2625:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 777,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "proxyAddress",
+                  "nameLocation": "2665:12:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 781,
+                  "src": "2649:28:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 776,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2649:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 779,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "implementationAddress",
+                  "nameLocation": "2699:21:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 781,
+                  "src": "2683:37:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 778,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2683:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2619:105:3"
+            },
+            "src": "2601:124:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 782,
+              "nodeType": "StructuredDocumentation",
+              "src": "2729:238:3",
+              "text": " @dev Emitted when a new non-proxied contract address is registered.\n @param id The identifier of the contract\n @param oldAddress The address of the old contract\n @param newAddress The address of the new contract"
+            },
+            "eventSelector": "9ef0e8c8e52743bb38b83b17d9429141d494b8041ca6d616a6c77cebae9cd8b7",
+            "id": 790,
+            "name": "AddressSet",
+            "nameLocation": "2976:10:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 789,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 784,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "3003:2:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 790,
+                  "src": "2987:18:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 783,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2987:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 786,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "oldAddress",
+                  "nameLocation": "3023:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 790,
+                  "src": "3007:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 785,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3007:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 788,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "3051:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 790,
+                  "src": "3035:26:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 787,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3035:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2986:76:3"
+            },
+            "src": "2970:93:3"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 791,
+              "nodeType": "StructuredDocumentation",
+              "src": "3067:367:3",
+              "text": " @dev Emitted when the implementation of the proxy registered with id is updated\n @param id The identifier of the contract\n @param proxyAddress The address of the proxy contract\n @param oldImplementationAddress The address of the old implementation contract\n @param newImplementationAddress The address of the new implementation contract"
+            },
+            "eventSelector": "3bbd45b5429b385e3fb37ad5cd1cd1435a3c8ec32196c7937597365a3fd3e99c",
+            "id": 801,
+            "name": "AddressSetAsProxy",
+            "nameLocation": "3443:17:3",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 800,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 793,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "3482:2:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 801,
+                  "src": "3466:18:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 792,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3466:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 795,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "proxyAddress",
+                  "nameLocation": "3506:12:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 801,
+                  "src": "3490:28:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 794,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3490:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 797,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "oldImplementationAddress",
+                  "nameLocation": "3532:24:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 801,
+                  "src": "3524:32:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 796,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3524:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 799,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "newImplementationAddress",
+                  "nameLocation": "3578:24:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 801,
+                  "src": "3562:40:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 798,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3562:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3460:146:3"
+            },
+            "src": "3437:170:3"
+          },
+          {
+            "documentation": {
+              "id": 802,
+              "nodeType": "StructuredDocumentation",
+              "src": "3611:117:3",
+              "text": " @notice Returns the id of the Aave market to which this contract points to.\n @return The market id"
+            },
+            "functionSelector": "568ef470",
+            "id": 807,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getMarketId",
+            "nameLocation": "3740:11:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 803,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3751:2:3"
+            },
+            "returnParameters": {
+              "id": 806,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 805,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 807,
+                  "src": "3777:13:3",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 804,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3777:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3776:15:3"
+            },
+            "scope": 922,
+            "src": "3731:61:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 808,
+              "nodeType": "StructuredDocumentation",
+              "src": "3796:252:3",
+              "text": " @notice Associates an id with a specific PoolAddressesProvider.\n @dev This can be used to create an onchain registry of PoolAddressesProviders to\n identify and validate multiple Aave markets.\n @param newMarketId The market id"
+            },
+            "functionSelector": "f67b1847",
+            "id": 813,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setMarketId",
+            "nameLocation": "4060:11:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 811,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 810,
+                  "mutability": "mutable",
+                  "name": "newMarketId",
+                  "nameLocation": "4088:11:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 813,
+                  "src": "4072:27:3",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_calldata_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 809,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4072:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4071:29:3"
+            },
+            "returnParameters": {
+              "id": 812,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4109:0:3"
+            },
+            "scope": 922,
+            "src": "4051:59:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 814,
+              "nodeType": "StructuredDocumentation",
+              "src": "4114:306:3",
+              "text": " @notice Returns an address by its identifier.\n @dev The returned address might be an EOA or a contract, potentially proxied\n @dev It returns ZERO if there is no registered address with the given id\n @param id The id\n @return The address of the registered for the specified id"
+            },
+            "functionSelector": "21f8a721",
+            "id": 821,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getAddress",
+            "nameLocation": "4432:10:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 817,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 816,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "4451:2:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 821,
+                  "src": "4443:10:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 815,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4443:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4442:12:3"
+            },
+            "returnParameters": {
+              "id": 820,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 819,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 821,
+                  "src": "4478:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 818,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4478:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4477:9:3"
+            },
+            "scope": 922,
+            "src": "4423:64:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 822,
+              "nodeType": "StructuredDocumentation",
+              "src": "4491:485:3",
+              "text": " @notice General function to update the implementation of a proxy registered with\n certain `id`. If there is no proxy registered, it will instantiate one and\n set as implementation the `newImplementationAddress`.\n @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit\n setter function, in order to avoid unexpected consequences\n @param id The id\n @param newImplementationAddress The address of the new implementation"
+            },
+            "functionSelector": "5dcc528c",
+            "id": 829,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setAddressAsProxy",
+            "nameLocation": "4988:17:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 827,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 824,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "5014:2:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 829,
+                  "src": "5006:10:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 823,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5006:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 826,
+                  "mutability": "mutable",
+                  "name": "newImplementationAddress",
+                  "nameLocation": "5026:24:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 829,
+                  "src": "5018:32:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 825,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5018:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5005:46:3"
+            },
+            "returnParameters": {
+              "id": 828,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5060:0:3"
+            },
+            "scope": 922,
+            "src": "4979:82:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 830,
+              "nodeType": "StructuredDocumentation",
+              "src": "5065:244:3",
+              "text": " @notice Sets an address for an id replacing the address saved in the addresses map.\n @dev IMPORTANT Use this function carefully, as it will do a hard replacement\n @param id The id\n @param newAddress The address to set"
+            },
+            "functionSelector": "ca446dd9",
+            "id": 837,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setAddress",
+            "nameLocation": "5321:10:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 835,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 832,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "5340:2:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 837,
+                  "src": "5332:10:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 831,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5332:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 834,
+                  "mutability": "mutable",
+                  "name": "newAddress",
+                  "nameLocation": "5352:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 837,
+                  "src": "5344:18:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 833,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5344:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5331:32:3"
+            },
+            "returnParameters": {
+              "id": 836,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5372:0:3"
+            },
+            "scope": 922,
+            "src": "5312:61:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 838,
+              "nodeType": "StructuredDocumentation",
+              "src": "5377:97:3",
+              "text": " @notice Returns the address of the Pool proxy.\n @return The Pool proxy address"
+            },
+            "functionSelector": "026b1d5f",
+            "id": 843,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPool",
+            "nameLocation": "5486:7:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 839,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5493:2:3"
+            },
+            "returnParameters": {
+              "id": 842,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 841,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 843,
+                  "src": "5519:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 840,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5519:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5518:9:3"
+            },
+            "scope": 922,
+            "src": "5477:51:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 844,
+              "nodeType": "StructuredDocumentation",
+              "src": "5532:224:3",
+              "text": " @notice Updates the implementation of the Pool, or creates a proxy\n setting the new `pool` implementation when the function is called for the first time.\n @param newPoolImpl The new Pool implementation"
+            },
+            "functionSelector": "a1564406",
+            "id": 849,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setPoolImpl",
+            "nameLocation": "5768:11:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 847,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 846,
+                  "mutability": "mutable",
+                  "name": "newPoolImpl",
+                  "nameLocation": "5788:11:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 849,
+                  "src": "5780:19:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 845,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5780:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5779:21:3"
+            },
+            "returnParameters": {
+              "id": 848,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5809:0:3"
+            },
+            "scope": 922,
+            "src": "5759:51:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 850,
+              "nodeType": "StructuredDocumentation",
+              "src": "5814:121:3",
+              "text": " @notice Returns the address of the PoolConfigurator proxy.\n @return The PoolConfigurator proxy address"
+            },
+            "functionSelector": "631adfca",
+            "id": 855,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPoolConfigurator",
+            "nameLocation": "5947:19:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 851,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5966:2:3"
+            },
+            "returnParameters": {
+              "id": 854,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 853,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 855,
+                  "src": "5992:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 852,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5992:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5991:9:3"
+            },
+            "scope": 922,
+            "src": "5938:63:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 856,
+              "nodeType": "StructuredDocumentation",
+              "src": "6005:272:3",
+              "text": " @notice Updates the implementation of the PoolConfigurator, or creates a proxy\n setting the new `PoolConfigurator` implementation when the function is called for the first time.\n @param newPoolConfiguratorImpl The new PoolConfigurator implementation"
+            },
+            "functionSelector": "e4ca28b7",
+            "id": 861,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setPoolConfiguratorImpl",
+            "nameLocation": "6289:23:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 859,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 858,
+                  "mutability": "mutable",
+                  "name": "newPoolConfiguratorImpl",
+                  "nameLocation": "6321:23:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 861,
+                  "src": "6313:31:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 857,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6313:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6312:33:3"
+            },
+            "returnParameters": {
+              "id": 860,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6354:0:3"
+            },
+            "scope": 922,
+            "src": "6280:75:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 862,
+              "nodeType": "StructuredDocumentation",
+              "src": "6359:107:3",
+              "text": " @notice Returns the address of the price oracle.\n @return The address of the PriceOracle"
+            },
+            "functionSelector": "fca513a8",
+            "id": 867,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPriceOracle",
+            "nameLocation": "6478:14:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 863,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6492:2:3"
+            },
+            "returnParameters": {
+              "id": 866,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 865,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 867,
+                  "src": "6518:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 864,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6518:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6517:9:3"
+            },
+            "scope": 922,
+            "src": "6469:58:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 868,
+              "nodeType": "StructuredDocumentation",
+              "src": "6531:125:3",
+              "text": " @notice Updates the address of the price oracle.\n @param newPriceOracle The address of the new PriceOracle"
+            },
+            "functionSelector": "530e784f",
+            "id": 873,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setPriceOracle",
+            "nameLocation": "6668:14:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 871,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 870,
+                  "mutability": "mutable",
+                  "name": "newPriceOracle",
+                  "nameLocation": "6691:14:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 873,
+                  "src": "6683:22:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 869,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6683:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6682:24:3"
+            },
+            "returnParameters": {
+              "id": 872,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6715:0:3"
+            },
+            "scope": 922,
+            "src": "6659:57:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 874,
+              "nodeType": "StructuredDocumentation",
+              "src": "6720:105:3",
+              "text": " @notice Returns the address of the ACL manager.\n @return The address of the ACLManager"
+            },
+            "functionSelector": "707cd716",
+            "id": 879,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getACLManager",
+            "nameLocation": "6837:13:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 875,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6850:2:3"
+            },
+            "returnParameters": {
+              "id": 878,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 877,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 879,
+                  "src": "6876:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 876,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6876:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6875:9:3"
+            },
+            "scope": 922,
+            "src": "6828:57:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 880,
+              "nodeType": "StructuredDocumentation",
+              "src": "6889:122:3",
+              "text": " @notice Updates the address of the ACL manager.\n @param newAclManager The address of the new ACLManager"
+            },
+            "functionSelector": "ed301ca9",
+            "id": 885,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setACLManager",
+            "nameLocation": "7023:13:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 883,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 882,
+                  "mutability": "mutable",
+                  "name": "newAclManager",
+                  "nameLocation": "7045:13:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 885,
+                  "src": "7037:21:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 881,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7037:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7036:23:3"
+            },
+            "returnParameters": {
+              "id": 884,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7068:0:3"
+            },
+            "scope": 922,
+            "src": "7014:55:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 886,
+              "nodeType": "StructuredDocumentation",
+              "src": "7073:102:3",
+              "text": " @notice Returns the address of the ACL admin.\n @return The address of the ACL admin"
+            },
+            "functionSelector": "0e67178c",
+            "id": 891,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getACLAdmin",
+            "nameLocation": "7187:11:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 887,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7198:2:3"
+            },
+            "returnParameters": {
+              "id": 890,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 889,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 891,
+                  "src": "7224:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 888,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7224:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7223:9:3"
+            },
+            "scope": 922,
+            "src": "7178:55:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 892,
+              "nodeType": "StructuredDocumentation",
+              "src": "7237:117:3",
+              "text": " @notice Updates the address of the ACL admin.\n @param newAclAdmin The address of the new ACL admin"
+            },
+            "functionSelector": "76d84ffc",
+            "id": 897,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setACLAdmin",
+            "nameLocation": "7366:11:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 895,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 894,
+                  "mutability": "mutable",
+                  "name": "newAclAdmin",
+                  "nameLocation": "7386:11:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 897,
+                  "src": "7378:19:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 893,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7378:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7377:21:3"
+            },
+            "returnParameters": {
+              "id": 896,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7407:0:3"
+            },
+            "scope": 922,
+            "src": "7357:51:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 898,
+              "nodeType": "StructuredDocumentation",
+              "src": "7412:124:3",
+              "text": " @notice Returns the address of the price oracle sentinel.\n @return The address of the PriceOracleSentinel"
+            },
+            "functionSelector": "5eb88d3d",
+            "id": 903,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPriceOracleSentinel",
+            "nameLocation": "7548:22:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 899,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7570:2:3"
+            },
+            "returnParameters": {
+              "id": 902,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 901,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 903,
+                  "src": "7596:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 900,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7596:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7595:9:3"
+            },
+            "scope": 922,
+            "src": "7539:66:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 904,
+              "nodeType": "StructuredDocumentation",
+              "src": "7609:150:3",
+              "text": " @notice Updates the address of the price oracle sentinel.\n @param newPriceOracleSentinel The address of the new PriceOracleSentinel"
+            },
+            "functionSelector": "74944cec",
+            "id": 909,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setPriceOracleSentinel",
+            "nameLocation": "7771:22:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 907,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 906,
+                  "mutability": "mutable",
+                  "name": "newPriceOracleSentinel",
+                  "nameLocation": "7802:22:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 909,
+                  "src": "7794:30:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 905,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7794:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7793:32:3"
+            },
+            "returnParameters": {
+              "id": 908,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7834:0:3"
+            },
+            "scope": 922,
+            "src": "7762:73:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 910,
+              "nodeType": "StructuredDocumentation",
+              "src": "7839:109:3",
+              "text": " @notice Returns the address of the data provider.\n @return The address of the DataProvider"
+            },
+            "functionSelector": "e860accb",
+            "id": 915,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPoolDataProvider",
+            "nameLocation": "7960:19:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 911,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7979:2:3"
+            },
+            "returnParameters": {
+              "id": 914,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 913,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 915,
+                  "src": "8005:7:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 912,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8005:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "8004:9:3"
+            },
+            "scope": 922,
+            "src": "7951:63:3",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 916,
+              "nodeType": "StructuredDocumentation",
+              "src": "8018:128:3",
+              "text": " @notice Updates the address of the data provider.\n @param newDataProvider The address of the new DataProvider"
+            },
+            "functionSelector": "e44e9ed1",
+            "id": 921,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setPoolDataProvider",
+            "nameLocation": "8158:19:3",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 919,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 918,
+                  "mutability": "mutable",
+                  "name": "newDataProvider",
+                  "nameLocation": "8186:15:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 921,
+                  "src": "8178:23:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 917,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8178:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "8177:25:3"
+            },
+            "returnParameters": {
+              "id": 920,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "8211:0:3"
+            },
+            "scope": 922,
+            "src": "8149:63:3",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 923,
+        "src": "189:8025:3",
+        "usedErrors": [],
+        "usedEvents": [
+          723,
+          730,
+          737,
+          744,
+          751,
+          758,
+          765,
+          772,
+          781,
+          790,
+          801
+        ]
+      }
+    ],
+    "src": "37:8178:3"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2025-04-23T18:42:58.336Z",
+  "devdoc": {
+    "author": "Aave",
+    "events": {
+      "ACLAdminUpdated(address,address)": {
+        "details": "Emitted when the ACL admin is updated.",
+        "params": {
+          "newAddress": "The new address of the ACLAdmin",
+          "oldAddress": "The old address of the ACLAdmin"
+        }
+      },
+      "ACLManagerUpdated(address,address)": {
+        "details": "Emitted when the ACL manager is updated.",
+        "params": {
+          "newAddress": "The new address of the ACLManager",
+          "oldAddress": "The old address of the ACLManager"
+        }
+      },
+      "AddressSet(bytes32,address,address)": {
+        "details": "Emitted when a new non-proxied contract address is registered.",
+        "params": {
+          "id": "The identifier of the contract",
+          "newAddress": "The address of the new contract",
+          "oldAddress": "The address of the old contract"
+        }
+      },
+      "AddressSetAsProxy(bytes32,address,address,address)": {
+        "details": "Emitted when the implementation of the proxy registered with id is updated",
+        "params": {
+          "id": "The identifier of the contract",
+          "newImplementationAddress": "The address of the new implementation contract",
+          "oldImplementationAddress": "The address of the old implementation contract",
+          "proxyAddress": "The address of the proxy contract"
+        }
+      },
+      "MarketIdSet(string,string)": {
+        "details": "Emitted when the market identifier is updated.",
+        "params": {
+          "newMarketId": "The new id of the market",
+          "oldMarketId": "The old id of the market"
+        }
+      },
+      "PoolConfiguratorUpdated(address,address)": {
+        "details": "Emitted when the pool configurator is updated.",
+        "params": {
+          "newAddress": "The new address of the PoolConfigurator",
+          "oldAddress": "The old address of the PoolConfigurator"
+        }
+      },
+      "PoolDataProviderUpdated(address,address)": {
+        "details": "Emitted when the pool data provider is updated.",
+        "params": {
+          "newAddress": "The new address of the PoolDataProvider",
+          "oldAddress": "The old address of the PoolDataProvider"
+        }
+      },
+      "PoolUpdated(address,address)": {
+        "details": "Emitted when the pool is updated.",
+        "params": {
+          "newAddress": "The new address of the Pool",
+          "oldAddress": "The old address of the Pool"
+        }
+      },
+      "PriceOracleSentinelUpdated(address,address)": {
+        "details": "Emitted when the price oracle sentinel is updated.",
+        "params": {
+          "newAddress": "The new address of the PriceOracleSentinel",
+          "oldAddress": "The old address of the PriceOracleSentinel"
+        }
+      },
+      "PriceOracleUpdated(address,address)": {
+        "details": "Emitted when the price oracle is updated.",
+        "params": {
+          "newAddress": "The new address of the PriceOracle",
+          "oldAddress": "The old address of the PriceOracle"
+        }
+      },
+      "ProxyCreated(bytes32,address,address)": {
+        "details": "Emitted when a new proxy is created.",
+        "params": {
+          "id": "The identifier of the proxy",
+          "implementationAddress": "The address of the implementation contract",
+          "proxyAddress": "The address of the created proxy contract"
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "getACLAdmin()": {
+        "returns": {
+          "_0": "The address of the ACL admin"
+        }
+      },
+      "getACLManager()": {
+        "returns": {
+          "_0": "The address of the ACLManager"
+        }
+      },
+      "getAddress(bytes32)": {
+        "details": "The returned address might be an EOA or a contract, potentially proxiedIt returns ZERO if there is no registered address with the given id",
+        "params": {
+          "id": "The id"
+        },
+        "returns": {
+          "_0": "The address of the registered for the specified id"
+        }
+      },
+      "getMarketId()": {
+        "returns": {
+          "_0": "The market id"
+        }
+      },
+      "getPool()": {
+        "returns": {
+          "_0": "The Pool proxy address"
+        }
+      },
+      "getPoolConfigurator()": {
+        "returns": {
+          "_0": "The PoolConfigurator proxy address"
+        }
+      },
+      "getPoolDataProvider()": {
+        "returns": {
+          "_0": "The address of the DataProvider"
+        }
+      },
+      "getPriceOracle()": {
+        "returns": {
+          "_0": "The address of the PriceOracle"
+        }
+      },
+      "getPriceOracleSentinel()": {
+        "returns": {
+          "_0": "The address of the PriceOracleSentinel"
+        }
+      },
+      "setACLAdmin(address)": {
+        "params": {
+          "newAclAdmin": "The address of the new ACL admin"
+        }
+      },
+      "setACLManager(address)": {
+        "params": {
+          "newAclManager": "The address of the new ACLManager"
+        }
+      },
+      "setAddress(bytes32,address)": {
+        "details": "IMPORTANT Use this function carefully, as it will do a hard replacement",
+        "params": {
+          "id": "The id",
+          "newAddress": "The address to set"
+        }
+      },
+      "setAddressAsProxy(bytes32,address)": {
+        "details": "IMPORTANT Use this function carefully, only for ids that don't have an explicit setter function, in order to avoid unexpected consequences",
+        "params": {
+          "id": "The id",
+          "newImplementationAddress": "The address of the new implementation"
+        }
+      },
+      "setMarketId(string)": {
+        "details": "This can be used to create an onchain registry of PoolAddressesProviders to identify and validate multiple Aave markets.",
+        "params": {
+          "newMarketId": "The market id"
+        }
+      },
+      "setPoolConfiguratorImpl(address)": {
+        "params": {
+          "newPoolConfiguratorImpl": "The new PoolConfigurator implementation"
+        }
+      },
+      "setPoolDataProvider(address)": {
+        "params": {
+          "newDataProvider": "The address of the new DataProvider"
+        }
+      },
+      "setPoolImpl(address)": {
+        "params": {
+          "newPoolImpl": "The new Pool implementation"
+        }
+      },
+      "setPriceOracle(address)": {
+        "params": {
+          "newPriceOracle": "The address of the new PriceOracle"
+        }
+      },
+      "setPriceOracleSentinel(address)": {
+        "params": {
+          "newPriceOracleSentinel": "The address of the new PriceOracleSentinel"
+        }
+      }
+    },
+    "title": "IPoolAddressesProvider",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getACLAdmin()": {
+        "notice": "Returns the address of the ACL admin."
+      },
+      "getACLManager()": {
+        "notice": "Returns the address of the ACL manager."
+      },
+      "getAddress(bytes32)": {
+        "notice": "Returns an address by its identifier."
+      },
+      "getMarketId()": {
+        "notice": "Returns the id of the Aave market to which this contract points to."
+      },
+      "getPool()": {
+        "notice": "Returns the address of the Pool proxy."
+      },
+      "getPoolConfigurator()": {
+        "notice": "Returns the address of the PoolConfigurator proxy."
+      },
+      "getPoolDataProvider()": {
+        "notice": "Returns the address of the data provider."
+      },
+      "getPriceOracle()": {
+        "notice": "Returns the address of the price oracle."
+      },
+      "getPriceOracleSentinel()": {
+        "notice": "Returns the address of the price oracle sentinel."
+      },
+      "setACLAdmin(address)": {
+        "notice": "Updates the address of the ACL admin."
+      },
+      "setACLManager(address)": {
+        "notice": "Updates the address of the ACL manager."
+      },
+      "setAddress(bytes32,address)": {
+        "notice": "Sets an address for an id replacing the address saved in the addresses map."
+      },
+      "setAddressAsProxy(bytes32,address)": {
+        "notice": "General function to update the implementation of a proxy registered with certain `id`. If there is no proxy registered, it will instantiate one and set as implementation the `newImplementationAddress`."
+      },
+      "setMarketId(string)": {
+        "notice": "Associates an id with a specific PoolAddressesProvider."
+      },
+      "setPoolConfiguratorImpl(address)": {
+        "notice": "Updates the implementation of the PoolConfigurator, or creates a proxy setting the new `PoolConfigurator` implementation when the function is called for the first time."
+      },
+      "setPoolDataProvider(address)": {
+        "notice": "Updates the address of the data provider."
+      },
+      "setPoolImpl(address)": {
+        "notice": "Updates the implementation of the Pool, or creates a proxy setting the new `pool` implementation when the function is called for the first time."
+      },
+      "setPriceOracle(address)": {
+        "notice": "Updates the address of the price oracle."
+      },
+      "setPriceOracleSentinel(address)": {
+        "notice": "Updates the address of the price oracle sentinel."
+      }
+    },
+    "notice": "Defines the basic interface for a Pool Addresses Provider.",
+    "version": 1
+  }
+}

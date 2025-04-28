@@ -12,9 +12,20 @@ import {
   getAccounts,
   isMainnetNetwork,
   switchToMainnet,
+  MetaMaskEthereumProvider
 } from "@/lib/web3/web3";
 import Web3 from "web3";
 import { NETWORK_IDS, NETWORK_NAMES } from "@/lib/web3/config";
+import { loadContract } from "@/lib/web3/contracts";
+import { ethers } from "ethers";
+
+// Define global window.flashLoanContract property
+declare global {
+  interface Window {
+    ethereum: MetaMaskEthereumProvider;
+    flashLoanContract?: ethers.Contract | null;
+  }
+}
 
 // Define context type
 interface Web3ContextType {
@@ -52,6 +63,54 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [networkId, setNetworkId] = useState<number | null>(null);
   const [networkName, setNetworkName] = useState<string | null>(null);
 
+  // Initialize FlashLoan contract
+  const initializeFlashLoanContract = async () => {
+    try {
+      // Load the contract instance using web3.js
+      const flashLoanContract = await loadContract("FlashLoan");
+      
+      if (flashLoanContract) {
+        // Contract was found on the current network
+        // Convert to ethers.js contract for compatibility with our aave.ts
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        
+        // Create ethers contract with the same ABI and address
+        const address = flashLoanContract.options.address;
+        if (!address) {
+          console.error("FlashLoan contract address is undefined");
+          return null;
+        }
+        
+        // Get ABI from the contract instance safely
+        const abi = Array.isArray(flashLoanContract.options.jsonInterface) 
+          ? flashLoanContract.options.jsonInterface 
+          : [];
+        
+        // Create and set the global contract instance
+        window.flashLoanContract = new ethers.Contract(address, abi, signer);
+        
+        console.log("FlashLoan contract initialized:", address);
+        return true;
+      } else {
+        // Contract was not found on the current network, but we can still fetch flash loan limits
+        console.log("FlashLoan contract not found on this network - using read-only mode");
+        
+        // Set window.flashLoanContract to null indicating we're in read-only mode
+        window.flashLoanContract = null;
+        
+        // Still return true to continue with the app
+        return true;
+      }
+    } catch (error) {
+      console.error("Error initializing FlashLoan contract:", error);
+      
+      // Even if there's an error, we can still show flash loan limits
+      window.flashLoanContract = null;
+      return true;
+    }
+  };
+
   // Update network information
   const updateNetworkInfo = async (web3Instance: Web3) => {
     try {
@@ -65,6 +124,11 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       // Check if we're on Ethereum Mainnet
       const onMainnetNetwork = networkId === NETWORK_IDS.MAINNET;
       setIsCorrectNetwork(onMainnetNetwork);
+      
+      // Initialize the FlashLoan contract if on correct network
+      if (onMainnetNetwork) {
+        await initializeFlashLoanContract();
+      }
     } catch (error) {
       console.error("Error getting network info", error);
     }

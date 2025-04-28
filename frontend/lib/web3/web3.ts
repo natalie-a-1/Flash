@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Web3 from "web3";
-import { NETWORK_IDS } from "./config";
+import { NETWORK_IDS, RPC_URLS } from "./config";
 
 // Define MetaMask provider type
 export interface MetaMaskEthereumProvider {
@@ -87,7 +87,7 @@ export const switchToMainnet = async (): Promise<boolean> => {
                   symbol: "ETH",
                   decimals: 18,
                 },
-                rpcUrls: ["https://mainnet.infura.io/v3/"],
+                rpcUrls: [RPC_URLS[NETWORK_IDS.MAINNET]],
                 blockExplorerUrls: ["https://etherscan.io/"],
               },
             ],
