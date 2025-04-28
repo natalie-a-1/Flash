@@ -194,13 +194,13 @@ const PriceComparison = () => {
     if (!isConnected) {
       walletStatusMessage = (
         <p className="text-xs text-orange-600 mt-1">
-          Connect wallet to Sepolia for dApp features.
+          Connect wallet to Ethereum Mainnet for dApp features.
         </p>
       );
     } else if (!isCorrectNetwork) {
       walletStatusMessage = (
         <p className="text-xs text-orange-600 mt-1">
-          Switch wallet to Sepolia for dApp features.
+          Switch wallet to Ethereum Mainnet for dApp features.
         </p>
       );
     }

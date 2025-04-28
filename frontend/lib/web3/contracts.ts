@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import { ContractJson, Web3Contract } from "@/types/contracts";
 import { getNetworkDetails } from "./web3";
-import { MAINNET_ADDRESSES, SEPOLIA_ADDRESSES } from "./config";
+import { MAINNET_ADDRESSES } from "./config";
 
 /**
  * Loads a contract instance for the given contract name
@@ -36,7 +36,7 @@ export async function loadContract(
       
       // Try to use a fallback address if available
       if (networkId === "1" && contractName === "FlashLoan") {
-        // If on mainnet but the contract was deployed to Sepolia, provide a custom fallback
+        // If on mainnet, provide a fallback address
         const fallbackAddress = await getFallbackContractAddress(contractName, networkId);
         if (fallbackAddress) {
           console.log(`Using fallback address for ${contractName}: ${fallbackAddress}`);
@@ -67,13 +67,8 @@ async function getFallbackContractAddress(
   // This is a demo fallback mechanism - in a real app, you might fetch from an API or config
   if (contractName === "FlashLoan") {
     if (networkId === "1") {
-      // This is just a placeholder - in a real scenario, you'd need to deploy to mainnet
-      // For demo purposes, you could use a hardcoded address
-      console.log("Using test FlashLoan contract for demo purposes");
-      return "0x0000000000000000000000000000000000000000"; // Demo placeholder
-    } else if (networkId === "11155111") {
-      // If on Sepolia, use the Sepolia deployment
-      return SEPOLIA_ADDRESSES.FLASH_LOAN;
+      // For demo purposes on Mainnet, use the address from config
+      return MAINNET_ADDRESSES.FLASH_LOAN;
     }
   }
   return null;

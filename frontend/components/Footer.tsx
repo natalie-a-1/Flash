@@ -57,10 +57,10 @@ export default function Footer() {
             <h4 className="text-sm font-medium text-white mb-4">Networks</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <span className="text-white/60">Sepolia Testnet</span>
+                <span className="text-white/60">Ethereum Mainnet</span>
               </li>
               <li>
-                <span className="text-white/60">Ethereum Mainnet (View Only)</span>
+                <span className="text-white/60">Local Development (Mainnet Fork)</span>
               </li>
             </ul>
           </div>

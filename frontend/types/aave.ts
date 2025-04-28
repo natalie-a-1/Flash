@@ -25,10 +25,44 @@ export interface TokenInfo {
 }
 
 /**
+ * Reserve state enum representing possible states of an Aave reserve
+ */
+export enum ReserveState {
+  ACTIVE = 'ACTIVE',
+  FROZEN = 'FROZEN',
+  PAUSED = 'PAUSED',
+  NOT_LISTED = 'NOT_LISTED',
+  UNAVAILABLE = 'UNAVAILABLE',
+  ERROR = 'ERROR'
+}
+
+/**
+ * Information about a reserve's state (active, frozen, etc.)
+ */
+export interface ReserveStateInfo {
+  isActive: boolean;
+  isFrozen: boolean;
+  isPaused: boolean;
+  isFlashLoanEnabled: boolean;
+}
+
+/**
+ * Enhanced reserve data with additional state and UI information
+ */
+export interface ReserveInfo {
+  tokenAddress: string;
+  tokenSymbol: string;
+  availableLiquidity: string;
+  reserveState: ReserveStateInfo;
+  aTokenAddress?: string;
+  message?: string; // User-friendly message explaining the state
+}
+
+/**
  * Response from fetching flash loan limits
  */
 export interface FlashLoanLimitsResponse {
-  [tokenAddress: string]: string;
+  [tokenAddress: string]: ReserveInfo;
 }
 
 /**

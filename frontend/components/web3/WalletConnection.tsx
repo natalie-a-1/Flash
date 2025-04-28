@@ -87,7 +87,7 @@ export default function WalletConnection() {
               onClick={switchNetwork}
               className="w-full mt-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-indigo-500/30"
             >
-              Switch to Sepolia
+              Switch to Ethereum Mainnet
             </button>
           )}
         </div>

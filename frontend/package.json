@@ -10,8 +10,9 @@
     "test": "mocha --require ts-node/register --require test/setup.ts 'test/**/*.test.ts'"
   },
   "dependencies": {
+    "@aave/contract-helpers": "^1.33.1",
     "@bgd-labs/aave-address-book": "^4.18.1",
-    "ethers": "^6.13.5",
+    "ethers": "^5.8.0",
     "next": "15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

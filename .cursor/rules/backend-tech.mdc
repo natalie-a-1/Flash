@@ -1,6 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-The backend uses Truffle for compilation, migration, and testing. It relies on Ganache for local development (including Sepolia forks via `development_fork` network config) and utilizes OpenZeppelin contracts (`@openzeppelin/contracts`) and Aave V3 core contracts (`@aave/core-v3`) for the flash loan implementation.

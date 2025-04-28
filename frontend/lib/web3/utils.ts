@@ -26,25 +26,54 @@ export function truncateAddress(
 }
 
 /**
- * Formats a token amount for display with the specified number of decimal places
- * @param amount The amount to format
- * @param decimals The number of decimal places to display (default: 2)
- * @returns Formatted amount as a string
+ * Formats token amount for display with appropriate symbols and formatting
+ * 
+ * @param amount - The amount to format as a string
+ * @param decimals - Number of decimal places to display
+ * @param symbol - Optional currency symbol to append
+ * @param compact - Whether to use compact notation (K, M, B) for large numbers
+ * @returns Formatted string with symbol
  */
-export function formatTokenAmount(amount: string | number, decimals: number = 2): string {
-  const amountNum = typeof amount === 'string' ? parseFloat(amount) : amount;
+export function formatTokenAmount(
+  amount: string | number, 
+  decimals: number = 4,
+  symbol?: string,
+  compact: boolean = true
+): string {
+  if (!amount) return symbol ? `0 ${symbol}` : '0';
   
-  if (isNaN(amountNum)) return '0';
+  // Convert to number if it's a string
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   
-  // Check if the amount is very small
-  if (amountNum > 0 && amountNum < 0.0001) {
-    return '<0.0001';
+  // Handle zero case
+  if (numericAmount === 0) return symbol ? `0 ${symbol}` : '0';
+  
+  let formattedAmount: string;
+  
+  if (compact && numericAmount >= 1000) {
+    // For compact notation (e.g., 1.5K, 2.3M)
+    if (numericAmount >= 1_000_000_000) {
+      // Billions
+      formattedAmount = (numericAmount / 1_000_000_000).toFixed(decimals).replace(/\.?0+$/, '');
+      formattedAmount = `${formattedAmount}B`;
+    } else if (numericAmount >= 1_000_000) {
+      // Millions
+      formattedAmount = (numericAmount / 1_000_000).toFixed(decimals).replace(/\.?0+$/, '');
+      formattedAmount = `${formattedAmount}M`;
+    } else {
+      // Thousands
+      formattedAmount = (numericAmount / 1_000).toFixed(decimals).replace(/\.?0+$/, '');
+      formattedAmount = `${formattedAmount}K`;
+    }
+  } else {
+    // Standard notation with thousand separators
+    formattedAmount = numericAmount.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: decimals,
+    });
   }
   
-  return amountNum.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  });
+  return symbol ? `${formattedAmount} ${symbol}` : formattedAmount;
 }
 
 /**

@@ -2,7 +2,7 @@ import { TokenInfo } from "@/types/aave";
 import { MAINNET_ADDRESSES } from "@/lib/web3/config";
 
 /**
- * Token definitions for the application
+ * Token definitions for the application (using Mainnet addresses)
  */
 export const TOKENS: TokenInfo[] = [
   {

@@ -24,12 +24,14 @@ export const getWeb3 = async (): Promise<Web3> => {
   throw new Error("MetaMask is not installed");
 };
 
-// Get ethers provider
-export const getEthersProvider = async (): Promise<ethers.BrowserProvider> => {
+// Get ethers v5 provider
+export const getEthersV5Provider = (): ethers.providers.Web3Provider | null => {
   if (typeof window !== "undefined" && window.ethereum) {
-    return new ethers.BrowserProvider(window.ethereum);
+    // Use the ethers v5 provider
+    return new ethers.providers.Web3Provider(window.ethereum);
   }
-  throw new Error("MetaMask is not installed");
+  console.error("MetaMask is not installed or window.ethereum is not available.");
+  return null;
 };
 
 // Get network details
@@ -99,53 +101,6 @@ export const switchToMainnet = async (): Promise<boolean> => {
         }
       }
       console.error("Error switching to Ethereum Mainnet network", error);
-      return false;
-    }
-  }
-  return false;
-};
-
-// Legacy functions (kept for reference)
-export const isSepoliaNetwork = async (): Promise<boolean> => {
-  const { id } = await getNetworkDetails();
-  return id === NETWORK_IDS.SEPOLIA;
-};
-
-export const switchToSepolia = async (): Promise<boolean> => {
-  if (typeof window !== "undefined" && window.ethereum) {
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: `0x${NETWORK_IDS.SEPOLIA.toString(16)}` }],
-      });
-      return true;
-    } catch (error: any) {
-      // This error code indicates that the chain has not been added to MetaMask
-      if (error.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: `0x${NETWORK_IDS.SEPOLIA.toString(16)}`,
-                chainName: "Sepolia Test Network",
-                nativeCurrency: {
-                  name: "Sepolia ETH",
-                  symbol: "ETH",
-                  decimals: 18,
-                },
-                rpcUrls: ["https://sepolia.infura.io/v3/"],
-                blockExplorerUrls: ["https://sepolia.etherscan.io/"],
-              },
-            ],
-          });
-          return true;
-        } catch (addError) {
-          console.error("Error adding Sepolia network", addError);
-          return false;
-        }
-      }
-      console.error("Error switching to Sepolia network", error);
       return false;
     }
   }
