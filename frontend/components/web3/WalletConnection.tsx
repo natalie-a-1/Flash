@@ -4,7 +4,13 @@ import { useWeb3 } from "./Web3Provider";
 import { truncateAddress } from "@/lib/web3/utils";
 import { useState, useEffect } from "react";
 
+/**
+ * WalletConnection component handles the display and interaction
+ * for connecting a user's wallet. It shows the connection status,
+ * network information, and provides options to connect or switch networks.
+ */
 export default function WalletConnection() {
+  // Destructure necessary values from the Web3 context
   const {
     web3,
     account,
@@ -16,15 +22,25 @@ export default function WalletConnection() {
     switchNetwork,
   } = useWeb3();
 
+  // State to manage tooltip visibility
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  // State to track if the component is mounted
   const [mounted, setMounted] = useState(false);
 
-  // Only run on client-side
+  /**
+   * useEffect hook to set the mounted state to true
+   * when the component is mounted. This ensures that
+   * client-side logic is executed only after mounting.
+   */
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Show a skeleton during server-side rendering to prevent hydration mismatch
+  /**
+   * Render a skeleton layout during server-side rendering.
+   * This prevents hydration mismatch by providing a consistent
+   * structure while the component is mounting.
+   */
   if (!mounted) {
     return (
       <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
@@ -44,6 +60,11 @@ export default function WalletConnection() {
     );
   }
 
+  /**
+   * Main rendering logic for the WalletConnection component.
+   * Displays connection status, network information, and provides
+   * buttons for connecting or switching networks.
+   */
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
       <h2 className="text-2xl font-medium text-white mb-4">Wallet Connection</h2>

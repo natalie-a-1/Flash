@@ -4,22 +4,33 @@ import { useWeb3 } from "@/components/web3/Web3Provider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+/**
+ * LoginPage component handles the user login interface.
+ * It checks if the user's wallet is connected and redirects to the dashboard if so.
+ * Otherwise, it displays a login page with a connect wallet button.
+ */
 export default function LoginPage() {
-  const { isConnected, connectWallet } = useWeb3();
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const { isConnected, connectWallet } = useWeb3(); // Destructuring to get wallet connection status and connect function
+  const router = useRouter(); // Hook to programmatically navigate
+  const [mounted, setMounted] = useState(false); // State to track if the component is mounted
 
-  // Only run client-side
+  /**
+   * useEffect hook to run side effects.
+   * Sets the mounted state to true when the component is mounted.
+   * Redirects to the dashboard if the wallet is already connected.
+   */
   useEffect(() => {
     setMounted(true);
     
-    // Redirect to dashboard if wallet is already connected
     if (isConnected) {
       router.push("/dashboard");
     }
   }, [isConnected, router]);
 
-  // During server rendering and first mount, return a placeholder with same structure
+  /**
+   * Renders a placeholder during server-side rendering and the first mount.
+   * This ensures the structure remains consistent before the client-side logic takes over.
+   */
   if (!mounted) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -34,7 +45,7 @@ export default function LoginPage() {
           </div>
           
           <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-8 shadow-xl border border-white/20">
-            {/* Pre-rendering placeholder */}
+            {/* Pre-rendering placeholder with animation */}
             <div className="animate-pulse">
               <div className="flex items-center justify-center">
                 <div className="w-16 h-16 bg-white/10 rounded-full"></div>
@@ -50,6 +61,10 @@ export default function LoginPage() {
     );
   }
 
+  /**
+   * Renders the main login interface when the component is mounted.
+   * Displays a connect wallet button and information about the platform.
+   */
   return (
     <main className="min-h-screen flex items-center justify-center">
       <div className="max-w-md w-full px-4">

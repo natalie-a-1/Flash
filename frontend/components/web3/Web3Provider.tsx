@@ -26,19 +26,19 @@ declare global {
   }
 }
 
-// Define context type
+// Define the structure of the Web3 context
 interface Web3ContextType {
-  web3: Web3 | null;
-  account: string | null;
-  isConnected: boolean;
-  isCorrectNetwork: boolean;
-  networkId: number | null;
-  networkName: string | null;
-  connectWallet: () => Promise<void>;
-  switchNetwork: () => Promise<boolean>;
+  web3: Web3 | null; // Instance of Web3 or null if not connected
+  account: string | null; // Current connected account or null
+  isConnected: boolean; // Connection status
+  isCorrectNetwork: boolean; // Network correctness status
+  networkId: number | null; // Current network ID or null
+  networkName: string | null; // Current network name or null
+  connectWallet: () => Promise<void>; // Function to connect wallet
+  switchNetwork: () => Promise<boolean>; // Function to switch network
 }
 
-// Create context with default values
+// Create a context with default values
 const Web3Context = createContext<Web3ContextType>({
   web3: null,
   account: null,
@@ -50,10 +50,10 @@ const Web3Context = createContext<Web3ContextType>({
   switchNetwork: async () => false,
 });
 
-// Hook to use the Web3 context
+// Custom hook to access the Web3 context
 export const useWeb3 = () => useContext(Web3Context);
 
-// Web3Provider component
+// Web3Provider component to manage Web3 state and provide context
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [account, setAccount] = useState<string | null>(null);
@@ -62,12 +62,14 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [networkId, setNetworkId] = useState<number | null>(null);
   const [networkName, setNetworkName] = useState<string | null>(null);
 
-  // Initialize FlashLoan contract
+  /**
+   * Initialize the FlashLoan contract if available on the network.
+   * Sets the contract in the global window object for access.
+   */
   const initializeFlashLoanContract = async () => {
     try {
       const flashLoanContract = await loadContract("FlashLoan");
       if (flashLoanContract) {
-        // Use ethers v5 Web3Provider
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as any
         );
@@ -100,7 +102,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Update network information
+  /**
+   * Update network information such as network ID and name.
+   * Also checks if the current network is the Ethereum Mainnet.
+   */
   const updateNetworkInfo = async (web3Instance: Web3) => {
     try {
       const netId = Number(await web3Instance.eth.net.getId());
@@ -120,7 +125,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Function to switch to Ethereum Mainnet
+  /**
+   * Switch to the Ethereum Mainnet.
+   * Updates network information upon successful switch.
+   */
   const switchNetwork = async (): Promise<boolean> => {
     try {
       const result = await switchToMainnet();
@@ -134,7 +142,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Function to connect to wallet
+  /**
+   * Connect to the user's wallet using Web3.
+   * Sets up event listeners for account and network changes.
+   */
   const connectWallet = async () => {
     try {
       const web3Instance = await getWeb3();
@@ -159,7 +170,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Auto-connect when component mounts
+  /**
+   * Automatically connect to the wallet if a previous connection exists.
+   * This effect runs once when the component mounts.
+   */
   useEffect(() => {
     const checkPreviousConnection = async () => {
       if (typeof window !== "undefined" && window.ethereum) {

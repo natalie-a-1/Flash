@@ -1,7 +1,14 @@
 /**
- * Formats the time elapsed since a given date
- * @param date The reference date
- * @returns A formatted string like "5 sec ago" or "2 min ago"
+ * Calculates and formats the time elapsed since a given date.
+ * 
+ * This function takes a reference date and computes the time difference
+ * between the current date and the provided date. It returns a human-readable
+ * string indicating how much time has passed, such as "5 sec ago" or "2 min ago".
+ * 
+ * @param {Date | null} date - The reference date from which to calculate the elapsed time.
+ *                             If null, the function returns "Never".
+ * @returns {string} A formatted string representing the time elapsed since the given date.
+ *                   Returns "Never" if the input date is null.
  */
 export function getTimeElapsed(date: Date | null): string {
   if (!date) return "Never";

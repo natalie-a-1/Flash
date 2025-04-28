@@ -2,21 +2,31 @@ import { ethers } from "ethers";
 import Web3 from "web3";
 import { NETWORK_IDS, RPC_URLS } from "./config";
 
-// Define MetaMask provider type
+/**
+ * Interface for MetaMask Ethereum provider.
+ * Provides methods for interacting with the Ethereum blockchain.
+ */
 export interface MetaMaskEthereumProvider {
   request: (args: { method: string; params?: any[] }) => Promise<any>;
   on: (event: string, callback: (params: any) => void) => void;
   removeListener: (event: string, callback: (params: any) => void) => void;
 }
 
-// Declare global window.ethereum type
+/**
+ * Extends the global Window interface to include the Ethereum provider.
+ */
 declare global {
   interface Window {
     ethereum: MetaMaskEthereumProvider;
   }
 }
 
-// Get Web3 instance
+/**
+ * Retrieves a Web3 instance connected to the Ethereum provider.
+ * 
+ * @returns {Promise<Web3>} A promise that resolves to a Web3 instance.
+ * @throws Will throw an error if MetaMask is not installed.
+ */
 export const getWeb3 = async (): Promise<Web3> => {
   if (typeof window !== "undefined" && window.ethereum) {
     return new Web3(window.ethereum);
@@ -24,17 +34,25 @@ export const getWeb3 = async (): Promise<Web3> => {
   throw new Error("MetaMask is not installed");
 };
 
-// Get ethers v5 provider
+/**
+ * Retrieves an ethers.js Web3Provider instance.
+ * 
+ * @returns {ethers.providers.Web3Provider | null} An ethers.js Web3Provider instance or null if unavailable.
+ */
 export const getEthersV5Provider = (): ethers.providers.Web3Provider | null => {
   if (typeof window !== "undefined" && window.ethereum) {
-    // Use the ethers v5 provider
     return new ethers.providers.Web3Provider(window.ethereum);
   }
   console.error("MetaMask is not installed or window.ethereum is not available.");
   return null;
 };
 
-// Get network details
+/**
+ * Fetches the current network details including ID and name.
+ * 
+ * @returns {Promise<{ id: number; name: string; }>} A promise that resolves to an object containing network ID and name.
+ * @throws Will throw an error if MetaMask is not installed.
+ */
 export const getNetworkDetails = async (): Promise<{
   id: number;
   name: string;
@@ -49,22 +67,34 @@ export const getNetworkDetails = async (): Promise<{
   throw new Error("MetaMask is not installed");
 };
 
-// Get accounts
+/**
+ * Retrieves the list of accounts connected to the Web3 instance.
+ * 
+ * @param {Web3} web3 - An instance of the Web3 library.
+ * @returns {Promise<string[]>} A promise that resolves to an array of account addresses.
+ */
 export const getAccounts = async (web3: Web3): Promise<string[]> => {
   if (typeof window !== "undefined" && window.ethereum) {
-    // This will prompt the MetaMask popup if not connected
     await window.ethereum.request({ method: "eth_requestAccounts" });
   }
   return await web3.eth.getAccounts();
 };
 
-// Check if on Ethereum Mainnet network
+/**
+ * Checks if the current network is the Ethereum Mainnet.
+ * 
+ * @returns {Promise<boolean>} A promise that resolves to true if on Mainnet, false otherwise.
+ */
 export const isMainnetNetwork = async (): Promise<boolean> => {
   const { id } = await getNetworkDetails();
   return id === NETWORK_IDS.MAINNET;
 };
 
-// Switch to Ethereum Mainnet network
+/**
+ * Switches the network to Ethereum Mainnet.
+ * 
+ * @returns {Promise<boolean>} A promise that resolves to true if the switch is successful, false otherwise.
+ */
 export const switchToMainnet = async (): Promise<boolean> => {
   if (typeof window !== "undefined" && window.ethereum) {
     try {
@@ -74,8 +104,6 @@ export const switchToMainnet = async (): Promise<boolean> => {
       });
       return true;
     } catch (error: any) {
-      // This error code indicates that the chain has not been added to MetaMask
-      // (Should not happen for mainnet as it's the default network)
       if (error.code === 4902) {
         try {
           await window.ethereum.request({

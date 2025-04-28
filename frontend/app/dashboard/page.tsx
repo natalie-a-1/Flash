@@ -7,13 +7,21 @@ import WalletConnection from "@/components/web3/WalletConnection";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+/**
+ * Dashboard component for displaying arbitrage opportunities and flash loan options.
+ * Handles wallet connection status and network checks.
+ */
 export default function Dashboard() {
+  // Destructure necessary values from the Web3 context
   const { isConnected, isCorrectNetwork, connectWallet } = useWeb3();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // Effect for client-side rendering and auth check
+  /**
+   * useEffect hook for client-side rendering and authentication check.
+   * Redirects to the home page if the wallet is not connected.
+   */
   useEffect(() => {
     setMounted(true);
     
@@ -29,7 +37,10 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, [isConnected, router]);
 
-  // During server rendering, return a skeleton with the same structure
+  /**
+   * Render a skeleton layout during server-side rendering.
+   * Provides a consistent structure while the component is mounting.
+   */
   if (!mounted) {
     return (
       <main className="min-h-screen">
@@ -55,7 +66,9 @@ export default function Dashboard() {
     );
   }
 
-  // Show loading state initially
+  /**
+   * Display a loading state initially while data is being fetched or processed.
+   */
   if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -72,8 +85,10 @@ export default function Dashboard() {
     );
   }
 
-  // If not connected, this should never show as the redirect should happen
-  // But as a fallback, show a prompt to connect
+  /**
+   * Fallback UI to prompt the user to connect their wallet if not connected.
+   * This should not be shown due to the redirect, but serves as a backup.
+   */
   if (!isConnected) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -93,12 +108,17 @@ export default function Dashboard() {
     );
   }
 
+  /**
+   * Main dashboard UI rendering.
+   * Displays wallet connection status, network status, and arbitrage opportunities.
+   */
   return (
     <main className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
         <p className="text-slate-300 mb-8">Monitor arbitrage opportunities and execute flash loans</p>
 
+        {/* Warning message if the user is not on the correct network */}
         {!isCorrectNetwork && (
           <div className="mb-8 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg p-4 flex items-center">
             <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +132,7 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left sidebar */}
+          {/* Left sidebar with wallet connection and quick stats */}
           <div className="md:col-span-1">
             <WalletConnection />
             
@@ -135,7 +155,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Main content area */}
+          {/* Main content area for arbitrage opportunities and flash loan options */}
           <div className="md:col-span-2 space-y-6">
             <ArbitrageOpportunities />
             <FlashLoanOptions />

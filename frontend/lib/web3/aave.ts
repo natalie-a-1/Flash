@@ -2,12 +2,16 @@ import Web3 from "web3";
 import { TokenInfo } from "@/types/aave";
 
 /**
- * Stub function to execute a flash loan via Aave.
- * Currently it logs a warning and returns false.
- * @param web3 Unused Web3 instance
- * @param token Token info (address, symbol, etc.)
- * @param amount Amount in wei as a string
- * @returns Promise resolving to false
+ * Executes a flash loan via Aave.
+ * 
+ * This is a stub function that simulates the execution of a flash loan.
+ * It currently logs a warning message indicating that no transaction is sent
+ * and returns a promise that resolves to false.
+ * 
+ * @param {Web3} web3 - An instance of the Web3 library. Currently unused in this stub.
+ * @param {TokenInfo} token - An object containing token information such as address and symbol.
+ * @param {string} amount - The amount for the flash loan, specified in wei as a string.
+ * @returns {Promise<boolean>} A promise that resolves to false, indicating no transaction is executed.
  */
 export async function executeAaveFlashLoan(
   web3: Web3,

@@ -8,18 +8,25 @@ import { getTimeElapsed } from "@/lib/utils/timeUtils";
 import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
 import { ethers } from "ethers";
 
+/**
+ * ArbitrageOpportunities component displays potential arbitrage opportunities
+ * by fetching and analyzing token pair prices from various decentralized exchanges (DEXs).
+ */
 export default function ArbitrageOpportunities() {
-  // Web3 context
+  // Destructure necessary values from the Web3 context
   const { web3, isConnected, isCorrectNetwork } = useWeb3();
 
-  // Component state
+  // State variables to manage component data and UI state
   const [prices, setPrices] = useState<TokenPairPrices>({});
   const [isLoading, setIsLoading] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Fetch price data from DEXs
+  /**
+   * Fetches price data from DEXs using the ethers Web3Provider.
+   * Updates the component state with the fetched prices or logs an error if fetching fails.
+   */
   const fetchPrices = async () => {
     if (!window.ethereum || !isConnected || !isCorrectNetwork) {
       console.log("Cannot fetch prices: Wallet not connected or not on Ethereum Mainnet.");
@@ -31,7 +38,6 @@ export default function ArbitrageOpportunities() {
     setPrices({});
 
     try {
-      // Using ethers v5 Web3Provider instead of BrowserProvider
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
       const fetchedPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
       setPrices(fetchedPrices);
@@ -44,12 +50,18 @@ export default function ArbitrageOpportunities() {
     }
   };
 
-  // Set mounted flag for client-side rendering
+  /**
+   * Sets the mounted flag to true for client-side rendering.
+   * Ensures that client-side logic is executed only after the component is mounted.
+   */
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Setup polling for price updates
+  /**
+   * Sets up polling for price updates every 15 seconds if the wallet is connected
+   * and on the correct network. Clears the interval when the component is unmounted.
+   */
   useEffect(() => {
     if (!mounted) return;
 
@@ -70,7 +82,10 @@ export default function ArbitrageOpportunities() {
     }
   }, [isConnected, isCorrectNetwork, mounted]);
 
-  // Show skeleton during server rendering
+  /**
+   * Renders a skeleton layout during server-side rendering to prevent hydration mismatch.
+   * Displays a consistent structure while the component is mounting.
+   */
   if (!mounted) {
     return (
       <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
@@ -85,6 +100,10 @@ export default function ArbitrageOpportunities() {
     );
   }
 
+  /**
+   * Main rendering logic for the ArbitrageOpportunities component.
+   * Displays arbitrage opportunities or prompts the user to connect their wallet or switch networks.
+   */
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
       <div className="flex justify-between items-center mb-4">

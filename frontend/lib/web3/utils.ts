@@ -1,13 +1,20 @@
 /**
- * Utility functions for web3 interactions
+ * Utility functions for web3 interactions.
+ * 
+ * This module provides utility functions to assist with common web3-related tasks,
+ * such as formatting Ethereum addresses and token amounts for display.
  */
 
 /**
- * Truncates an Ethereum address for display purposes
- * @param address The full Ethereum address
- * @param startChars Number of characters to show at the start (default: 6)
- * @param endChars Number of characters to show at the end (default: 4)
- * @returns Truncated address in the format "0x1234...5678"
+ * Truncates an Ethereum address for display purposes.
+ * 
+ * This function shortens an Ethereum address by displaying only the specified number
+ * of characters at the start and end, with ellipses in between.
+ * 
+ * @param {string} address - The full Ethereum address to be truncated.
+ * @param {number} [startChars=6] - The number of characters to display at the start of the address.
+ * @param {number} [endChars=4] - The number of characters to display at the end of the address.
+ * @returns {string} The truncated address in the format "0x1234...5678".
  */
 export function truncateAddress(
   address: string, 
@@ -26,13 +33,16 @@ export function truncateAddress(
 }
 
 /**
- * Formats token amount for display with appropriate symbols and formatting
+ * Formats a token amount for display with appropriate symbols and formatting.
  * 
- * @param amount - The amount to format as a string
- * @param decimals - Number of decimal places to display
- * @param symbol - Optional currency symbol to append
- * @param compact - Whether to use compact notation (K, M, B) for large numbers
- * @returns Formatted string with symbol
+ * This function formats a given token amount, optionally appending a currency symbol
+ * and using compact notation for large numbers (e.g., thousands, millions, billions).
+ * 
+ * @param {string | number} amount - The amount to format, either as a string or number.
+ * @param {number} [decimals=4] - The number of decimal places to display.
+ * @param {string} [symbol] - An optional currency symbol to append to the formatted amount.
+ * @param {boolean} [compact=true] - Whether to use compact notation (K, M, B) for large numbers.
+ * @returns {string} The formatted string with the optional symbol.
  */
 export function formatTokenAmount(
   amount: string | number, 

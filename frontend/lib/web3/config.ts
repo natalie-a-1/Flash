@@ -1,57 +1,53 @@
 /**
- * Configuration for the frontend application
+ * Configuration for the frontend application.
+ * This file contains network IDs, network names, RPC URLs, block explorers,
+ * application settings, and contract addresses for tokens and DEX routers on Mainnet.
  */
-// Removed Aave Address Book import
 
 // Ethereum network IDs
 export const NETWORK_IDS = {
-  MAINNET: 1,
-  LOCALHOST: 1337, // For local Mainnet fork testing
+  MAINNET: 1, // Ethereum Mainnet network ID
+  LOCALHOST: 1337, // Localhost network ID for Mainnet fork testing
 };
 
-// Network names
+// Network names corresponding to network IDs
 export const NETWORK_NAMES = {
-  [NETWORK_IDS.MAINNET]: "Ethereum Mainnet",
-  [NETWORK_IDS.LOCALHOST]: "Local Development (Mainnet Fork)",
+  [NETWORK_IDS.MAINNET]: "Ethereum Mainnet", // Name for Ethereum Mainnet
+  [NETWORK_IDS.LOCALHOST]: "Local Development (Mainnet Fork)", // Name for local development network
 };
 
-// RPC URLs
+// RPC URLs for connecting to Ethereum networks
 export const RPC_URLS = {
-  [NETWORK_IDS.MAINNET]: "https://eth.llamarpc.com", // Using LlamaRPC public endpoint for Ethereum
-  [NETWORK_IDS.LOCALHOST]: "http://localhost:8545", // Local Ganache fork
+  [NETWORK_IDS.MAINNET]: "https://eth.llamarpc.com", // LlamaRPC public endpoint for Ethereum Mainnet
+  [NETWORK_IDS.LOCALHOST]: "http://localhost:8545", // Local Ganache fork endpoint
 };
 
-// Block explorers
+// Block explorers for viewing transactions and contracts
 export const BLOCK_EXPLORERS = {
-  [NETWORK_IDS.MAINNET]: "https://etherscan.io",
+  [NETWORK_IDS.MAINNET]: "https://etherscan.io", // Etherscan for Ethereum Mainnet
 };
 
-// Faucets - Not applicable for Mainnet
-
-// Application settings
+// Application settings including default network and contact information
 export const APP_CONFIG = {
-  defaultNetwork: NETWORK_IDS.MAINNET, // Ensure default is Mainnet
-  appName: "Flash Blockchain",
-  supportEmail: "support@example.com",
+  defaultNetwork: NETWORK_IDS.MAINNET, // Default network set to Ethereum Mainnet
+  appName: "Flash Blockchain", // Name of the application
+  supportEmail: "support@example.com", // Support contact email
 };
 
-// --- Contract Addresses for Tokens and DEX Routers on Mainnet ---
+// Contract addresses for tokens and DEX routers on Ethereum Mainnet
 export const MAINNET_ADDRESSES = {
-  // Tokens
-  WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", 
-  USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 
-  DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F", 
+  // Token contract addresses
+  WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // Wrapped Ether (WETH) contract address
+  USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USD Coin (USDC) contract address
+  DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F", // Dai Stablecoin (DAI) contract address
 
-  // DEX Routers
-  UNISWAP_V2_ROUTER: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", 
-  SUSHISWAP_V2_ROUTER: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+  // DEX router contract addresses
+  UNISWAP_V2_ROUTER: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Uniswap V2 Router contract address
+  SUSHISWAP_V2_ROUTER: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", // SushiSwap V2 Router contract address
 };
 
-// Removed manual Aave V3 addresses; using @bgd-labs/aave-address-book in components directly
+// Note: Aave V3 addresses are managed using @bgd-labs/aave-address-book directly in components
 
-// Removed FLASH_LOAN placeholder; still manage contract address in deployment or env if needed
+// Note: FLASH_LOAN placeholder removed; manage contract address in deployment or environment variables if needed
 
-// Remove SEPOLIA_ADDRESSES section entirely
-/*
-export const SEPOLIA_ADDRESSES = { ... };
-*/
+// Note: SEPOLIA_ADDRESSES section removed entirely

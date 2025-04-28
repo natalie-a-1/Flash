@@ -1,34 +1,46 @@
 import { MAINNET_ADDRESSES } from "@/lib/web3/config";
 
-// Exchange objects with name, router address, and icon
+/**
+ * List of decentralized exchanges (DEXs) with their respective router addresses and icons.
+ * These are used for executing trades and fetching price data.
+ */
 export const EXCHANGES = [
   {
-    name: "Uniswap V2",
-    router: MAINNET_ADDRESSES.UNISWAP_V2_ROUTER,
-    icon: "🦄"
+    name: "Uniswap V2", // Name of the exchange
+    router: MAINNET_ADDRESSES.UNISWAP_V2_ROUTER, // Router address for Uniswap V2
+    icon: "🦄" // Icon representing Uniswap V2
   },
   {
-    name: "SushiSwap",
-    router: MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER,
-    icon: "🍣"
+    name: "SushiSwap", // Name of the exchange
+    router: MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER, // Router address for SushiSwap
+    icon: "🍣" // Icon representing SushiSwap
   }
 ];
 
-// Token pairs for arbitrage
+/**
+ * Token pairs available for arbitrage opportunities.
+ * Each pair includes the token addresses and their symbols.
+ */
 export const PAIRS = [
   {
-    name: "USDC/WETH",
-    tokens: [MAINNET_ADDRESSES.USDC, MAINNET_ADDRESSES.WETH],
-    baseSymbol: "USDC",
-    quoteSymbol: "WETH"
+    name: "USDC/WETH", // Name of the token pair
+    tokens: [MAINNET_ADDRESSES.USDC, MAINNET_ADDRESSES.WETH], // Addresses of the tokens in the pair
+    baseSymbol: "USDC", // Base token symbol
+    quoteSymbol: "WETH" // Quote token symbol
   }
 ];
 
-// Minimal ABI for Uniswap V2 Router getAmountsOut
+/**
+ * Minimal ABI for interacting with the Uniswap V2 Router contract.
+ * Specifically used for the getAmountsOut function to calculate output amounts.
+ */
 export const ROUTER_ABI = [
   "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
 ];
 
-// Token Decimals
+/**
+ * Decimal precision for tokens used in calculations.
+ * USDC and WETH have different decimal places which are crucial for accurate computations.
+ */
 export const USDC_DECIMALS = 6;  // USDC has 6 decimals
-export const WETH_DECIMALS = 18; // WETH has 18 decimals 
+export const WETH_DECIMALS = 18; // WETH has 18 decimals

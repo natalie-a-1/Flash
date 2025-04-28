@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 
+/**
+ * Footer component for the application.
+ * Displays information about the platform, resources, networks, and legal notices.
+ * 
+ * @returns {JSX.Element} The rendered footer component.
+ */
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 mt-16 py-8">

@@ -9,11 +9,12 @@ import {
 import { ROUTER_ABI, USDC_DECIMALS, WETH_DECIMALS } from "@/lib/constants/dex";
 
 /**
- * Fetches price data from DEXs for specified token pairs
- * @param provider The ethers Web3Provider connected to the user's wallet
- * @param exchanges Array of exchanges to fetch prices from
- * @param pairs Array of token pairs to fetch prices for
- * @returns Object containing price data for each pair and exchange
+ * Fetches price data from decentralized exchanges (DEXs) for specified token pairs.
+ * 
+ * @param provider - The ethers Web3Provider connected to the user's wallet.
+ * @param exchanges - Array of exchanges to fetch prices from.
+ * @param pairs - Array of token pairs to fetch prices for.
+ * @returns An object containing price data for each pair and exchange.
  */
 export async function fetchDexPrices(
   provider: ethers.providers.Web3Provider,
@@ -28,13 +29,13 @@ export async function fetchDexPrices(
     contract: new Contract(exchange.router, ROUTER_ABI, provider),
   }));
 
-  // Fetch prices for each pair
+  // Fetch prices for each token pair
   for (const pair of pairs) {
     const pairName = pair.name;
     fetchedPrices[pairName] = {};
 
     const [tokenInAddress, tokenOutAddress] = pair.tokens;
-    // Amount of input token (1 USDC)
+    // Define the amount of input token (1 USDC)
     const amountIn = ethers.utils.parseUnits("1", USDC_DECIMALS);
     const path = [tokenInAddress, tokenOutAddress];
 
@@ -61,9 +62,10 @@ export async function fetchDexPrices(
 }
 
 /**
- * Determines the best arbitrage path between exchanges for a given pair
- * @param prices Prices for the pair on different exchanges
- * @returns The best arbitrage path or null if no opportunity exists
+ * Determines the best arbitrage path between exchanges for a given token pair.
+ * 
+ * @param prices - Prices for the token pair on different exchanges.
+ * @returns The best arbitrage path or null if no opportunity exists.
  */
 export function findBestArbitragePath(
   prices: ExchangePrices
@@ -71,7 +73,7 @@ export function findBestArbitragePath(
   const exchangeNames = Object.keys(prices);
   if (exchangeNames.length < 2) return null;
 
-  // Filter out exchanges with 0 price (indicating fetch error)
+  // Filter out exchanges with a price of 0 (indicating a fetch error)
   const validPrices = Object.entries(prices).filter(
     ([, price]) => price > 0
   );
@@ -102,10 +104,11 @@ export function findBestArbitragePath(
 }
 
 /**
- * Calculates the arbitrage opportunity percentage
- * @param buyPrice Price to buy the token
- * @param sellPrice Price to sell the token
- * @returns Percentage profit/loss as a number (e.g., 1.5 for 1.5%)
+ * Calculates the arbitrage opportunity percentage.
+ * 
+ * @param buyPrice - Price to buy the token.
+ * @param sellPrice - Price to sell the token.
+ * @returns Percentage profit/loss as a number (e.g., 1.5 for 1.5%).
  */
 export function calculateArbitragePercentage(
   buyPrice: number,
