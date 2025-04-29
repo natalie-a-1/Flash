@@ -3,6 +3,7 @@
 import { useWeb3 } from "@/components/web3/Web3Provider";
 import ArbitrageOpportunities from "@/components/ArbitrageOpportunities";
 import FlashLoanOptions from "@/components/FlashLoanOptions";
+import QuickStats from "@/components/TransactionFees";
 import WalletConnection from "@/components/web3/WalletConnection";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -115,8 +116,8 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-300 mb-8">Monitor arbitrage opportunities and execute flash loans</p>
+        {/* <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1> */}
+        {/* <p className="text-slate-300 mb-8">Monitor arbitrage opportunities and execute flash loans</p> */}
 
         {/* Warning message if the user is not on the correct network */}
         {!isCorrectNetwork && (
@@ -136,23 +137,7 @@ export default function Dashboard() {
           <div className="md:col-span-1">
             <WalletConnection />
             
-            <div className="mt-6 rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
-              <h2 className="text-2xl font-medium text-white mb-4">Quick Stats</h2>
-              <div className="space-y-4">
-                <div className="bg-white/5 rounded-lg p-3">
-                  <p className="text-white/70 text-sm">Network Status</p>
-                  <p className="text-white font-medium">{isCorrectNetwork ? "Ethereum Mainnet" : "Wrong Network"}</p>
-                </div>
-                <div className="bg-white/5 rounded-lg p-3">
-                  <p className="text-white/70 text-sm">Best Opportunity</p>
-                  <p className="text-cyan-400 font-medium">USDC/WETH: +0.72%</p>
-                </div>
-                <div className="bg-white/5 rounded-lg p-3">
-                  <p className="text-white/70 text-sm">Gas Price (Gwei)</p>
-                  <p className="text-white font-medium">12.5</p>
-                </div>
-              </div>
-            </div>
+            <QuickStats />
           </div>
 
           {/* Main content area for arbitrage opportunities and flash loan options */}
