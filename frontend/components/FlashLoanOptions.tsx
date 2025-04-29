@@ -48,12 +48,13 @@ export default function FlashLoanOptions() {
         chainId: ChainId.mainnet,
       });
 
+      // fetch humanized reserve data
       const { reservesData }: { reservesData: any[] } = await uiPoolDataProvider.getReservesHumanized({
         lendingPoolAddressProvider: markets.AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
       });
 
       if (reservesData && reservesData.length > 0) {
-        console.log("Sample reserveData item structure:", reservesData[0]);
+        console.log("Sample reserveData item structure:", reservesData);
       }
 
       const reservesMap: Record<string, HumanizedReserveData> = {};
@@ -110,11 +111,8 @@ export default function FlashLoanOptions() {
       const availableLiquidityBN = ethers.utils.parseUnits(selectedReserve.availableLiquidity, selectedToken.decimals);
 
       if (amountInWei.gt(availableLiquidityBN)) {
-        // Humanize raw wei before formatting
-        const humanAvail = ethers.utils.formatUnits(selectedReserve.availableLiquidity, selectedToken.decimals);
-        const availableDisplay = selectedToken.symbol === "USDC"
-          ? formatCurrencyAmount(humanAvail, "USD", 2, true)
-          : formatTokenAmount(humanAvail, 4, selectedToken.symbol, true);
+        // Use formatMaxAmount to display available liquidity with USD value
+        const availableDisplay = formatMaxAmount(selectedToken.address);
         setError(`Requested amount exceeds available liquidity (${availableDisplay})`);
         setIsLoading(false);
         return;
@@ -186,12 +184,14 @@ export default function FlashLoanOptions() {
     }
     // Convert raw string (wei) to human-readable value
     const humanAmount = ethers.utils.formatUnits(reserve.availableLiquidity, token.decimals);
-    // Use USD-style compact currency formatting for USDC
-    if (token.symbol === "USDC") {
-      return formatCurrencyAmount(humanAmount, "USD", 2, true);
+    // Format token display with compact notation
+    const tokenDisplay = formatTokenAmount(humanAmount, 4, token.symbol, true);
+    // If USD amount is provided, format directly
+    if (reserve.availableLiquidityUSD) {
+      const usdDisplay = formatCurrencyAmount(reserve.availableLiquidityUSD, 'USD', 2, true);
+      return `${tokenDisplay} (${usdDisplay})`;
     }
-    // Use token formatting for other assets with compact notation
-    return formatTokenAmount(humanAmount, 4, token.symbol, true);
+    return tokenDisplay;
   };
 
   /**
@@ -222,23 +222,21 @@ export default function FlashLoanOptions() {
     setLoanAmount(reserve.availableLiquidity);
   };
 
+  // Prepare reserve and computed interest rates
+  const reserve = getSelectedReserve();
+  const supplyAPYVal = reserve?.liquidityRate
+    ? parseFloat(reserve.liquidityRate) / 1e25
+    : 0;
+  const variableBorrowAPYVal = reserve?.variableBorrowRate
+    ? parseFloat(reserve.variableBorrowRate) / 1e25
+    : 0;
+  const stableBorrowAPYVal = reserve?.stableBorrowRate
+    ? parseFloat(reserve.stableBorrowRate) / 1e25
+    : 0;
+
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
       <h2 className="text-2xl font-medium text-white mb-4">Flash Loan Options</h2>
-
-      {/* Network Information Banner */}
-      {/* <div className="mb-6 p-3 bg-amber-600/20 border border-amber-600/30 rounded-xl text-amber-300 text-sm">
-        <div className="flex items-center mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          <span className="font-medium">Ethereum Mainnet Information</span>
-        </div>
-        <p>This is a demonstration of flash loan arbitrage on the Ethereum Mainnet.</p>
-        <p className="mt-1">Note: You must be the owner of the deployed FlashLoan contract to execute flash loans.</p>
-        <p className="mt-1">You also need to ensure routers are approved in the contract before executing.</p>
-      </div> */}
-
       {/* Aave Flash Loan Status Information */}
       {Object.values(reserves).some(reserve =>
         !reserve ||
@@ -393,6 +391,33 @@ export default function FlashLoanOptions() {
                 <span>Flash Loans:</span>
                 <span className={getSelectedReserve()!.flashLoanEnabled ? "text-green-400" : "text-red-400"}>
                   {getSelectedReserve()!.flashLoanEnabled ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Interest Rates */}
+        {reserve && !loadingTokenData && (
+          <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-sm">
+            <h3 className="text-white/80 font-medium mb-2">Interest Rates</h3>
+            <div className="space-y-1 text-white/60">
+              <div className="flex justify-between">
+                <span>Supply APY:</span>
+                <span className="font-medium text-white">
+                  {`${supplyAPYVal.toFixed(2)}%`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Variable Borrow APY:</span>
+                <span className="font-medium text-white">
+                  {`${variableBorrowAPYVal.toFixed(2)}%`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Stable Borrow APY:</span>
+                <span className="font-medium text-white">
+                  {`${stableBorrowAPYVal.toFixed(2)}%`}
                 </span>
               </div>
             </div>

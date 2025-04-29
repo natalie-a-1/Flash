@@ -92,6 +92,7 @@ export interface HumanizedReserveData {
   name: string;
   decimals: number;
   availableLiquidity: string;
+  liquidityRate?: string;
   availableLiquidityUSD?: string;
   totalLiquidity?: string;
   totalLiquidityUSD?: string;
