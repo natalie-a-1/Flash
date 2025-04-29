@@ -173,6 +173,17 @@ export default function ArbitrageOpportunities() {
                   </div>
                 </div>
 
+                {bestPath && (
+                  <div className="flex items-center space-x-4 px-4 py-2 bg-white/5 border-b border-white/10">
+                    <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
+                      Buy on {bestPath.buy}
+                    </span>
+                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
+                      Sell on {bestPath.sell}
+                    </span>
+                  </div>
+                )}
+
                 <div className="p-4">
                   <div className="text-sm text-white/70 mb-3">
                     Prices shown as <span className="font-medium">WETH per 1 USDC</span> (higher is better for selling WETH)
@@ -192,65 +203,42 @@ export default function ArbitrageOpportunities() {
                     </div>
                   ) : (
                     <div className="flex flex-col space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <span className="text-lg mr-2">🦄</span>
-                          <span className="text-white">Uniswap V2</span>
-                        </div>
-                        <div className="flex items-center">
-                          {bestPath?.buy === "Uniswap V2" && (
-                            <span className="mr-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
-                              Best for Buying WETH
-                            </span>
-                          )}
-                          {bestPath?.sell === "Uniswap V2" && (
-                            <span className="mr-2 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
-                              Best for Selling WETH
-                            </span>
-                          )}
-                          <span
-                            className={`font-medium ${
-                              bestPath?.buy === "Uniswap V2"
-                                ? "text-green-400"
-                                : bestPath?.sell === "Uniswap V2"
-                                ? "text-amber-400"
-                                : "text-white"
-                            }`}
-                          >
-                            {formatTokenAmount(pairPrices["Uniswap V2"] ?? 0, 8, "WETH", false)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <span className="text-lg mr-2">🍣</span>
-                          <span className="text-white">SushiSwap</span>
-                        </div>
-                        <div className="flex items-center">
-                          {bestPath?.buy === "SushiSwap" && (
-                            <span className="mr-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
-                              Best for Buying WETH
-                            </span>
-                          )}
-                          {bestPath?.sell === "SushiSwap" && (
-                            <span className="mr-2 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
-                              Best for Selling WETH
-                            </span>
-                          )}
-                          <span
-                            className={`font-medium ${
-                              bestPath?.buy === "SushiSwap"
-                                ? "text-green-400"
-                                : bestPath?.sell === "SushiSwap"
-                                ? "text-amber-400"
-                                : "text-white"
-                            }`}
-                          >
-                            {formatTokenAmount(pairPrices["SushiSwap"] ?? 0, 8, "WETH", false)}
-                          </span>
-                        </div>
-                      </div>
+                      {EXCHANGES.map((exchange) => {
+                        const price = pairPrices[exchange.name] ?? 0;
+                        const isBestBuy = bestPath?.buy === exchange.name;
+                        const isBestSell = bestPath?.sell === exchange.name;
+                        return (
+                          <div key={exchange.name} className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="text-lg mr-2">{exchange.icon}</span>
+                              <span className="text-white">{exchange.name}</span>
+                            </div>
+                            <div className="flex items-center">
+                              {isBestBuy && (
+                                <span className="mr-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
+                                  Best for Buying {pair.quoteSymbol}
+                                </span>
+                              )}
+                              {isBestSell && (
+                                <span className="mr-2 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
+                                  Best for Selling {pair.quoteSymbol}
+                                </span>
+                              )}
+                              <span
+                                className={`font-medium ${
+                                  isBestBuy
+                                    ? "text-green-400"
+                                    : isBestSell
+                                    ? "text-amber-400"
+                                    : "text-white"
+                                }`}
+                              >
+                                {formatTokenAmount(price, 8, pair.quoteSymbol, false)}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
