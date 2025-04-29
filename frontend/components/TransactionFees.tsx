@@ -4,7 +4,13 @@ import React from "react";
 import { useTransactionFees } from "@/lib/web3/hooks/useTransactionFees";
 import { formatCurrencyAmount } from "@/lib/web3/utils";
 
+/**
+ * QuickStats component displays transaction fee statistics.
+ * It fetches fee data using the useTransactionFees hook and formats
+ * the values for display, including conversion to USD.
+ */
 export default function QuickStats() {
+  // Destructure fee statistics from the useTransactionFees hook
   const {
     baseFee,
     priorityFee,
@@ -20,6 +26,7 @@ export default function QuickStats() {
     <div className="mt-6 rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
       <h2 className="text-2xl font-medium text-white mb-4">Transaction Fee Stats</h2>
       <div className="space-y-4">
+        {/* Display Max Fee per Gas */}
         <div className="bg-white/5 rounded-lg p-3">
           <p className="text-white/70 text-sm">Max Fee per Gas</p>
           <p className="text-white font-medium">
@@ -29,6 +36,7 @@ export default function QuickStats() {
             </small>
           </p>
         </div>
+        {/* Display Base Fee per Gas */}
         <div className="bg-white/5 rounded-lg p-3">
           <p className="text-white/70 text-sm">Base Fee per Gas</p>
           <p className="text-white font-medium">
@@ -38,6 +46,7 @@ export default function QuickStats() {
             </small>
           </p>
         </div>
+        {/* Display Max Priority Fee */}
         <div className="bg-white/5 rounded-lg p-3">
           <p className="text-white/70 text-sm">Max Priority Fee</p>
           <p className="text-white font-medium">
@@ -47,6 +56,7 @@ export default function QuickStats() {
             </small>
           </p>
         </div>
+        {/* Display Estimated Transaction Fee */}
         <div className="bg-white/5 rounded-lg p-3">
           <p className="text-white/70 text-sm">
             Estimated Tx Fee
