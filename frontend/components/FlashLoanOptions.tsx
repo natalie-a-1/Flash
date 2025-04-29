@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
-import { formatTokenAmount } from "@/lib/web3/utils";
+import { formatTokenAmount, formatCurrencyAmount } from "@/lib/web3/utils";
 import { ethers } from "ethers";
 import { executeAaveFlashLoan } from "@/lib/web3/aave"; // Import execute function
 import { UiPoolDataProvider, ChainId } from '@aave/contract-helpers';
@@ -110,11 +110,12 @@ export default function FlashLoanOptions() {
       const availableLiquidityBN = ethers.utils.parseUnits(selectedReserve.availableLiquidity, selectedToken.decimals);
 
       if (amountInWei.gt(availableLiquidityBN)) {
-        setError(`Requested amount exceeds available liquidity (${formatTokenAmount(
-          selectedReserve.availableLiquidity,
-          selectedToken.symbol === "USDC" ? 2 : 4,
-          selectedToken.symbol
-        )})`);
+        // Humanize raw wei before formatting
+        const humanAvail = ethers.utils.formatUnits(selectedReserve.availableLiquidity, selectedToken.decimals);
+        const availableDisplay = selectedToken.symbol === "USDC"
+          ? formatCurrencyAmount(humanAvail, "USD", 2, true)
+          : formatTokenAmount(humanAvail, 4, selectedToken.symbol, true);
+        setError(`Requested amount exceeds available liquidity (${availableDisplay})`);
         setIsLoading(false);
         return;
       }
@@ -173,25 +174,24 @@ export default function FlashLoanOptions() {
   };
 
   /**
-   * Formats the maximum available amount for display.
+   * Formats the maximum available amount (convert from raw wei) for display.
    */
   const formatMaxAmount = (address: string): string => {
     const reserve = reserves[address];
-
     if (!reserve) return "0";
-
     const token = TOKENS.find(t => t.address === address);
     if (!token) return "0";
-
     if (!reserve.isActive || !reserve.flashLoanEnabled) {
       return "Unavailable";
     }
-
-    return formatTokenAmount(
-      reserve.availableLiquidity,
-      token.symbol === "USDC" ? 2 : 4,
-      token.symbol
-    );
+    // Convert raw string (wei) to human-readable value
+    const humanAmount = ethers.utils.formatUnits(reserve.availableLiquidity, token.decimals);
+    // Use USD-style compact currency formatting for USDC
+    if (token.symbol === "USDC") {
+      return formatCurrencyAmount(humanAmount, "USD", 2, true);
+    }
+    // Use token formatting for other assets with compact notation
+    return formatTokenAmount(humanAmount, 4, token.symbol, true);
   };
 
   /**
@@ -280,8 +280,8 @@ export default function FlashLoanOptions() {
                   onClick={() => setSelectedToken(token)}
                   className={`flex items-center p-3 rounded-xl border transition-all ${
                     selectedToken.address === token.address
-                      ? `${token.color} border-white/30 shadow-lg`
-                      : "bg-white/5 border-white/10 hover:bg-white/10"
+                      ? "bg-white/5 border-white/10 hover:bg-white/10"
+                      : `${token.color} border-white/30 shadow-lg`
                   }`}
                   aria-label={`Select ${token.symbol}`}
                 >
@@ -378,12 +378,7 @@ export default function FlashLoanOptions() {
               <div className="flex justify-between">
                 <span>Available Liquidity:</span>
                 <span className="text-white/90 font-medium">
-                  {formatTokenAmount(
-                    getSelectedReserve()!.availableLiquidity,
-                    selectedToken.symbol === "USDC" ? 2 : 4,
-                    selectedToken.symbol,
-                    false
-                  )}
+                  {formatMaxAmount(selectedToken.address)}
                 </span>
               </div>
               <div className="flex justify-between">

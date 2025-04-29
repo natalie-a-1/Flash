@@ -7,6 +7,7 @@ import { TokenPairPrices } from "@/types/arbitrage";
 import { getTimeElapsed } from "@/lib/utils/timeUtils";
 import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
 import { ethers } from "ethers";
+import { formatTokenAmount } from "@/lib/web3/utils";
 
 /**
  * ArbitrageOpportunities component displays potential arbitrage opportunities
@@ -216,7 +217,7 @@ export default function ArbitrageOpportunities() {
                                 : "text-white"
                             }`}
                           >
-                            {pairPrices["Uniswap V2"] ? pairPrices["Uniswap V2"].toFixed(18) : "0.00"}
+                            {formatTokenAmount(pairPrices["Uniswap V2"] ?? 0, 8, "WETH", false)}
                           </span>
                         </div>
                       </div>
@@ -246,7 +247,7 @@ export default function ArbitrageOpportunities() {
                                 : "text-white"
                             }`}
                           >
-                            {pairPrices["SushiSwap"] ? pairPrices["SushiSwap"].toFixed(18) : "0.00"}
+                            {formatTokenAmount(pairPrices["SushiSwap"] ?? 0, 8, "WETH", false)}
                           </span>
                         </div>
                       </div>

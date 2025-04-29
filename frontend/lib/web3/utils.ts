@@ -39,14 +39,14 @@ export function truncateAddress(
  * and using compact notation for large numbers (e.g., thousands, millions, billions).
  * 
  * @param {string | number} amount - The amount to format, either as a string or number.
- * @param {number} [decimals=4] - The number of decimal places to display.
+ * @param {number} [decimals=2] - The number of decimal places to display.
  * @param {string} [symbol] - An optional currency symbol to append to the formatted amount.
  * @param {boolean} [compact=true] - Whether to use compact notation (K, M, B) for large numbers.
  * @returns {string} The formatted string with the optional symbol.
  */
 export function formatTokenAmount(
   amount: string | number, 
-  decimals: number = 4,
+  decimals: number = 2,
   symbol?: string,
   compact: boolean = true
 ): string {
@@ -61,29 +61,74 @@ export function formatTokenAmount(
   let formattedAmount: string;
   
   if (compact && numericAmount >= 1000) {
-    // For compact notation (e.g., 1.5K, 2.3M)
-    if (numericAmount >= 1_000_000_000) {
-      // Billions
-      formattedAmount = (numericAmount / 1_000_000_000).toFixed(decimals).replace(/\.?0+$/, '');
-      formattedAmount = `${formattedAmount}B`;
+    let value: number;
+    let suffix: string;
+
+    if (numericAmount >= 1_000_000_000_000) {
+      value = numericAmount / 1_000_000_000_000;
+      suffix = 'T';
+    } else if (numericAmount >= 1_000_000_000) {
+      value = numericAmount / 1_000_000_000;
+      suffix = 'B';
     } else if (numericAmount >= 1_000_000) {
-      // Millions
-      formattedAmount = (numericAmount / 1_000_000).toFixed(decimals).replace(/\.?0+$/, '');
-      formattedAmount = `${formattedAmount}M`;
+      value = numericAmount / 1_000_000;
+      suffix = 'M';
     } else {
-      // Thousands
-      formattedAmount = (numericAmount / 1_000).toFixed(decimals).replace(/\.?0+$/, '');
-      formattedAmount = `${formattedAmount}K`;
+      value = numericAmount / 1_000;
+      suffix = 'K';
     }
+
+    formattedAmount = value.toFixed(decimals).replace(/\.?0+$/, '') + suffix;
   } else {
-    // Standard notation with thousand separators
-    formattedAmount = numericAmount.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: decimals,
-    });
+    formattedAmount = numericAmount.toFixed(decimals).replace(/\.?0+$/, '');
   }
   
-  return symbol ? `${formattedAmount} ${symbol}` : formattedAmount;
+  // Handle symbol prefix or suffix
+  if (symbol) {
+    // Prefix non-alphanumeric symbols (e.g., $) and suffix alphanumeric symbols (e.g., token symbols)
+    if (/^[^0-9A-Za-z_]/.test(symbol.charAt(0))) {
+      return `${symbol}${formattedAmount}`;
+    }
+    return `${formattedAmount} ${symbol}`;
+  }
+  
+  return formattedAmount;
+}
+
+/**
+ * Formats a numeric value as a currency string using Intl.NumberFormat with optional compact notation.
+ * Implements Aave-style currency formatting.
+ *
+ * @param {string | number} amount - The amount to format.
+ * @param {string} [currency='USD'] - The ISO 4217 currency code.
+ * @param {number} [decimals=2] - Number of decimal places.
+ * @param {boolean} [compact=true] - Whether to use compact notation (K, M, B).
+ * @param {string} [locale] - Optional locale string (e.g., 'en-US').
+ * @returns {string} The formatted currency string.
+ */
+export function formatCurrencyAmount(
+  amount: string | number,
+  currency: string = 'USD',
+  decimals: number = 2,
+  compact: boolean = true,
+  locale?: string
+): string {
+  if (amount === null || amount === undefined || amount === '') return '';
+  const numeric = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numeric)) return '';
+
+  const options: Intl.NumberFormatOptions = {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  };
+  if (compact) {
+    options.notation = 'compact';
+    options.compactDisplay = 'short';
+  }
+
+  return new Intl.NumberFormat(locale || undefined, options).format(numeric);
 }
 
 // Removed duplicate calculateArbitragePercentage as it's specific to priceService
