@@ -109,8 +109,8 @@ export function useTransactionFees(): FeeStats {
 
     // Initial fetch
     fetchFees();
-    // Poll every 15 seconds to stay in sync with price updates
-    const intervalId = setInterval(fetchFees, 15000);
+    // Poll every 5 minutes to stay in sync with price updates
+    const intervalId = setInterval(fetchFees, 300000);
     return () => clearInterval(intervalId);
   }, [web3]);
 

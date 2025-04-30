@@ -73,7 +73,7 @@ export default function ArbitrageOpportunities() {
 
     if (isConnected && isCorrectNetwork) {
       fetchPrices();
-      const interval = setInterval(fetchPrices, 15000);
+      const interval = setInterval(fetchPrices, 5 * 60 * 1000); // every 5 minutes
       setRefreshInterval(interval);
       return () => clearInterval(interval);
     } else {
@@ -81,6 +81,7 @@ export default function ArbitrageOpportunities() {
       setLastUpdated(null);
       setIsLoading(false);
     }
+
   }, [isConnected, isCorrectNetwork, mounted]);
 
   /**

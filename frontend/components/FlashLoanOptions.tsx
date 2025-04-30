@@ -25,6 +25,8 @@ export default function FlashLoanOptions() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingTokenData, setLoadingTokenData] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [flashLoanFees, setFlashLoanFees] = useState<{ total: number; protocol: number; liquidityProviders: number } | null>(null);
+  const [feesLoading, setFeesLoading] = useState<boolean>(true);
 
   /**
    * Fetches flash loan limits from Aave for the available tokens using @aave/contract-helpers.
@@ -48,8 +50,9 @@ export default function FlashLoanOptions() {
         chainId: ChainId.mainnet,
       });
 
-      // fetch humanized reserve data
-      const { reservesData }: { reservesData: any[] } = await uiPoolDataProvider.getReservesHumanized({
+      // fetch humanized reserve data (cast to any since TS defs omit this method)
+      // @ts-ignore
+      const { reservesData }: any = await (uiPoolDataProvider as any).getReservesHumanized({
         lendingPoolAddressProvider: markets.AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
       });
 
@@ -58,7 +61,7 @@ export default function FlashLoanOptions() {
       }
 
       const reservesMap: Record<string, HumanizedReserveData> = {};
-      reservesData.forEach(reserve => {
+      reservesData.forEach((reserve: any) => {
         const tokenInfo = TOKENS.find(t => t.address.toLowerCase() === reserve.underlyingAsset?.toLowerCase());
         if (tokenInfo) {
           reservesMap[tokenInfo.address] = { ...reserve, decimals: tokenInfo.decimals };
@@ -164,6 +167,52 @@ export default function FlashLoanOptions() {
     getFlashLoanLimits();
   }, [isConnected, isCorrectNetwork]);
 
+  // fetch flash loan premium fee configuration from Aave Pool contract
+  useEffect(() => {
+    const fetchFlashLoanFees = async () => {
+      if (!isConnected || !isCorrectNetwork) return;
+      const provider = getEthersV5Provider();
+      if (!provider) return;
+      setFeesLoading(true);
+      try {
+        // 1. resolve pool address from PoolAddressesProvider
+        const poolAddressesProviderAddress = markets.AaveV3Ethereum.POOL_ADDRESSES_PROVIDER;
+        const providerContract = new ethers.Contract(
+          poolAddressesProviderAddress,
+          ["function getPool() external view returns (address)"],
+          provider
+        );
+        const poolAddress: string = await providerContract.getPool();
+
+        // 2. query flash-loan fee constants from the Pool contract
+        const poolContract = new ethers.Contract(
+          poolAddress,
+          [
+            "function FLASHLOAN_PREMIUM_TOTAL() external view returns (uint128)",
+            "function FLASHLOAN_PREMIUM_TO_PROTOCOL() external view returns (uint128)"
+          ],
+          provider
+        );
+        const totalBpsBN = await poolContract.FLASHLOAN_PREMIUM_TOTAL();
+        const protocolBpsBN = await poolContract.FLASHLOAN_PREMIUM_TO_PROTOCOL();
+        const liquidityProvidersBpsBN = totalBpsBN.sub(protocolBpsBN);
+
+        // 3. set state with formatted fees
+        setFlashLoanFees({
+          total: totalBpsBN.toNumber() / 10000,
+          protocol: protocolBpsBN.toNumber() / 10000,
+          liquidityProviders: liquidityProvidersBpsBN.toNumber() / 10000,
+        });
+      } catch (err) {
+        console.error("Error fetching flash loan fees:", err);
+      } finally {
+        setFeesLoading(false);
+      }
+    };
+
+    fetchFlashLoanFees();
+  }, [isConnected, isCorrectNetwork]);
+
   /**
    * Gets the selected token's reserve info.
    */
@@ -222,17 +271,8 @@ export default function FlashLoanOptions() {
     setLoanAmount(reserve.availableLiquidity);
   };
 
-  // Prepare reserve and computed interest rates
+  // Prepare reserve info
   const reserve = getSelectedReserve();
-  const supplyAPYVal = reserve?.liquidityRate
-    ? parseFloat(reserve.liquidityRate) / 1e25
-    : 0;
-  const variableBorrowAPYVal = reserve?.variableBorrowRate
-    ? parseFloat(reserve.variableBorrowRate) / 1e25
-    : 0;
-  const stableBorrowAPYVal = reserve?.stableBorrowRate
-    ? parseFloat(reserve.stableBorrowRate) / 1e25
-    : 0;
 
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
@@ -397,28 +437,34 @@ export default function FlashLoanOptions() {
           </div>
         )}
 
-        {/* Interest Rates */}
         {reserve && !loadingTokenData && (
           <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-sm">
-            <h3 className="text-white/80 font-medium mb-2">Interest Rates</h3>
+            {/* Flash Loan Premium Fees */}
+            <h4 className="text-white/80 font-medium mb-2 mt-4">Flash Loan Premium Fees</h4>
             <div className="space-y-1 text-white/60">
               <div className="flex justify-between">
-                <span>Supply APY:</span>
-                <span className="font-medium text-white">
-                  {`${supplyAPYVal.toFixed(2)}%`}
-                </span>
+                <span>Total Fee:</span>
+                {feesLoading ? (
+                  <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
+                ) : (
+                  <span className="font-medium text-white">{`${flashLoanFees?.total}%`}</span>
+                )}
               </div>
               <div className="flex justify-between">
-                <span>Variable Borrow APY:</span>
-                <span className="font-medium text-white">
-                  {`${variableBorrowAPYVal.toFixed(2)}%`}
-                </span>
+                <span>Protocol Treasury:</span>
+                {feesLoading ? (
+                  <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
+                ) : (
+                  <span className="font-medium text-white">{`${flashLoanFees?.protocol}%`}</span>
+                )}
               </div>
               <div className="flex justify-between">
-                <span>Stable Borrow APY:</span>
-                <span className="font-medium text-white">
-                  {`${stableBorrowAPYVal.toFixed(2)}%`}
-                </span>
+                <span>Liquidity Providers:</span>
+                {feesLoading ? (
+                  <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
+                ) : (
+                  <span className="font-medium text-white">{`${flashLoanFees?.liquidityProviders}%`}</span>
+                )}
               </div>
             </div>
           </div>
