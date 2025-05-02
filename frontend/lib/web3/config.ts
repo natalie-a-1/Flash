@@ -44,10 +44,11 @@ export const MAINNET_ADDRESSES = {
   // DEX router contract addresses
   UNISWAP_V2_ROUTER: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Uniswap V2 Router contract address
   SUSHISWAP_V2_ROUTER: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", // SushiSwap V2 Router contract address
+
+  // New DEX router addresses
+  UNISWAP_V3_QUOTER: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6", // Uniswap V3 Quoter contract address
+  BALANCER_VAULT: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Balancer V2 Vault contract address
+  CURVE_3POOL: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // Curve 3Pool contract address
+  CURVE_TRICRYPTO_POOL: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // Curve Tricrypto2 Pool address (USDT/WBTC/WETH)
+  CURVE_USDC_ETH_POOL: "0x37c47000c58bfcdc1a2886b5559f49a74d9e1389", // Curve USDC/ETH Pool address
 };
-
-// Note: Aave V3 addresses are managed using @bgd-labs/aave-address-book directly in components
-
-// Note: FLASH_LOAN placeholder removed; manage contract address in deployment or environment variables if needed
-
-// Note: SEPOLIA_ADDRESSES section removed entirely

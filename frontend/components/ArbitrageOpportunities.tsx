@@ -8,6 +8,7 @@ import { getTimeElapsed } from "@/lib/utils/timeUtils";
 import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
 import { ethers } from "ethers";
 import { formatTokenAmount } from "@/lib/web3/utils";
+import { Exchange } from "@/types/arbitrage";
 
 /**
  * ArbitrageOpportunities component displays potential arbitrage opportunities
@@ -40,7 +41,7 @@ export default function ArbitrageOpportunities() {
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      const fetchedPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
+      const fetchedPrices = await fetchDexPrices(provider, EXCHANGES as Exchange[], PAIRS);
       setPrices(fetchedPrices);
       setLastUpdated(new Date());
     } catch (error) {
@@ -176,7 +177,7 @@ export default function ArbitrageOpportunities() {
 
                 <div className="p-2">
                   <div className="text-xs text-white/70 mb-1">
-                    Prices: <span className="font-medium">WETH per 1 USDC</span>
+                    Prices: <span className="font-medium">{pair.quoteSymbol} per 1 {pair.baseSymbol}</span>
                   </div>
 
                   {isLoading ? (
@@ -194,6 +195,10 @@ export default function ArbitrageOpportunities() {
                   ) : (
                     <div className="flex flex-col space-y-1">
                       {EXCHANGES.map((exchange) => {
+                        if (exchange.name === "Balancer V2" || exchange.name === "Curve USDC/ETH") {
+                          return null;
+                        }
+
                         const price = pairPrices[exchange.name] ?? 0;
                         const isBestBuy = bestPath?.buy === exchange.name;
                         const isBestSell = bestPath?.sell === exchange.name;

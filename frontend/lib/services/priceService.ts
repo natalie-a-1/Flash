@@ -6,7 +6,7 @@ import {
   ArbitragePath,
   ExchangePrices,
 } from "@/types/arbitrage";
-import { ROUTER_ABI, USDC_DECIMALS, WETH_DECIMALS } from "@/lib/constants/dex";
+import { ROUTER_ABI, QUOTER_ABI, BALANCER_VAULT_ABI, CURVE_GET_DY_ABI, USDC_DECIMALS, WETH_DECIMALS } from "@/lib/constants/dex";
 
 /**
  * Fetches price data from decentralized exchanges (DEXs) for specified token pairs.
@@ -23,36 +23,111 @@ export async function fetchDexPrices(
 ): Promise<TokenPairPrices> {
   const fetchedPrices: TokenPairPrices = {};
 
-  // Create contract instances for each DEX router
-  const routerContracts = exchanges.map((exchange) => ({
-    name: exchange.name,
-    contract: new Contract(exchange.router, ROUTER_ABI, provider),
-  }));
-
-  // Fetch prices for each token pair
   for (const pair of pairs) {
     const pairName = pair.name;
     fetchedPrices[pairName] = {};
 
     const [tokenInAddress, tokenOutAddress] = pair.tokens;
-    // Define the amount of input token (1 USDC)
-    const amountIn = ethers.utils.parseUnits("1", USDC_DECIMALS);
-    const path = [tokenInAddress, tokenOutAddress];
+    // Determine decimals for base (input) and quote (output) tokens
+    const decimalsIn = pair.baseSymbol === 'USDC' ? USDC_DECIMALS : WETH_DECIMALS;
+    const decimalsOut = pair.quoteSymbol === 'USDC' ? USDC_DECIMALS : WETH_DECIMALS;
+    // Amount of input token (Increase from 1 to 100 units of base)
+    const baseAmount = "100"; 
+    const amountIn = ethers.utils.parseUnits(baseAmount, decimalsIn);
 
-    for (const { name, contract } of routerContracts) {
+    for (const exchange of exchanges) {
+      const { name, router, type, feeTier, poolId } = exchange;
+
+      // --- TEMPORARILY COMMENT OUT BALANCER AND CURVE ---
+      if (name === "Balancer V2" || name === "Curve USDC/ETH") {
+        console.log(`Temporarily skipping ${name} price fetch.`);
+        fetchedPrices[pairName][name] = 0; // Set price to 0
+        continue; // Skip to the next exchange
+      }
+      // --- END TEMPORARY COMMENT OUT ---
+
+      // Skip if router is not a valid Ethereum address
+      if (!ethers.utils.isAddress(router)) {
+        console.warn(`Invalid router address for ${name}, skipping price fetch.`, router);
+        fetchedPrices[pairName][name] = 0;
+        continue;
+      }
       try {
         console.log(`Fetching ${name} price for ${pairName}...`);
-        const amountsOut: ethers.BigNumber[] = await contract.getAmountsOut(
-          amountIn,
-          path
-        );
+        let outAmount: ethers.BigNumber;
+
+        if (type === 'v3') {
+          // Uniswap V3 Quoter
+          const quoter = new Contract(router, QUOTER_ABI, provider);
+          outAmount = await quoter.quoteExactInputSingle(
+            tokenInAddress,
+            tokenOutAddress,
+            feeTier!,
+            amountIn,
+            0
+          );
+        } else if (type === 'balancer') {
+          // Skip Balancer if poolId is not a valid hex bytes32
+          if (poolId && typeof poolId === 'string' && poolId.startsWith('0x')) {
+            const vault = new Contract(router, BALANCER_VAULT_ABI, provider);
+            const swaps = [
+              {
+                poolId: poolId,
+                assetInIndex: 0,
+                assetOutIndex: 1,
+                amount: amountIn,
+                userData: '0x',
+              },
+            ];
+            const assets = [tokenInAddress, tokenOutAddress];
+            const funds = {
+              sender: ethers.constants.AddressZero,
+              recipient: ethers.constants.AddressZero,
+              fromInternalBalance: false,
+              toInternalBalance: false,
+            };
+            const result: ethers.BigNumber[] = await vault.queryBatchSwap(
+              0,
+              swaps,
+              assets,
+              funds
+            );
+            outAmount = result[1].lt(0) ? result[1].mul(-1) : result[1];
+          } else {
+            console.warn(`Skipping Balancer swap for ${pairName} on ${name}: invalid poolId`, poolId);
+            outAmount = ethers.constants.Zero;
+          }
+        } else if (type === 'curve_get_dy') {
+          // Curve Pool using get_dy(i, j, dx)
+          // For USDC/ETH pool: USDC=0, WETH=1
+          const curve = new Contract(router, CURVE_GET_DY_ABI, provider);
+          // Call get_dy with int128 indices (represented as numbers)
+          outAmount = await curve.get_dy(0, 1, amountIn); // i=0 (USDC), j=1 (WETH)
+        } else {
+          // Default: Uniswap/Sushi V2
+          const routerContract = new Contract(router, ROUTER_ABI, provider);
+          const amountsOut: ethers.BigNumber[] = await routerContract.getAmountsOut(
+            amountIn,
+            [tokenInAddress, tokenOutAddress]
+          );
+          outAmount = amountsOut[1];
+        }
+
+        // Format output amount using correct output token decimals
+        // Divide by the baseAmount used for the query to get the price per 1 unit
         const price = parseFloat(
-          ethers.utils.formatUnits(amountsOut[1], WETH_DECIMALS)
-        );
+          ethers.utils.formatUnits(outAmount, decimalsOut)
+        ) / parseFloat(baseAmount); 
         console.log(`${name} price for ${pairName}: ${price}`);
         fetchedPrices[pairName][name] = price;
-      } catch (error) {
-        console.error(`Error fetching ${name} price for ${pairName}:`, error);
+      } catch (error: any) {
+        console.error(`Error fetching ${name} price for ${pairName}:`);
+        // Log specific revert reason if available
+        if (error.reason) {
+          console.error("  Revert Reason:", error.reason);
+        }
+        // Log the full error object for more details
+        console.error("  Full Error:", error);
         fetchedPrices[pairName][name] = 0;
       }
     }
