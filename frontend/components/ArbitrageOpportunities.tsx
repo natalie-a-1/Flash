@@ -3,16 +3,18 @@
 import { useState, useEffect } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
 import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
-import { TokenPairPrices } from "@/types/arbitrage";
+import { TokenPairPrices, Exchange, ArbitrageProfitCalculatorProps } from "@/types/arbitrage";
 import { getTimeElapsed } from "@/lib/utils/timeUtils";
 import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
 import { ethers } from "ethers";
 import { formatTokenAmount } from "@/lib/web3/utils";
-import { Exchange } from "@/types/arbitrage";
+import ArbitrageProfitCalculator from "./ArbitrageProfitCalculator";
+import { TokenInfo } from "@/types/aave";
 
 /**
  * ArbitrageOpportunities component displays potential arbitrage opportunities
  * by fetching and analyzing token pair prices from various decentralized exchanges (DEXs).
+ * Allows user selection of DEXs for profit calculation.
  */
 export default function ArbitrageOpportunities() {
   // Destructure necessary values from the Web3 context
@@ -24,6 +26,16 @@ export default function ArbitrageOpportunities() {
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Add state for selected DEXs and calculator props
+  const [selectedBuyDex, setSelectedBuyDex] = useState<string | null>(null);
+  const [selectedSellDex, setSelectedSellDex] = useState<string | null>(null);
+  const [calculatorProps, setCalculatorProps] = useState<ArbitrageProfitCalculatorProps | null>(null);
+
+  // Filter available exchanges (excluding commented out ones for selection)
+  const availableExchanges = EXCHANGES.filter(
+    ex => ex.name !== "Balancer V2" && ex.name !== "Curve USDC/ETH"
+  );
 
   /**
    * Fetches price data from DEXs using the ethers Web3Provider.
@@ -38,6 +50,9 @@ export default function ArbitrageOpportunities() {
 
     setIsLoading(true);
     setPrices({});
+    setSelectedBuyDex(null);
+    setSelectedSellDex(null);
+    setCalculatorProps(null);
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
@@ -84,6 +99,68 @@ export default function ArbitrageOpportunities() {
     }
 
   }, [isConnected, isCorrectNetwork, mounted]);
+
+  /**
+   * Effect to update selected DEXs when prices load or change
+   * Set initial default selection based on best path (if available)
+   * Or just the first two available exchanges if no path or prices yet
+   */
+  useEffect(() => {
+    if (!prices || Object.keys(prices).length === 0 || PAIRS.length === 0) {
+      setSelectedBuyDex(null);
+      setSelectedSellDex(null);
+      setCalculatorProps(null);
+      return;
+    }
+
+    const pairName = PAIRS[0].name; // Assuming only one pair for now
+    const pairPrices = prices[pairName] || {};
+    const bestPath = findBestArbitragePath(pairPrices); // Still calculate best path for initial default
+
+    // Filter available exchanges again here to ensure consistency
+    const currentAvailableExchanges = EXCHANGES.filter(
+      ex => ex.name !== "Balancer V2" && ex.name !== "Curve USDC/ETH"
+    );
+
+    const initialBuy = bestPath?.buy && currentAvailableExchanges.some(ex => ex.name === bestPath.buy)
+      ? bestPath.buy
+      : currentAvailableExchanges[0]?.name || null;
+
+    const initialSell = bestPath?.sell && currentAvailableExchanges.some(ex => ex.name === bestPath.sell) && bestPath.sell !== initialBuy
+      ? bestPath.sell
+      : currentAvailableExchanges.find(ex => ex.name !== initialBuy)?.name || null;
+
+    // Only set initial selections if they haven't been manually changed
+    if (selectedBuyDex === null) setSelectedBuyDex(initialBuy);
+    if (selectedSellDex === null) setSelectedSellDex(initialSell);
+
+    // Prepare props for the calculator
+    // Use the potentially updated selectedBuyDex/selectedSellDex if user changed them before prices reloaded
+    const currentBuy = selectedBuyDex ?? initialBuy;
+    const currentSell = selectedSellDex ?? initialSell;
+
+    // Example/Placeholder values for loanAmount, selectedToken, flashLoanBps
+    // These should ideally come from parent component or global state/context
+    const exampleLoanAmount = "1000";
+    const exampleToken: TokenInfo = {
+      symbol: PAIRS[0].baseSymbol,
+      address: PAIRS[0].tokens[0],
+      decimals: PAIRS[0].baseSymbol === 'USDC' ? 6 : 18, // Infer decimals
+      icon: PAIRS[0].baseSymbol === 'USDC' ? '💲' : 'Ξ', // Infer icon
+      color: PAIRS[0].baseSymbol === 'USDC' ? 'bg-blue-500' : 'bg-purple-500', // Infer color
+    };
+    const exampleFlashLoanBps = 9; // e.g., Aave flash loan fee 0.09%
+
+    setCalculatorProps({
+      loanAmount: exampleLoanAmount,
+      selectedToken: exampleToken,
+      flashLoanBps: exampleFlashLoanBps,
+      dexPrices: pairPrices,
+      selectedBuyDex: currentBuy,
+      selectedSellDex: currentSell,
+    });
+
+  }, [prices, selectedBuyDex, selectedSellDex]);
 
   /**
    * Renders a skeleton layout during server-side rendering to prevent hydration mismatch.
@@ -154,14 +231,14 @@ export default function ArbitrageOpportunities() {
         <div className="space-y-2">
           {PAIRS.map((pair) => {
             const pairPrices = prices[pair.name] || {};
-            const bestPath = pairPrices ? findBestArbitragePath(pairPrices) : null;
+            const bestPath = findBestArbitragePath(pairPrices);
 
             return (
               <div key={pair.name} className="border border-white/10 rounded-lg overflow-hidden">
                 <div className="bg-white/5 py-1 px-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-white">{pair.name}</span>
-                    {bestPath && (
+                    {bestPath && bestPath.percentage > 0 && (
                       <span
                         className={`text-xs rounded-full px-2 py-0.5 ${
                           bestPath.percentage >= 1
@@ -169,7 +246,7 @@ export default function ArbitrageOpportunities() {
                             : "bg-amber-500/20 text-amber-400"
                         }`}
                       >
-                        {bestPath.percentage.toFixed(2)}% opportunity
+                        Best: {bestPath.percentage.toFixed(2)}% 
                       </span>
                     )}
                   </div>
@@ -193,7 +270,7 @@ export default function ArbitrageOpportunities() {
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col space-y-1">
+                    <div className="flex flex-col space-y-1 mb-2">
                       {EXCHANGES.map((exchange) => {
                         if (exchange.name === "Balancer V2" || exchange.name === "Curve USDC/ETH") {
                           return null;
@@ -213,7 +290,7 @@ export default function ArbitrageOpportunities() {
                                 <span className={`mr-1 px-1 py-0.5 text-[8px] rounded-full ${
                                   isBestBuy ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
                                 }`}>
-                                  {isBestBuy ? "BUY" : "SELL"}
+                                  {isBestBuy ? "BEST BUY" : "BEST SELL"}
                                 </span>
                               )}
                               <span
@@ -233,22 +310,14 @@ export default function ArbitrageOpportunities() {
                       })}
                     </div>
                   )}
-
-                  {bestPath && (
-                    <div className="mt-1 pt-1 border-t border-white/10">
-                      <div className="rounded-md bg-white/5 p-1 text-xs">
-                        <div className="text-white/70 mb-0.5">Strategy: Buy on <span className="text-green-400">{bestPath.buy}</span>, Sell on <span className="text-amber-400">{bestPath.sell}</span></div>
-                        <div className="text-white">
-                          Potential: <span className="font-medium text-green-400">{bestPath.percentage.toFixed(2)}%</span>
-                          <span className="text-white/50 text-[8px] ml-1">(before fees)</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             );
           })}
+          {/* Add message if selections are incomplete (also moved outside loop) */}
+          {(!selectedBuyDex || !selectedSellDex) && !isLoading && prices && Object.keys(prices).length > 0 && (
+             <div className="text-center text-xs text-white/50 pt-2">Select Buy and Sell DEX above to estimate profit.</div>
+          )}
         </div>
       )}
     </div>

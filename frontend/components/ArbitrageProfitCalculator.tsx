@@ -2,40 +2,38 @@
 
 import { useState, useEffect } from 'react';
 import { formatCurrencyAmount, formatTokenAmount } from '@/lib/web3/utils';
-import { ArbitrageProfitCalculatorProps } from '@/types/arbitrage';
+import { ArbitrageProfitCalculatorProps as UpdatedArbitrageProfitCalculatorProps, ExchangePrices } from '@/types/arbitrage';
 import { useArbitrageCalculator } from '@/hooks/useArbitrageCalculator';
-import { getEthersV5Provider } from '@/lib/web3/web3';
-import { fetchDexPrices, findBestArbitragePath } from '@/lib/services/priceService';
-import { EXCHANGES, PAIRS } from '@/lib/constants/dex';
 import { useTransactionFees } from '@/lib/web3/hooks/useTransactionFees';
-import type { ExchangePrices, ArbitragePath } from '@/types/arbitrage';
+import { TokenInfo } from '@/types/aave';
 
-export default function ArbitrageProfitCalculator({ 
-  loanAmount, 
-  selectedToken, 
-  flashLoanBps 
-}: ArbitrageProfitCalculatorProps) {
-  // Keep only user decision inputs
+export default function ArbitrageProfitCalculator({
+  loanAmount,
+  selectedToken,
+  flashLoanBps,
+  dexPrices,
+  selectedBuyDex,
+  selectedSellDex,
+}: UpdatedArbitrageProfitCalculatorProps) {
+  // Keep local UI state
   const [slippage, setSlippage] = useState<string>('0.5'); // Default 0.5%
   const [profitThreshold, setProfitThreshold] = useState<string>('10'); // Default $10
-  // trading fees handled internally, always pass '0' for now
 
-  // Live on-chain price data and best arbitrage path
-  const [dexPrices, setDexPrices] = useState<ExchangePrices | null>(null);
-  const [arbPath, setArbPath] = useState<ArbitragePath | null>(null);
-  
   // Gas fee statistics from network
   const { estimatedFee, estimatedFeeUSDC } = useTransactionFees();
 
   // Fees are included or will be fetched internally; always use '0' for now
   const tradingFeesValue = '0';
 
+  // Determine buy/sell prices based on props
+  const buyPriceValue = (selectedBuyDex && dexPrices && dexPrices[selectedBuyDex]) ? dexPrices[selectedBuyDex].toString() : '0';
+  const sellPriceValue = (selectedSellDex && dexPrices && dexPrices[selectedSellDex]) ? dexPrices[selectedSellDex].toString() : '0';
+
   // Use custom hook for calculation
   const { potentialProfit, isProfitable, roi } = useArbitrageCalculator({
     loanAmount,
-    // use on-chain prices or fallback to zero
-    buyPrice: arbPath ? dexPrices![arbPath.buy].toString() : '0',
-    sellPrice: arbPath ? dexPrices![arbPath.sell].toString() : '0',
+    buyPrice: buyPriceValue,
+    sellPrice: sellPriceValue,
     tradingFees: tradingFeesValue,
     slippage,
     gasCost: estimatedFee,
@@ -43,49 +41,9 @@ export default function ArbitrageProfitCalculator({
     flashLoanBps,
   });
 
-  // Fetch on-chain prices once
-  useEffect(() => {
-    const loadPrices = async () => {
-      const provider = getEthersV5Provider();
-      if (!provider) {
-        console.error('MetaMask provider not available, please connect your wallet');
-        return;
-      }
-      try {
-        const allPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
-        const pairPrices = allPrices[PAIRS[0].name];
-        setDexPrices(pairPrices);
-      } catch (err) {
-        console.error('Failed to fetch dex prices', err);
-      }
-    };
-    loadPrices();
-  }, []);
-
-  // Determine best arbitrage path when prices update
-  useEffect(() => {
-    if (!dexPrices) return;
-    const path = findBestArbitragePath(dexPrices);
-    setArbPath(path);
-  }, [dexPrices]);
-  
-  // Determine default buy/sell exchanges when no arbitrary path exists
-  const defaultBuyExchange = dexPrices
-    ? Object.entries(dexPrices).reduce(
-        (prev, [ex, price]) =>
-          price < (dexPrices[prev] ?? Infinity) ? ex : prev,
-        Object.keys(dexPrices)[0]
-      )
-    : null;
-  const defaultSellExchange = dexPrices
-    ? Object.entries(dexPrices).reduce(
-        (prev, [ex, price]) =>
-          price > (dexPrices[prev] ?? -Infinity) ? ex : prev,
-        Object.keys(dexPrices)[0]
-      )
-    : null;
-  const displayBuyExchange = arbPath?.buy || defaultBuyExchange;
-  const displaySellExchange = arbPath?.sell || defaultSellExchange;
+  // Use selected DEX names directly from props
+  const displayBuyExchange = selectedBuyDex;
+  const displaySellExchange = selectedSellDex;
 
   return (
     <div className="p-2 bg-white/5 border border-white/10 rounded-lg text-xs">
@@ -107,12 +65,6 @@ export default function ArbitrageProfitCalculator({
            isProfitable ? 'Profitable' : 'Not Profitable'}
         </div>
       </div>
-      
-      {arbPath && (
-        <div className="text-[9px] text-white/70 mb-2">
-          Path: Buy on {arbPath.buy}, Sell on {arbPath.sell}
-        </div>
-      )}
       
       <div className="grid grid-cols-12 gap-2">
         {/* Left Column: User Settings */}
@@ -178,28 +130,24 @@ export default function ArbitrageProfitCalculator({
             </div>
 
             {/* Profit Breakdown */}
-            {dexPrices && potentialProfit !== null && (
+            {dexPrices && potentialProfit !== null && displayBuyExchange && displaySellExchange && (
               <div className="text-[9px] grid grid-cols-2 gap-x-1 border-t border-white/10 pt-1 opacity-80">
                 <div>Buy Price ({displayBuyExchange}):</div>
                 <div className="text-right">
-                  {displayBuyExchange
-                    ? formatCurrencyAmount(
-                        dexPrices[displayBuyExchange],
-                        'USD',
-                        6
-                      )
-                    : '-'}
+                  {formatCurrencyAmount(
+                      buyPriceValue,
+                      'USD',
+                      6
+                    )}
                 </div>
 
                 <div>Sell Price ({displaySellExchange}):</div>
                 <div className="text-right">
-                  {displaySellExchange
-                    ? formatCurrencyAmount(
-                        dexPrices[displaySellExchange],
-                        'USD',
-                        6
-                      )
-                    : '-'}
+                  {formatCurrencyAmount(
+                      sellPriceValue,
+                      'USD',
+                      6
+                    )}
                 </div>
 
                 <div>Flash Loan Fee:</div>

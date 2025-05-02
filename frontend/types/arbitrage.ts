@@ -64,9 +64,12 @@ export interface TokenPair {
   quoteSymbol: string; // The quote symbol of the token pair
 }
 
-// Props for the ArbitrageProfitCalculator component
+// Update props for the ArbitrageProfitCalculator component
 export interface ArbitrageProfitCalculatorProps {
   loanAmount: string;
   selectedToken: TokenInfo;
   flashLoanBps: number; // flash-loan premium in basis points
+  dexPrices: ExchangePrices | null; // Pass prices from parent
+  selectedBuyDex: string | null;    // Pass selected buy DEX name
+  selectedSellDex: string | null;   // Pass selected sell DEX name
 } 
