@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from 'react';
-import { formatCurrencyAmount } from '@/lib/web3/utils';
+import { useState, useEffect } from 'react';
+import { formatCurrencyAmount, formatTokenAmount } from '@/lib/web3/utils';
 import { ArbitrageProfitCalculatorProps } from '@/types/arbitrage';
 import { useArbitrageCalculator } from '@/hooks/useArbitrageCalculator';
+import { getEthersV5Provider } from '@/lib/web3/web3';
+import { fetchDexPrices, findBestArbitragePath } from '@/lib/services/priceService';
+import { EXCHANGES, PAIRS } from '@/lib/constants/dex';
+import { useTransactionFees } from '@/lib/web3/hooks/useTransactionFees';
+import type { ExchangePrices, ArbitragePath } from '@/types/arbitrage';
 
 export default function ArbitrageProfitCalculator({ 
   loanAmount, 
@@ -13,25 +18,75 @@ export default function ArbitrageProfitCalculator({
   // Keep only user decision inputs
   const [slippage, setSlippage] = useState<string>('0.5'); // Default 0.5%
   const [profitThreshold, setProfitThreshold] = useState<string>('10'); // Default $10
+  // trading fees handled internally, always pass '0' for now
 
-  // Auto-filled values (would be replaced by API data)
-  const [buyPrice, setBuyPrice] = useState<string>('1000'); // Default example value
-  const [sellPrice, setSellPrice] = useState<string>('1020'); // Default example value
-  const [tradingFees, setTradingFees] = useState<string>('0.3'); // Default 0.3%
-  const [gasCost, setGasCost] = useState<string>('50'); // Default $50 worth of ETH
+  // Live on-chain price data and best arbitrage path
+  const [dexPrices, setDexPrices] = useState<ExchangePrices | null>(null);
+  const [arbPath, setArbPath] = useState<ArbitragePath | null>(null);
   
+  // Gas fee statistics from network
+  const { estimatedFee, estimatedFeeUSDC } = useTransactionFees();
+
+  // Fees are included or will be fetched internally; always use '0' for now
+  const tradingFeesValue = '0';
+
   // Use custom hook for calculation
   const { potentialProfit, isProfitable, roi } = useArbitrageCalculator({
     loanAmount,
-    buyPrice,
-    sellPrice,
-    tradingFees,
+    // use on-chain prices or fallback to zero
+    buyPrice: arbPath ? dexPrices![arbPath.buy].toString() : '0',
+    sellPrice: arbPath ? dexPrices![arbPath.sell].toString() : '0',
+    tradingFees: tradingFeesValue,
     slippage,
-    gasCost,
+    gasCost: estimatedFee,
     profitThreshold,
     flashLoanBps,
   });
+
+  // Fetch on-chain prices once
+  useEffect(() => {
+    const loadPrices = async () => {
+      const provider = getEthersV5Provider();
+      if (!provider) {
+        console.error('MetaMask provider not available, please connect your wallet');
+        return;
+      }
+      try {
+        const allPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
+        const pairPrices = allPrices[PAIRS[0].name];
+        setDexPrices(pairPrices);
+      } catch (err) {
+        console.error('Failed to fetch dex prices', err);
+      }
+    };
+    loadPrices();
+  }, []);
+
+  // Determine best arbitrage path when prices update
+  useEffect(() => {
+    if (!dexPrices) return;
+    const path = findBestArbitragePath(dexPrices);
+    setArbPath(path);
+  }, [dexPrices]);
   
+  // Determine default buy/sell exchanges when no arbitrary path exists
+  const defaultBuyExchange = dexPrices
+    ? Object.entries(dexPrices).reduce(
+        (prev, [ex, price]) =>
+          price < (dexPrices[prev] ?? Infinity) ? ex : prev,
+        Object.keys(dexPrices)[0]
+      )
+    : null;
+  const defaultSellExchange = dexPrices
+    ? Object.entries(dexPrices).reduce(
+        (prev, [ex, price]) =>
+          price > (dexPrices[prev] ?? -Infinity) ? ex : prev,
+        Object.keys(dexPrices)[0]
+      )
+    : null;
+  const displayBuyExchange = arbPath?.buy || defaultBuyExchange;
+  const displaySellExchange = arbPath?.sell || defaultSellExchange;
+
   return (
     <div className="p-2 bg-white/5 border border-white/10 rounded-lg text-xs">
       <div className="flex justify-between items-center mb-2">
@@ -115,21 +170,54 @@ export default function ArbitrageProfitCalculator({
                 <div className="text-[10px] opacity-80">ROI: {roi.toFixed(2)}%</div>
               )}
             </div>
-            
+
             {/* Profit Breakdown */}
-            {potentialProfit !== null && (
+            {dexPrices && potentialProfit !== null && (
               <div className="text-[9px] grid grid-cols-2 gap-x-1 border-t border-white/10 pt-1 opacity-80">
-                <div>Buy Price:</div>
-                <div className="text-right">{formatCurrencyAmount(parseFloat(buyPrice), 'USD', 2)}</div>
-                
-                <div>Sell Price:</div>
-                <div className="text-right">{formatCurrencyAmount(parseFloat(sellPrice), 'USD', 2)}</div>
-                
+                <div>Buy Price ({displayBuyExchange}):</div>
+                <div className="text-right">
+                  {displayBuyExchange
+                    ? formatCurrencyAmount(
+                        dexPrices[displayBuyExchange],
+                        'USD',
+                        6
+                      )
+                    : '-'}
+                </div>
+
+                <div>Sell Price ({displaySellExchange}):</div>
+                <div className="text-right">
+                  {displaySellExchange
+                    ? formatCurrencyAmount(
+                        dexPrices[displaySellExchange],
+                        'USD',
+                        6
+                      )
+                    : '-'}
+                </div>
+
                 <div>Flash Loan Fee:</div>
-                <div className="text-right">{formatCurrencyAmount(parseFloat(loanAmount) * flashLoanBps / 10000 * parseFloat(buyPrice), 'USD', 2)}</div>
-                
+                <div className="text-right">
+                  {parseFloat(loanAmount) > 0
+                    ? formatTokenAmount(
+                        (parseFloat(loanAmount) * flashLoanBps) / 10000,
+                        selectedToken.decimals,
+                        selectedToken.symbol,
+                        false
+                      )
+                    : '-'}
+                </div>
+
                 <div>Est. Gas:</div>
-                <div className="text-right">{formatCurrencyAmount(parseFloat(gasCost), 'USD', 2)}</div>
+                <div className="text-right">
+                  {estimatedFeeUSDC
+                    ? formatCurrencyAmount(
+                        parseFloat(estimatedFeeUSDC),
+                        'USD',
+                        2
+                      )
+                    : '-'}
+                </div>
               </div>
             )}
           </div>
@@ -137,4 +225,4 @@ export default function ArbitrageProfitCalculator({
       </div>
     </div>
   );
-} 
+}

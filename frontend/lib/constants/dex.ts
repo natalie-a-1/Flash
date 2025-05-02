@@ -8,12 +8,14 @@ export const EXCHANGES = [
   {
     name: "Uniswap V2", // Name of the exchange
     router: MAINNET_ADDRESSES.UNISWAP_V2_ROUTER, // Router address for Uniswap V2
-    icon: "🦄" // Icon representing Uniswap V2
+    icon: "🦄", // Icon representing Uniswap V2
+    feesIncluded: true // getAmountsOut on Uniswap V2 includes the 0.30% fee
   },
   {
     name: "SushiSwap", // Name of the exchange
     router: MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER, // Router address for SushiSwap
-    icon: "🍣" // Icon representing SushiSwap
+    icon: "🍣", // Icon representing SushiSwap
+    feesIncluded: true // getAmountsOut on SushiSwap includes the 0.30% fee
   }
 ];
 

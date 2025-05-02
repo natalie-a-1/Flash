@@ -17,7 +17,7 @@ import { ROUTER_ABI, USDC_DECIMALS, WETH_DECIMALS } from "@/lib/constants/dex";
  * @returns An object containing price data for each pair and exchange.
  */
 export async function fetchDexPrices(
-  provider: ethers.providers.Web3Provider,
+  provider: ethers.providers.Provider,
   exchanges: Exchange[],
   pairs: TokenPair[]
 ): Promise<TokenPairPrices> {
