@@ -7,7 +7,6 @@ import { executeAaveFlashLoan } from "@/lib/web3/aave";
 import { useFlashLoanData } from "@/lib/web3/hooks/useFlashLoanData";
 import { formatMaxAmount, getStatusStyle } from "../lib/utils/flashLoanUtils";
 import { formatTokenAmount, formatCurrencyAmount } from "@/lib/web3/utils";
-import { TokenInfo } from "@/types/aave";
 import { TOKENS } from "@/lib/constants/tokens";
 import ArbitrageProfitCalculator from "./ArbitrageProfitCalculator";
 
@@ -29,9 +28,9 @@ export default function FlashLoanOptions() {
     reload,
   } = useFlashLoanData();
   
-  // Selected token state
-  const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKENS[0]);
-  // Reserve information for the selected token
+  // Always use USDC (first in TOKENS)
+  const selectedToken = TOKENS[0];
+  // Reserve information for USDC
   const reserve = reserves[selectedToken.address];
 
   // State variables
@@ -144,54 +143,6 @@ export default function FlashLoanOptions() {
       )}
 
       <div className="space-y-2">
-        {/* Token Selection */}
-        <div>
-          <label className="block text-white/70 text-xs mb-1 flex items-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mr-1"></div>
-            Select Token
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {TOKENS.map((token) => {
-              const tokenReserve = reserves[token.address];
-              const isActiveAndEnabled = tokenReserve?.isActive && tokenReserve?.flashLoanEnabled;
-
-              return (
-                <button
-                  key={token.address}
-                  onClick={() => setSelectedToken(token)}
-                  className={`flex items-center p-2 rounded-lg border transition-all group ${
-                    selectedToken.address === token.address
-                      ? "bg-gradient-to-r from-white/10 to-white/5 border-white/20 shadow-lg"
-                      : `${token.color} border-white/10 hover:border-white/30 hover:shadow-lg`
-                  }`}
-                  aria-label={`Select ${token.symbol}`}
-                >
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-base ${token.color} group-hover:scale-110 transition-transform`}>
-                    {token.icon}
-                  </div>
-                  <div className="ml-2 text-left flex-1">
-                    <div className="text-white text-sm font-medium">{token.symbol}</div>
-                    <div className="text-[10px] text-white/60 flex justify-between items-center">
-                      {loadingReserves ? (
-                        <span className="inline-block w-12 bg-white/10 animate-pulse rounded h-2"></span>
-                      ) : (
-                        <span>Max: {formatMaxAmount(tokenReserve, token)}</span>
-                      )}
-
-                      {tokenReserve && !loadingReserves && (
-                        <span className={`text-[8px] px-1 py-0.5 ml-1 rounded ${getStatusStyle(tokenReserve)}`}>
-                          {isActiveAndEnabled ? "Active" : tokenReserve.isFrozen ? "FROZEN" :
-                           tokenReserve.isPaused ? "PAUSED" : "UNAVAILABLE"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Amount Input */}
         <div>
           <div className="flex justify-between mb-1">

@@ -69,38 +69,28 @@ export async function fetchDexPrices(
  */
 export function findBestArbitragePath(
   prices: ExchangePrices
-): ArbitragePath | null {
-  const exchangeNames = Object.keys(prices);
-  if (exchangeNames.length < 2) return null;
-
-  // Filter out exchanges with a price of 0 (indicating a fetch error)
-  const validPrices = Object.entries(prices).filter(
-    ([, price]) => price > 0
-  );
-  if (validPrices.length < 2) return null;
-
-  let bestDiff = 0;
-  let bestPath: ArbitragePath | null = null;
-
-  for (let i = 0; i < validPrices.length; i++) {
-    for (let j = 0; j < validPrices.length; j++) {
-      if (i === j) continue;
-      const [buyExchange, buyPrice] = validPrices[i];
-      const [sellExchange, sellPrice] = validPrices[j];
-      const diff = calculateArbitragePercentage(
-        buyPrice as number,
-        sellPrice as number
-      );
-      if ((sellPrice as number) > (buyPrice as number) && diff > 0.1) {
-        if (diff > bestDiff) {
-          bestDiff = diff;
-          bestPath = { buy: buyExchange, sell: sellExchange, percentage: diff };
-        }
-      }
+): ArbitragePath {
+  // Always buy WETH on the cheapest exchange and sell on the most expensive
+  const validPrices = Object.entries(prices).filter(([, price]) => price > 0);
+  if (validPrices.length < 2) {
+    const exchangeNames = Object.keys(prices);
+    return { buy: exchangeNames[0], sell: exchangeNames[0], percentage: 0 };
+  }
+  // Initialize with the first valid entry
+  let [buyExchange, buyPrice] = validPrices[0];
+  let [sellExchange, sellPrice] = validPrices[0];
+  for (const [ex, price] of validPrices) {
+    if (price < buyPrice) {
+      buyExchange = ex;
+      buyPrice = price;
+    }
+    if (price > sellPrice) {
+      sellExchange = ex;
+      sellPrice = price;
     }
   }
-
-  return bestPath;
+  const percentage = calculateArbitragePercentage(buyPrice, sellPrice);
+  return { buy: buyExchange, sell: sellExchange, percentage };
 }
 
 /**

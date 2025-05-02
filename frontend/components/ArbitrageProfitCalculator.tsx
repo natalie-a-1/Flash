@@ -108,6 +108,12 @@ export default function ArbitrageProfitCalculator({
         </div>
       </div>
       
+      {arbPath && (
+        <div className="text-[9px] text-white/70 mb-2">
+          Path: Buy on {arbPath.buy}, Sell on {arbPath.sell}
+        </div>
+      )}
+      
       <div className="grid grid-cols-12 gap-2">
         {/* Left Column: User Settings */}
         <div className="col-span-5 space-y-1.5">
