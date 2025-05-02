@@ -15,7 +15,7 @@ export default function Header() {
   const pathname = usePathname();
   
   // Destructure necessary values from the Web3 context
-  const { isConnected, isCorrectNetwork, account, connectWallet } = useWeb3();
+  const { isConnected, isCorrectNetwork, account, connectWallet, networkName } = useWeb3();
 
   return (
     <header className="backdrop-blur-lg bg-black/20 border-b border-white/10">
@@ -44,6 +44,10 @@ export default function Header() {
                 {/* Display the connected account address */}
                 <span className="text-xs text-white/80 hidden md:inline-block">
                   {account?.slice(0, 6)}...{account?.slice(-4)}
+                </span>
+                {/* Display the network name */}
+                <span className="text-xs ml-2 px-2 py-1 rounded-full bg-white/10 text-white/70 hidden md:inline-block">
+                  {networkName || 'Unknown Network'}
                 </span>
               </div>
             ) : (

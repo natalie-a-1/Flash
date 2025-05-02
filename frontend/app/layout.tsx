@@ -34,11 +34,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-900 to-black text-white flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-900 to-black text-white flex flex-col min-h-screen`}
       >
         <Web3Provider>
           <Header />
-          <div className="flex-1 max-w-full overflow-x-hidden">{children}</div> {/* Main content area */}
+          <div className="flex-1 max-w-full overflow-x-hidden pb-12">{children}</div> {/* Main content area with padding for footer */}
           <Footer />
         </Web3Provider>
       </body>

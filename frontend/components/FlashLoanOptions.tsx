@@ -364,14 +364,12 @@ export default function FlashLoanOptions() {
           </div>
         )}
 
-        {/* Arbitrage Profit Calculator */}
-        {reserve && !loadingReserves && !loadingFees && flashLoanFees && loanAmount && (
-          <ArbitrageProfitCalculator 
-            loanAmount={loanAmount}
-            selectedToken={selectedToken}
-            flashLoanPremium={flashLoanFees.total}
-          />
-        )}
+        {/* Arbitrage Profit Calculator - Always visible */}
+        <ArbitrageProfitCalculator 
+          loanAmount={loanAmount || "0"}
+          selectedToken={selectedToken}
+          flashLoanPremium={flashLoanFees?.total || 0.09}
+        />
 
         {/* Execute Button */}
         <button
