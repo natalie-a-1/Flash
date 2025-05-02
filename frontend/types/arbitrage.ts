@@ -1,3 +1,6 @@
+// Add import for TokenInfo from Aave types
+import { TokenInfo } from "@/types/aave";
+
 /**
  * Represents the price data for different exchanges.
  * 
@@ -51,4 +54,11 @@ export interface TokenPair {
   tokens: string[];    // The list of tokens in the pair
   baseSymbol: string;  // The base symbol of the token pair
   quoteSymbol: string; // The quote symbol of the token pair
+}
+
+// Props for the ArbitrageProfitCalculator component
+export interface ArbitrageProfitCalculatorProps {
+  loanAmount: string;
+  selectedToken: TokenInfo;
+  flashLoanBps: number; // flash-loan premium in basis points
 } 

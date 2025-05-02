@@ -1,19 +1,14 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { formatCurrencyAmount } from '@/lib/web3/utils';
-import { TokenInfo } from '@/types/aave';
-
-interface ArbitrageProfitCalculatorProps {
-  loanAmount: string;
-  selectedToken: TokenInfo;
-  flashLoanPremium: number; // in percentage
-}
+import { ArbitrageProfitCalculatorProps } from '@/types/arbitrage';
+import { useArbitrageCalculator } from '@/hooks/useArbitrageCalculator';
 
 export default function ArbitrageProfitCalculator({ 
   loanAmount, 
   selectedToken, 
-  flashLoanPremium 
+  flashLoanBps 
 }: ArbitrageProfitCalculatorProps) {
   // Keep only user decision inputs
   const [slippage, setSlippage] = useState<string>('0.5'); // Default 0.5%
@@ -25,61 +20,17 @@ export default function ArbitrageProfitCalculator({
   const [tradingFees, setTradingFees] = useState<string>('0.3'); // Default 0.3%
   const [gasCost, setGasCost] = useState<string>('50'); // Default $50 worth of ETH
   
-  // Calculated values
-  const [potentialProfit, setPotentialProfit] = useState<number | null>(null);
-  const [isProfitable, setIsProfitable] = useState<boolean>(false);
-  const [roi, setRoi] = useState<number | null>(null);
-  
-  // Calculate profit when inputs change
-  useEffect(() => {
-    if (!loanAmount) {
-      setPotentialProfit(null);
-      setIsProfitable(false);
-      setRoi(null);
-      return;
-    }
-    
-    try {
-      // Parse all inputs to numbers
-      const amount = parseFloat(loanAmount);
-      const buy = parseFloat(buyPrice);
-      const sell = parseFloat(sellPrice);
-      const fees = parseFloat(tradingFees) / 100;
-      const slip = parseFloat(slippage) / 100;
-      const gas = parseFloat(gasCost);
-      const threshold = parseFloat(profitThreshold);
-      const flashLoanFee = amount * (flashLoanPremium / 100);
-      
-      // Validate inputs to avoid division by zero and negative values
-      if (amount <= 0 || buy <= 0 || sell <= 0 || fees < 0 || slip < 0 || gas < 0 || threshold < 0) {
-        setPotentialProfit(null);
-        setIsProfitable(false);
-        setRoi(null);
-        return;
-      }
-      
-      // Calculate token amounts (simplified model)
-      const tokensBought = amount / buy * (1 - slip);
-      const sellValue = tokensBought * sell * (1 - fees);
-      
-      // Calculate profit
-      const grossProfit = sellValue - amount;
-      const netProfit = grossProfit - flashLoanFee - gas;
-      
-      // Calculate ROI percentage
-      const totalCost = amount + flashLoanFee + gas;
-      const roiPercentage = (netProfit / totalCost) * 100;
-      
-      setPotentialProfit(netProfit);
-      setIsProfitable(netProfit >= threshold);
-      setRoi(roiPercentage);
-    } catch (error) {
-      console.error("Error calculating profit:", error);
-      setPotentialProfit(null);
-      setIsProfitable(false);
-      setRoi(null);
-    }
-  }, [loanAmount, buyPrice, sellPrice, tradingFees, slippage, gasCost, profitThreshold, flashLoanPremium]);
+  // Use custom hook for calculation
+  const { potentialProfit, isProfitable, roi } = useArbitrageCalculator({
+    loanAmount,
+    buyPrice,
+    sellPrice,
+    tradingFees,
+    slippage,
+    gasCost,
+    profitThreshold,
+    flashLoanBps,
+  });
   
   return (
     <div className="p-2 bg-white/5 border border-white/10 rounded-lg text-xs">
@@ -175,7 +126,7 @@ export default function ArbitrageProfitCalculator({
                 <div className="text-right">{formatCurrencyAmount(parseFloat(sellPrice), 'USD', 2)}</div>
                 
                 <div>Flash Loan Fee:</div>
-                <div className="text-right">{formatCurrencyAmount(parseFloat(loanAmount) * flashLoanPremium / 100, 'USD', 2)}</div>
+                <div className="text-right">{formatCurrencyAmount(parseFloat(loanAmount) * flashLoanBps / 10000 * parseFloat(buyPrice), 'USD', 2)}</div>
                 
                 <div>Est. Gas:</div>
                 <div className="text-right">{formatCurrencyAmount(parseFloat(gasCost), 'USD', 2)}</div>

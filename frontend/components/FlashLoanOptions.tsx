@@ -368,7 +368,7 @@ export default function FlashLoanOptions() {
         <ArbitrageProfitCalculator 
           loanAmount={loanAmount || "0"}
           selectedToken={selectedToken}
-          flashLoanPremium={flashLoanFees?.total || 0.09}
+          flashLoanBps={flashLoanFees?.total || 0.09}
         />
 
         {/* Execute Button */}
