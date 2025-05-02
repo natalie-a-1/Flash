@@ -147,24 +147,37 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
    * Sets up event listeners for account and network changes.
    */
   const connectWallet = async () => {
+    console.log("Attempting to connect wallet...");
     try {
+      console.log("Getting Web3 instance...");
       const web3Instance = await getWeb3();
+      console.log("Web3 instance obtained:", web3Instance ? "Success" : "Failed");
       setWeb3(web3Instance);
 
+      console.log("Getting accounts...");
       const accounts = await getAccounts(web3Instance);
+      console.log("Accounts obtained:", accounts);
       setAccount(accounts[0] || null);
       setIsConnected(!!accounts[0]);
+      console.log("Account state set:", accounts[0] || null, "Connected:", !!accounts[0]);
 
+      console.log("Updating network info...");
       await updateNetworkInfo(web3Instance);
+      console.log("Network info updated.");
 
+      console.log("Setting up event listeners...");
       window.ethereum.on("accountsChanged", (accounts: string[]) => {
+        console.log("accountsChanged event fired:", accounts);
         setAccount(accounts[0] || null);
         setIsConnected(!!accounts[0]);
       });
 
       window.ethereum.on("chainChanged", () => {
+        console.log("chainChanged event fired. Reloading...");
         window.location.reload();
       });
+      console.log("Event listeners set up.");
+      console.log("Wallet connection successful.");
     } catch (error) {
       console.error("Error connecting to MetaMask", error);
     }

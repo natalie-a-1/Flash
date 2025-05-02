@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
-import { formatTokenAmount, formatCurrencyAmount } from "@/lib/web3/utils";
 import { ethers } from "ethers";
-import { executeAaveFlashLoan } from "@/lib/web3/aave"; // Import execute function
-import { UiPoolDataProvider, ChainId } from '@aave/contract-helpers';
-import * as markets from '@bgd-labs/aave-address-book';
-import { TokenInfo, HumanizedReserveData } from "@/types/aave"; // Import types
+import { executeAaveFlashLoan } from "@/lib/web3/aave";
+import { useFlashLoanData } from "@/lib/web3/hooks/useFlashLoanData";
+import { formatMaxAmount, getStatusStyle } from "../lib/utils/flashLoanUtils";
+import { formatTokenAmount, formatCurrencyAmount } from "@/lib/web3/utils";
+import { TokenInfo } from "@/types/aave";
 import { TOKENS } from "@/lib/constants/tokens";
-import { getEthersV5Provider } from "@/lib/web3/web3"; // Import the v5 provider getter
 
 /**
  * FlashLoanOptions component provides the interface for executing flash loans.
@@ -18,74 +17,26 @@ import { getEthersV5Provider } from "@/lib/web3/web3"; // Import the v5 provider
 export default function FlashLoanOptions() {
   const { web3, isConnected, isCorrectNetwork, account } = useWeb3();
 
-  // State variables
-  const [reserves, setReserves] = useState<Record<string, HumanizedReserveData>>({});
+  // Unified hook for reserves and fee data
+  const {
+    reserves,
+    flashLoanFees,
+    loadingReserves,
+    loadingFees,
+    errorReserves,
+    errorFees,
+    reload,
+  } = useFlashLoanData();
+  
+  // Selected token state
   const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKENS[0]);
+  // Reserve information for the selected token
+  const reserve = reserves[selectedToken.address];
+
+  // State variables
   const [loanAmount, setLoanAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loadingTokenData, setLoadingTokenData] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [flashLoanFees, setFlashLoanFees] = useState<{ total: number; protocol: number; liquidityProviders: number } | null>(null);
-  const [feesLoading, setFeesLoading] = useState<boolean>(true);
-
-  /**
-   * Fetches flash loan limits from Aave for the available tokens using @aave/contract-helpers.
-   */
-  const getFlashLoanLimits = async () => {
-    const provider = getEthersV5Provider();
-
-    if (!isConnected || !isCorrectNetwork || !provider) {
-      setLoadingTokenData(false);
-      setError("Connect wallet, switch to Ethereum Mainnet, and ensure MetaMask is available to see liquidity");
-      return;
-    }
-
-    setLoadingTokenData(true);
-    setError(null);
-
-    try {
-      const uiPoolDataProvider = new UiPoolDataProvider({
-        uiPoolDataProviderAddress: markets.AaveV3Ethereum.UI_POOL_DATA_PROVIDER,
-        provider,
-        chainId: ChainId.mainnet,
-      });
-
-      // fetch humanized reserve data (cast to any since TS defs omit this method)
-      // @ts-ignore
-      const { reservesData }: any = await (uiPoolDataProvider as any).getReservesHumanized({
-        lendingPoolAddressProvider: markets.AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
-      });
-
-      if (reservesData && reservesData.length > 0) {
-        console.log("Sample reserveData item structure:", reservesData);
-      }
-
-      const reservesMap: Record<string, HumanizedReserveData> = {};
-      reservesData.forEach((reserve: any) => {
-        const tokenInfo = TOKENS.find(t => t.address.toLowerCase() === reserve.underlyingAsset?.toLowerCase());
-        if (tokenInfo) {
-          reservesMap[tokenInfo.address] = { ...reserve, decimals: tokenInfo.decimals };
-        }
-      });
-
-      setReserves(reservesMap);
-
-      const hasData = TOKENS.some(token => {
-        const reserve = reservesMap[token.address];
-        return reserve && reserve.isActive && reserve.flashLoanEnabled && parseFloat(reserve.availableLiquidity) > 0;
-      });
-
-      if (!hasData) {
-        setError("No active reserves with liquidity available for flash loans on Aave V3 Ethereum Mainnet for tracked tokens.");
-      }
-    } catch (error) {
-      console.error("Error fetching Aave V3 reserves data:", error);
-      setError("Failed to fetch Aave liquidity data. Please check your connection and try again.");
-      setReserves({});
-    } finally {
-      setLoadingTokenData(false);
-    }
-  };
 
   /**
    * Executes a flash loan with the selected token and amount.
@@ -115,7 +66,7 @@ export default function FlashLoanOptions() {
 
       if (amountInWei.gt(availableLiquidityBN)) {
         // Use formatMaxAmount to display available liquidity with USD value
-        const availableDisplay = formatMaxAmount(selectedToken.address);
+        const availableDisplay = formatMaxAmount(selectedReserve, selectedToken);
         setError(`Requested amount exceeds available liquidity (${availableDisplay})`);
         setIsLoading(false);
         return;
@@ -160,120 +111,6 @@ export default function FlashLoanOptions() {
     }
   };
 
-  /**
-   * Effect to fetch flash loan limits when connection or network changes.
-   */
-  useEffect(() => {
-    getFlashLoanLimits();
-  }, [isConnected, isCorrectNetwork]);
-
-  // fetch flash loan premium fee configuration from Aave Pool contract
-  useEffect(() => {
-    const fetchFlashLoanFees = async () => {
-      if (!isConnected || !isCorrectNetwork) return;
-      const provider = getEthersV5Provider();
-      if (!provider) return;
-      setFeesLoading(true);
-      try {
-        // 1. resolve pool address from PoolAddressesProvider
-        const poolAddressesProviderAddress = markets.AaveV3Ethereum.POOL_ADDRESSES_PROVIDER;
-        const providerContract = new ethers.Contract(
-          poolAddressesProviderAddress,
-          ["function getPool() external view returns (address)"],
-          provider
-        );
-        const poolAddress: string = await providerContract.getPool();
-
-        // 2. query flash-loan fee constants from the Pool contract
-        const poolContract = new ethers.Contract(
-          poolAddress,
-          [
-            "function FLASHLOAN_PREMIUM_TOTAL() external view returns (uint128)",
-            "function FLASHLOAN_PREMIUM_TO_PROTOCOL() external view returns (uint128)"
-          ],
-          provider
-        );
-        const totalBpsBN = await poolContract.FLASHLOAN_PREMIUM_TOTAL();
-        const protocolBpsBN = await poolContract.FLASHLOAN_PREMIUM_TO_PROTOCOL();
-        const liquidityProvidersBpsBN = totalBpsBN.sub(protocolBpsBN);
-
-        // 3. set state with formatted fees
-        setFlashLoanFees({
-          total: totalBpsBN.toNumber() / 10000,
-          protocol: protocolBpsBN.toNumber() / 10000,
-          liquidityProviders: liquidityProvidersBpsBN.toNumber() / 10000,
-        });
-      } catch (err) {
-        console.error("Error fetching flash loan fees:", err);
-      } finally {
-        setFeesLoading(false);
-      }
-    };
-
-    fetchFlashLoanFees();
-  }, [isConnected, isCorrectNetwork]);
-
-  /**
-   * Gets the selected token's reserve info.
-   */
-  const getSelectedReserve = (): HumanizedReserveData | undefined => {
-    return reserves[selectedToken.address];
-  };
-
-  /**
-   * Formats the maximum available amount (convert from raw wei) for display.
-   */
-  const formatMaxAmount = (address: string): string => {
-    const reserve = reserves[address];
-    if (!reserve) return "0";
-    const token = TOKENS.find(t => t.address === address);
-    if (!token) return "0";
-    if (!reserve.isActive || !reserve.flashLoanEnabled) {
-      return "Unavailable";
-    }
-    // Convert raw string (wei) to human-readable value
-    const humanAmount = ethers.utils.formatUnits(reserve.availableLiquidity, token.decimals);
-    // Format token display with compact notation
-    const tokenDisplay = formatTokenAmount(humanAmount, 4, token.symbol, true);
-    // If USD amount is provided, format directly
-    if (reserve.availableLiquidityUSD) {
-      const usdDisplay = formatCurrencyAmount(reserve.availableLiquidityUSD, 'USD', 2, true);
-      return `${tokenDisplay} (${usdDisplay})`;
-    }
-    return tokenDisplay;
-  };
-
-  /**
-   * Gets the status style for a token based on its state.
-   */
-  const getStatusStyle = (address: string): string => {
-    const reserve = reserves[address];
-    if (!reserve) return "bg-gray-500/20";
-
-    if (reserve.isActive && reserve.flashLoanEnabled) {
-      return parseFloat(reserve.availableLiquidity) === 0 ? "bg-yellow-500/20 text-yellow-300" : "bg-green-500/20 text-green-300";
-    } else if (reserve.isFrozen) {
-      return "bg-blue-500/20 text-blue-300";
-    } else if (reserve.isPaused) {
-      return "bg-yellow-500/20 text-yellow-300";
-    } else {
-      return "bg-red-500/20 text-red-300";
-    }
-  };
-
-  /**
-   * Sets the input field to the maximum available amount.
-   */
-  const setMaxAmount = (): void => {
-    const reserve = reserves[selectedToken.address];
-    if (!reserve || !reserve.isActive || !reserve.flashLoanEnabled || parseFloat(reserve.availableLiquidity) === 0) return;
-
-    setLoanAmount(reserve.availableLiquidity);
-  };
-
-  // Prepare reserve info
-  const reserve = getSelectedReserve();
-
   return (
     <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
       <h2 className="text-2xl font-medium text-white mb-4">Flash Loan Options</h2>
@@ -309,8 +146,8 @@ export default function FlashLoanOptions() {
           <label className="block text-white/70 text-sm mb-2">Select Token</label>
           <div className="grid grid-cols-2 gap-3">
             {TOKENS.map((token) => {
-              const reserve = reserves[token.address];
-              const isActiveAndEnabled = reserve?.isActive && reserve?.flashLoanEnabled;
+              const tokenReserve = reserves[token.address];
+              const isActiveAndEnabled = tokenReserve?.isActive && tokenReserve?.flashLoanEnabled;
 
               return (
                 <button
@@ -329,16 +166,16 @@ export default function FlashLoanOptions() {
                   <div className="ml-3 text-left flex-1">
                     <div className="text-white font-medium">{token.symbol}</div>
                     <div className="text-xs text-white/60 flex justify-between items-center">
-                      {loadingTokenData ? (
+                      {loadingReserves ? (
                         <span className="inline-block w-16 bg-white/10 animate-pulse rounded h-3"></span>
                       ) : (
-                        <span>Max: {formatMaxAmount(token.address)}</span>
+                        <span>Max: {formatMaxAmount(tokenReserve, token)}</span>
                       )}
 
-                      {reserve && !loadingTokenData && (
-                        <span className={`text-xs px-1.5 py-0.5 ml-2 rounded ${getStatusStyle(token.address)}`}>
-                          {isActiveAndEnabled ? "Active" : reserve.isFrozen ? "FROZEN" :
-                           reserve.isPaused ? "PAUSED" : "UNAVAILABLE"}
+                      {tokenReserve && !loadingReserves && (
+                        <span className={`text-xs px-1.5 py-0.5 ml-2 rounded ${getStatusStyle(tokenReserve)}`}>
+                          {isActiveAndEnabled ? "Active" : tokenReserve.isFrozen ? "FROZEN" :
+                           tokenReserve.isPaused ? "PAUSED" : "UNAVAILABLE"}
                         </span>
                       )}
                     </div>
@@ -354,9 +191,8 @@ export default function FlashLoanOptions() {
           <div className="flex justify-between mb-2">
             <label htmlFor="loan-amount" className="text-white/70 text-sm">Amount</label>
             <button
-              onClick={setMaxAmount}
               className="text-cyan-400 text-xs hover:underline"
-              disabled={loadingTokenData || !getSelectedReserve()?.flashLoanEnabled}
+              disabled={loadingReserves || !reserve?.flashLoanEnabled}
               aria-label="Set maximum amount"
             >
               MAX
@@ -379,14 +215,14 @@ export default function FlashLoanOptions() {
         </div>
 
         {/* Error Message */}
-        {error && (
+        {(error || errorReserves || errorFees) && (
           <div className="p-3 bg-red-900/20 border border-red-600/30 rounded-xl text-red-300 text-sm">
             <div className="flex justify-between items-center">
-              <span>{error}</span>
+              <span>{error || errorReserves || errorFees}</span>
               <button
-                onClick={getFlashLoanLimits}
+                onClick={reload}
                 className="text-cyan-400 text-xs hover:underline flex items-center"
-                disabled={loadingTokenData}
+                disabled={loadingReserves || loadingFees}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
@@ -398,7 +234,7 @@ export default function FlashLoanOptions() {
         )}
 
         {/* Data Loading Indicator */}
-        {loadingTokenData && (
+        {(loadingReserves || loadingFees) && (
           <div className="flex items-center justify-center py-3 text-cyan-300 text-sm">
             <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -409,62 +245,78 @@ export default function FlashLoanOptions() {
         )}
 
         {/* Selected Token Additional Info */}
-        {getSelectedReserve() && !loadingTokenData && (
+        {reserve && !loadingReserves && (
           <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-sm">
             <h3 className="text-white/80 font-medium mb-2">Reserve Information</h3>
             <div className="space-y-1 text-white/60">
               <div className="flex justify-between">
                 <span>Available Liquidity:</span>
                 <span className="text-white/90 font-medium">
-                  {formatMaxAmount(selectedToken.address)}
+                  {formatMaxAmount(reserve, selectedToken)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Reserve Status:</span>
-                <span className={`${getStatusStyle(selectedToken.address)} px-2 py-0.5 rounded text-xs`}>
-                  {getSelectedReserve()!.isActive ? "ACTIVE" :
-                   getSelectedReserve()!.isFrozen ? "FROZEN" :
-                   getSelectedReserve()!.isPaused ? "PAUSED" : "INACTIVE"}
+                <span className={`${getStatusStyle(reserve)} px-2 py-0.5 rounded text-xs`}>
+                  {reserve.isActive ? "ACTIVE" :
+                   reserve.isFrozen ? "FROZEN" :
+                   reserve.isPaused ? "PAUSED" : "INACTIVE"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Flash Loans:</span>
-                <span className={getSelectedReserve()!.flashLoanEnabled ? "text-green-400" : "text-red-400"}>
-                  {getSelectedReserve()!.flashLoanEnabled ? "Enabled" : "Disabled"}
+                <span className={reserve.flashLoanEnabled ? "text-green-400" : "text-red-400"}>
+                  {reserve.flashLoanEnabled ? "Enabled" : "Disabled"}
                 </span>
               </div>
             </div>
           </div>
         )}
 
-        {reserve && !loadingTokenData && (
+        {reserve && !loadingReserves && (
           <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-sm">
             {/* Flash Loan Premium Fees */}
-            <h4 className="text-white/80 font-medium mb-2 mt-4">Flash Loan Premium Fees</h4>
+            <h4 className="text-white/80 font-medium mb-2 mt-4 flex items-center">
+              <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M13.5 8C13.5 8.82843 12.8284 9.5 12 9.5C11.1716 9.5 10.5 8.82843 10.5 8C10.5 7.17157 11.1716 6.5 12 6.5C12.8284 6.5 13.5 7.17157 13.5 8Z" fill="currentColor" />
+                <path d="M12 17V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              Aave Flash Loan Fees
+            </h4>
+            <p className="text-white/50 text-xs mb-3">The following fees are charged by Aave for all flash loans. Protocol Treasury and Liquidity Providers fees are components of the Total Fee, not additional charges.</p>
             <div className="space-y-1 text-white/60">
-              <div className="flex justify-between">
-                <span>Total Fee:</span>
-                {feesLoading ? (
+              <div className="flex justify-between items-center pb-1 border-b border-white/10">
+                <span className="font-medium">Total Fee:</span>
+                {loadingFees ? (
                   <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
                 ) : (
                   <span className="font-medium text-white">{`${flashLoanFees?.total}%`}</span>
                 )}
               </div>
-              <div className="flex justify-between">
-                <span>Protocol Treasury:</span>
-                {feesLoading ? (
-                  <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
-                ) : (
-                  <span className="font-medium text-white">{`${flashLoanFees?.protocol}%`}</span>
-                )}
-              </div>
-              <div className="flex justify-between">
-                <span>Liquidity Providers:</span>
-                {feesLoading ? (
-                  <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
-                ) : (
-                  <span className="font-medium text-white">{`${flashLoanFees?.liquidityProviders}%`}</span>
-                )}
+              <div className="pl-3 mt-1 pt-1">
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mr-2"></div>
+                    <span>Protocol Treasury:</span>
+                  </div>
+                  {loadingFees ? (
+                    <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
+                  ) : (
+                    <span className="text-white">{`${flashLoanFees?.protocol}%`}</span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-400 mr-2"></div>
+                    <span>Liquidity Providers:</span>
+                  </div>
+                  {loadingFees ? (
+                    <span className="inline-block w-8 h-3 bg-white/10 animate-pulse rounded"></span>
+                  ) : (
+                    <span className="text-white">{`${flashLoanFees?.liquidityProviders}%`}</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -478,18 +330,18 @@ export default function FlashLoanOptions() {
             !isCorrectNetwork ||
             !loanAmount ||
             isLoading ||
-            loadingTokenData ||
+            loadingReserves ||
             error !== null ||
-            !getSelectedReserve()?.flashLoanEnabled
+            !reserve?.flashLoanEnabled
           }
           className={`w-full py-3 rounded-xl font-medium transition-all duration-200 ${
             !isConnected ||
             !isCorrectNetwork ||
             !loanAmount ||
             isLoading ||
-            loadingTokenData ||
+            loadingReserves ||
             error !== null ||
-            !getSelectedReserve()?.flashLoanEnabled
+            !reserve?.flashLoanEnabled
               ? "bg-gray-600 text-white/50 cursor-not-allowed"
               : "bg-cyan-500 hover:bg-cyan-600 text-white cursor-pointer"
           }`}
