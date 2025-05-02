@@ -90,13 +90,13 @@ export default function ArbitrageOpportunities() {
    */
   if (!mounted) {
     return (
-      <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-medium text-white">Arbitrage Opportunities</h2>
-          <div className="h-6 w-24 bg-white/10 rounded animate-pulse"></div>
+      <div className="rounded-xl bg-white/10 backdrop-blur-lg p-3 shadow-lg border border-white/20">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-medium text-white">Arbitrage Opportunities</h2>
+          <div className="h-4 w-16 bg-white/10 rounded animate-pulse"></div>
         </div>
-        <div className="animate-pulse space-y-4">
-          <div className="h-40 bg-white/5 rounded-xl w-full"></div>
+        <div className="animate-pulse space-y-2">
+          <div className="h-24 bg-white/5 rounded-lg w-full"></div>
         </div>
       </div>
     );
@@ -107,14 +107,14 @@ export default function ArbitrageOpportunities() {
    * Displays arbitrage opportunities or prompts the user to connect their wallet or switch networks.
    */
   return (
-    <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-medium text-white">Arbitrage Opportunities</h2>
+    <div className="rounded-xl bg-white/10 backdrop-blur-lg p-3 shadow-lg border border-white/20">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-medium text-white">Arbitrage Opportunities</h2>
         <div className="flex items-center">
           <button
             onClick={fetchPrices}
             disabled={isLoading || !isConnected || !isCorrectNetwork}
-            className={`mr-2 p-2 rounded-full transition-all ${
+            className={`mr-1 p-1 rounded-full transition-all ${
               isLoading || !isConnected || !isCorrectNetwork
                 ? "bg-gray-700 text-white/50 cursor-not-allowed"
                 : "bg-white/10 text-white hover:bg-white/20"
@@ -122,7 +122,7 @@ export default function ArbitrageOpportunities() {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              className={`h-3 w-3 ${isLoading ? "animate-spin" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -136,33 +136,33 @@ export default function ArbitrageOpportunities() {
             </svg>
           </button>
           <span className="text-xs text-white/60">
-            Updated: {isLoading ? "Updating..." : getTimeElapsed(lastUpdated)}
+            {isLoading ? "Updating..." : getTimeElapsed(lastUpdated)}
           </span>
         </div>
       </div>
 
       {!isConnected ? (
-        <div className="text-center py-10 text-white/60">
-          <p>Connect your wallet to view arbitrage opportunities</p>
+        <div className="text-center py-2 text-white/60 text-xs">
+          <p>Connect wallet to view opportunities</p>
         </div>
       ) : !isCorrectNetwork ? (
-        <div className="text-center py-10 text-white/60">
-          <p>Please switch to Ethereum Mainnet</p>
+        <div className="text-center py-2 text-white/60 text-xs">
+          <p>Switch to Ethereum Mainnet</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {PAIRS.map((pair) => {
             const pairPrices = prices[pair.name] || {};
             const bestPath = pairPrices ? findBestArbitragePath(pairPrices) : null;
 
             return (
-              <div key={pair.name} className="border border-white/10 rounded-xl overflow-hidden">
-                <div className="bg-white/5 py-3 px-4">
+              <div key={pair.name} className="border border-white/10 rounded-lg overflow-hidden">
+                <div className="bg-white/5 py-1 px-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-white font-medium">{pair.name}</span>
+                    <span className="text-sm text-white">{pair.name}</span>
                     {bestPath && (
                       <span
-                        className={`text-sm rounded-full px-3 py-1 ${
+                        className={`text-xs rounded-full px-2 py-0.5 ${
                           bestPath.percentage >= 1
                             ? "bg-green-500/20 text-green-400"
                             : "bg-amber-500/20 text-amber-400"
@@ -174,36 +174,25 @@ export default function ArbitrageOpportunities() {
                   </div>
                 </div>
 
-                {bestPath && (
-                  <div className="flex items-center space-x-4 px-4 py-2 bg-white/5 border-b border-white/10">
-                    <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
-                      Buy on {bestPath.buy}
-                    </span>
-                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
-                      Sell on {bestPath.sell}
-                    </span>
-                  </div>
-                )}
-
-                <div className="p-4">
-                  <div className="text-sm text-white/70 mb-3">
-                    Prices shown as <span className="font-medium">WETH per 1 USDC</span> (higher is better for selling WETH)
+                <div className="p-2">
+                  <div className="text-xs text-white/70 mb-1">
+                    Prices: <span className="font-medium">WETH per 1 USDC</span>
                   </div>
 
                   {isLoading ? (
-                    <div className="space-y-3">
+                    <div className="space-y-1">
                       {EXCHANGES.map((exchange) => (
                         <div key={exchange.name} className="flex justify-between">
                           <div className="flex items-center">
-                            <span className="text-lg mr-2">{exchange.icon}</span>
-                            <span className="text-white/70">{exchange.name}</span>
+                            <span className="text-sm mr-1">{exchange.icon}</span>
+                            <span className="text-white/70 text-xs">{exchange.name}</span>
                           </div>
-                          <div className="w-24 h-5 bg-white/10 animate-pulse rounded"></div>
+                          <div className="w-16 h-3 bg-white/10 animate-pulse rounded"></div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col space-y-1">
                       {EXCHANGES.map((exchange) => {
                         const price = pairPrices[exchange.name] ?? 0;
                         const isBestBuy = bestPath?.buy === exchange.name;
@@ -211,22 +200,19 @@ export default function ArbitrageOpportunities() {
                         return (
                           <div key={exchange.name} className="flex items-center justify-between">
                             <div className="flex items-center">
-                              <span className="text-lg mr-2">{exchange.icon}</span>
-                              <span className="text-white">{exchange.name}</span>
+                              <span className="text-sm mr-1">{exchange.icon}</span>
+                              <span className="text-white text-xs">{exchange.name}</span>
                             </div>
                             <div className="flex items-center">
-                              {isBestBuy && (
-                                <span className="mr-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
-                                  Best for Buying {pair.quoteSymbol}
-                                </span>
-                              )}
-                              {isBestSell && (
-                                <span className="mr-2 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
-                                  Best for Selling {pair.quoteSymbol}
+                              {(isBestBuy || isBestSell) && (
+                                <span className={`mr-1 px-1 py-0.5 text-[8px] rounded-full ${
+                                  isBestBuy ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
+                                }`}>
+                                  {isBestBuy ? "BUY" : "SELL"}
                                 </span>
                               )}
                               <span
-                                className={`font-medium ${
+                                className={`text-xs font-medium ${
                                   isBestBuy
                                     ? "text-green-400"
                                     : isBestSell
@@ -244,23 +230,12 @@ export default function ArbitrageOpportunities() {
                   )}
 
                   {bestPath && (
-                    <div className="mt-4 pt-4 border-t border-white/10">
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <h3 className="text-sm text-white/70 mb-2">Suggested Strategy</h3>
-                        <div className="text-sm text-white">
-                          1. Buy WETH on{" "}
-                          <span className="font-medium text-green-400">{bestPath.buy}</span> (Lower price = costs less USDC)
-                        </div>
-                        <div className="text-sm text-white">
-                          2. Sell WETH on{" "}
-                          <span className="font-medium text-amber-400">{bestPath.sell}</span> (Higher price = gets more USDC)
-                        </div>
-                        <div className="text-sm text-white mt-1">
-                          Potential profit:{" "}
-                          <span className="font-medium text-green-400">
-                            {bestPath.percentage.toFixed(2)}%
-                          </span>
-                          <span className="text-white/50 text-xs ml-2">(before gas fees)</span>
+                    <div className="mt-1 pt-1 border-t border-white/10">
+                      <div className="rounded-md bg-white/5 p-1 text-xs">
+                        <div className="text-white/70 mb-0.5">Strategy: Buy on <span className="text-green-400">{bestPath.buy}</span>, Sell on <span className="text-amber-400">{bestPath.sell}</span></div>
+                        <div className="text-white">
+                          Potential: <span className="font-medium text-green-400">{bestPath.percentage.toFixed(2)}%</span>
+                          <span className="text-white/50 text-[8px] ml-1">(before fees)</span>
                         </div>
                       </div>
                     </div>

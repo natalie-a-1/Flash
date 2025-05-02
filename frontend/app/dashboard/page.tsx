@@ -114,36 +114,15 @@ export default function Dashboard() {
    * Displays wallet connection status, network status, and arbitrage opportunities.
    */
   return (
-    <main className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1> */}
-        {/* <p className="text-slate-300 mb-8">Monitor arbitrage opportunities and execute flash loans</p> */}
-
-        {/* Warning message if the user is not on the correct network */}
-        {!isCorrectNetwork && (
-          <div className="mb-8 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg p-4 flex items-center">
-            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <p className="font-medium">Please switch to Ethereum Mainnet</p>
-              <p className="text-sm text-amber-400/80">Some features may not work correctly on the current network</p>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left sidebar with wallet connection and quick stats */}
-          <div className="md:col-span-1">
-            <WalletConnection />
-            
-            <QuickStats />
-          </div>
-
-          {/* Main content area for arbitrage opportunities and flash loan options */}
-          <div className="md:col-span-2 space-y-6">
+    <main className="container mx-auto px-3 py-2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <div className="lg:col-span-7">
+          <FlashLoanOptions />
+        </div>
+        <div className="lg:col-span-5">
+          <div className="space-y-3">
             <ArbitrageOpportunities />
-            <FlashLoanOptions />
+            <QuickStats />
           </div>
         </div>
       </div>
