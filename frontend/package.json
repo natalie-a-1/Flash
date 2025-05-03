@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "mocha --require ts-node/register --require test/setup.ts 'test/**/*.test.ts'"
+    "test": "mocha --require ts-node/register --require ./test/setup.ts 'test/**/*.test.ts'"
   },
   "dependencies": {
     "@aave/contract-helpers": "^1.33.1",
