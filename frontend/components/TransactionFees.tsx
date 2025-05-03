@@ -21,7 +21,7 @@ export default function QuickStats() {
   } = useTransactionFees();
 
   return (
-    <div className="rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-2.5 shadow-xl border border-white/10">
+    <div className="rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
       <h2 className="text-lg font-semibold text-white mb-2 flex items-center">
         <div className="w-5 h-5 mr-1.5 bg-gradient-to-br from-cyan-500 to-teal-400 rounded-full flex items-center justify-center">
           <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +35,7 @@ export default function QuickStats() {
         Transaction Fees
       </h2>
       
-      <div className="space-y-2">
+      <div className="space-y-3">
         {/* Display Max Fee per Gas */}
         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-purple-500/30 group">
           <div className="flex items-center">

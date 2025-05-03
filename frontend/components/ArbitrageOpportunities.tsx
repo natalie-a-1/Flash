@@ -120,7 +120,7 @@ export default function ArbitrageOpportunities() {
    * Displays arbitrage opportunities or prompts the user to connect their wallet or switch networks.
    */
   return (
-    <div className="rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-3 shadow-xl border border-white/10">
+    <div className="rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-lg font-semibold text-white flex items-center">
           <div className="w-6 h-6 mr-2 bg-gradient-to-br from-amber-500 to-orange-400 rounded-full flex items-center justify-center">
@@ -228,7 +228,7 @@ export default function ArbitrageOpportunities() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid gap-2 mb-1.5">
+                    <div className="grid gap-2 mb-4">
                       {EXCHANGES.map((exchange) => {
                         if (exchange.name === "Balancer V2" || exchange.name === "Curve USDC/ETH") {
                           return null;
