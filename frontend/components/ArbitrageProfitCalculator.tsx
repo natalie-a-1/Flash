@@ -80,6 +80,17 @@ export default function ArbitrageProfitCalculator({
             <label className="text-white/80 text-xs font-medium mb-2 flex items-center">
               <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-purple-600 mr-2"></div>
               Slippage Tolerance
+              <div className="ml-1 group relative">
+                <svg className="w-3.5 h-3.5 text-white/40 hover:text-white/70 transition-colors" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 8V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 16V16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div className="absolute left-0 bottom-full mb-2 w-48 rounded-md bg-gray-900 text-white text-xs p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 shadow-lg border border-white/10">
+                  <div className="absolute left-0 bottom-[-6px] transform translate-x-1 rotate-45 w-3 h-3 bg-gray-900 border-r border-b border-white/10"></div>
+                  Slippage tolerance accounts for price movements during transaction confirmation. Higher values ensure execution but may result in less favorable prices.
+                </div>
+              </div>
             </label>
             <div className="relative">
               <input
@@ -100,6 +111,17 @@ export default function ArbitrageProfitCalculator({
             <label className="text-white/80 text-xs font-medium mb-2 flex items-center">
               <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-600 mr-2"></div>
               Profit Threshold
+              <div className="ml-1 group relative">
+                <svg className="w-3.5 h-3.5 text-white/40 hover:text-white/70 transition-colors" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 8V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 16V16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div className="absolute left-0 bottom-full mb-2 w-48 rounded-md bg-gray-900 text-white text-xs p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 shadow-lg border border-white/10">
+                  <div className="absolute left-0 bottom-[-6px] transform translate-x-1 rotate-45 w-3 h-3 bg-gray-900 border-r border-b border-white/10"></div>
+                  Minimum profit (in USD) required for an arbitrage opportunity to be considered profitable. Higher thresholds ensure you only execute trades with significant profit.
+                </div>
+              </div>
             </label>
             <div className="relative">
               <input
