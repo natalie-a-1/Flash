@@ -87,7 +87,6 @@ jobs:
         working-directory: frontend
 
       - name: Run frontend tests
-        if: false
         run: npm test
         working-directory: frontend
         env:
