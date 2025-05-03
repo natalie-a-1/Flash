@@ -28,12 +28,12 @@ export interface TokenInfo {
  * Reserve state enum representing possible states of an Aave reserve
  */
 export enum ReserveState {
-  ACTIVE = 'ACTIVE',
-  FROZEN = 'FROZEN',
-  PAUSED = 'PAUSED',
-  NOT_LISTED = 'NOT_LISTED',
-  UNAVAILABLE = 'UNAVAILABLE',
-  ERROR = 'ERROR'
+  ACTIVE = "ACTIVE",
+  FROZEN = "FROZEN",
+  PAUSED = "PAUSED",
+  NOT_LISTED = "NOT_LISTED",
+  UNAVAILABLE = "UNAVAILABLE",
+  ERROR = "ERROR",
 }
 
 /**
@@ -66,7 +66,7 @@ export interface FlashLoanLimitsResponse {
 }
 
 /**
- * Flash loan parameters 
+ * Flash loan parameters
  */
 export interface FlashLoanParams {
   tokenAddress: string;
@@ -132,4 +132,4 @@ export interface HumanizedReserveData {
   isIsolated?: boolean;
   flashLoanEnabled: boolean;
   accruedToTreasury?: string;
-} 
+}

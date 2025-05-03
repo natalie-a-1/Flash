@@ -3,4 +3,4 @@ export interface FlashLoanFees {
   totalPercent: number; // total flash loan fee percentage
   protocolPercent: number; // protocol treasury fee percentage
   liquidityProvidersPercent: number; // liquidity providers fee percentage
-} 
+}

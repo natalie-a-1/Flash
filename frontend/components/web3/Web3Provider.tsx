@@ -71,7 +71,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       const flashLoanContract = await loadContract("FlashLoan");
       if (flashLoanContract) {
         const provider = new ethers.providers.Web3Provider(
-          window.ethereum as any
+          window.ethereum as any,
         );
         const signer = provider.getSigner();
 
@@ -90,7 +90,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         return true;
       } else {
         console.log(
-          "FlashLoan contract not found on this network - using read-only mode"
+          "FlashLoan contract not found on this network - using read-only mode",
         );
         window.flashLoanContract = null;
         return true;
@@ -151,7 +151,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     try {
       console.log("Getting Web3 instance...");
       const web3Instance = await getWeb3();
-      console.log("Web3 instance obtained:", web3Instance ? "Success" : "Failed");
+      console.log(
+        "Web3 instance obtained:",
+        web3Instance ? "Success" : "Failed",
+      );
       setWeb3(web3Instance);
 
       console.log("Getting accounts...");
@@ -159,7 +162,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       console.log("Accounts obtained:", accounts);
       setAccount(accounts[0] || null);
       setIsConnected(!!accounts[0]);
-      console.log("Account state set:", accounts[0] || null, "Connected:", !!accounts[0]);
+      console.log(
+        "Account state set:",
+        accounts[0] || null,
+        "Connected:",
+        !!accounts[0],
+      );
 
       console.log("Updating network info...");
       await updateNetworkInfo(web3Instance);

@@ -5,12 +5,12 @@ import { MAINNET_ADDRESSES } from "./config";
 
 /**
  * Loads a contract instance for the given contract name.
- * 
+ *
  * This function attempts to dynamically import the contract's JSON file,
  * retrieve the current network ID, and check if the contract is deployed
  * on the current network. If the contract is not deployed, it attempts to
  * use a fallback address if available.
- * 
+ *
  * @param {string} contractName - The name of the contract to load.
  * @returns {Promise<Web3Contract | null>} A promise that resolves to a Web3Contract instance or null if not found.
  */
@@ -37,19 +37,24 @@ export async function loadContract(
     } else {
       // Contract not deployed on this network
       console.warn(
-        `Contract ${contractName} not deployed on network ${networkId}, attempting to use fallback address`
+        `Contract ${contractName} not deployed on network ${networkId}, attempting to use fallback address`,
       );
-      
+
       // Try to use a fallback address if available
       if (networkId === "1" && contractName === "FlashLoan") {
         // If on mainnet, provide a fallback address
-        const fallbackAddress = await getFallbackContractAddress(contractName, networkId);
+        const fallbackAddress = await getFallbackContractAddress(
+          contractName,
+          networkId,
+        );
         if (fallbackAddress) {
-          console.log(`Using fallback address for ${contractName}: ${fallbackAddress}`);
+          console.log(
+            `Using fallback address for ${contractName}: ${fallbackAddress}`,
+          );
           return createContractInstance(contractJson.abi, fallbackAddress);
         }
       }
-      
+
       return null;
     }
   } catch (error) {
@@ -60,17 +65,17 @@ export async function loadContract(
 
 /**
  * Retrieves a fallback contract address for a given contract name and network.
- * 
+ *
  * This function is useful when the contract is not deployed on the current network.
  * It provides a mechanism to use a predefined address as a fallback.
- * 
+ *
  * @param {string} contractName - The name of the contract.
  * @param {string} networkId - The network ID as a string.
  * @returns {Promise<string | null>} The fallback address or null if not available.
  */
 async function getFallbackContractAddress(
   contractName: string,
-  networkId: string
+  networkId: string,
 ): Promise<string | null> {
   // This is a demo fallback mechanism - in a real app, you might fetch from an API or config
   if (contractName === "FlashLoan") {
@@ -85,10 +90,10 @@ async function getFallbackContractAddress(
 
 /**
  * Creates a new contract instance with the given ABI and address.
- * 
+ *
  * This function initializes a new Web3 contract instance using the provided
  * ABI and contract address.
- * 
+ *
  * @param {any[]} abi - The contract ABI.
  * @param {string} address - The contract address.
  * @returns {Web3Contract} A new Web3Contract instance.
@@ -103,11 +108,11 @@ export function createContractInstance(
 
 /**
  * Manually creates a contract instance with a custom address.
- * 
+ *
  * This function is useful for testing or when contracts are deployed outside
  * the normal process. It allows the creation of a contract instance using a
  * custom address.
- * 
+ *
  * @param {string} contractName - The name of the contract JSON file (without .json extension).
  * @param {string} customAddress - The custom contract address to use.
  * @returns {Promise<Web3Contract | null>} A promise resolving to a Web3Contract instance or null if not found.
@@ -121,11 +126,14 @@ export async function createCustomContractInstance(
     const contractJson: ContractJson = await import(
       `@/contracts/${contractName}.json`
     );
-    
+
     // Create and return the contract instance with the custom address
     return createContractInstance(contractJson.abi, customAddress);
   } catch (error) {
-    console.error(`Error creating custom contract instance for ${contractName}:`, error);
+    console.error(
+      `Error creating custom contract instance for ${contractName}:`,
+      error,
+    );
     return null;
   }
 }

@@ -25,16 +25,16 @@ export default function Dashboard() {
    */
   useEffect(() => {
     setMounted(true);
-    
+
     // Small timeout to prevent flickering during hydration
     const timer = setTimeout(() => {
       setIsLoading(false);
-      
+
       if (!isConnected) {
         router.push("/");
       }
     }, 500);
-    
+
     return () => clearTimeout(timer);
   }, [isConnected, router]);
 
@@ -50,7 +50,7 @@ export default function Dashboard() {
           <div className="animate-pulse">
             <div className="h-8 bg-white/10 rounded w-1/3 mb-2"></div>
             <div className="h-4 bg-white/10 rounded w-1/4 mb-8"></div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
                 <div className="h-64 bg-white/10 rounded-2xl mb-6"></div>
@@ -75,9 +75,25 @@ export default function Dashboard() {
       <main className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-blue-500 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="w-8 h-8 text-blue-500 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           </div>
           <p className="text-white/70 mt-4">Loading dashboard...</p>
@@ -95,9 +111,11 @@ export default function Dashboard() {
       <main className="min-h-screen flex items-center justify-center">
         <div className="max-w-md w-full px-4 text-center">
           <h2 className="text-2xl font-semibold mb-4">Wallet Not Connected</h2>
-          <p className="text-white/70 mb-6">You need to connect your wallet to access the dashboard</p>
+          <p className="text-white/70 mb-6">
+            You need to connect your wallet to access the dashboard
+          </p>
           <div className="flex justify-center">
-            <button 
+            <button
               onClick={connectWallet}
               className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium"
             >
@@ -128,4 +146,4 @@ export default function Dashboard() {
       </div>
     </main>
   );
-} 
+}

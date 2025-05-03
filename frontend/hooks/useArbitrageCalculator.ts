@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { calcArbUsdc } from '@/lib/utils/arbitrageUtils';
+import { useState, useEffect } from "react";
+import { calcArbUsdc } from "@/lib/utils/arbitrageUtils";
 
 // Parameters required for arbitrage calculation hook
 interface UseArbitrageCalculatorParams {
@@ -55,7 +55,16 @@ export function useArbitrageCalculator({
     setPotentialProfit(netProfit);
     setIsProfitable(netProfit >= threshold);
     setRoi(roiPct);
-  }, [loanAmount, buyPrice, sellPrice, tradingFees, slippage, gasCost, profitThreshold, flashLoanBps]);
+  }, [
+    loanAmount,
+    buyPrice,
+    sellPrice,
+    tradingFees,
+    slippage,
+    gasCost,
+    profitThreshold,
+    flashLoanBps,
+  ]);
 
   return { potentialProfit, isProfitable, roi };
-} 
+}

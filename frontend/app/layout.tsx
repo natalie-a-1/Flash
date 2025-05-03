@@ -21,8 +21,10 @@ const geistMono = Geist_Mono({
 // Define metadata for the application
 export const metadata: Metadata = {
   title: "Flash | Flash Loan Arbitrage", // Title of the application
-  description: "Flash loan arbitrage platform using Aave, Uniswap, and SushiSwap on Ethereum.", // Description of the application
-  keywords: "flash loan, arbitrage, defi, ethereum, aave, uniswap, sushiswap, blockchain", // Keywords for SEO
+  description:
+    "Flash loan arbitrage platform using Aave, Uniswap, and SushiSwap on Ethereum.", // Description of the application
+  keywords:
+    "flash loan, arbitrage, defi, ethereum, aave, uniswap, sushiswap, blockchain", // Keywords for SEO
 };
 
 // Root layout component for the application
@@ -38,7 +40,10 @@ export default function RootLayout({
       >
         <Web3Provider>
           <Header />
-          <div className="flex-1 max-w-full overflow-x-hidden pb-12">{children}</div> {/* Main content area with padding for footer */}
+          <div className="flex-1 max-w-full overflow-x-hidden pb-12">
+            {children}
+          </div>{" "}
+          {/* Main content area with padding for footer */}
           <Footer />
         </Web3Provider>
       </body>

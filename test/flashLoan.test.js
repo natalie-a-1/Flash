@@ -42,10 +42,9 @@ contract("FlashLoan", (accounts) => {
 
   beforeEach(async () => {
     // Deploy the updated contract with just the Aave Pool Provider
-    flashLoanInstance = await FlashLoan.new(
-      AAVE_POOL_PROVIDER_SEPOLIA,
-      { from: owner },
-    );
+    flashLoanInstance = await FlashLoan.new(AAVE_POOL_PROVIDER_SEPOLIA, {
+      from: owner,
+    });
 
     // Set up token and router references
     usdcToken = await IERC20.at(USDC_SEPOLIA);
@@ -54,8 +53,12 @@ contract("FlashLoan", (accounts) => {
     sushiswapRouter = await ISushiSwapV2Router02.at(SUSHISWAP_ROUTER_SEPOLIA);
 
     // Approve routers in the contract
-    await flashLoanInstance.setRouterApproval(UNISWAP_ROUTER_SEPOLIA, true, { from: owner });
-    await flashLoanInstance.setRouterApproval(SUSHISWAP_ROUTER_SEPOLIA, true, { from: owner });
+    await flashLoanInstance.setRouterApproval(UNISWAP_ROUTER_SEPOLIA, true, {
+      from: owner,
+    });
+    await flashLoanInstance.setRouterApproval(SUSHISWAP_ROUTER_SEPOLIA, true, {
+      from: owner,
+    });
   });
 
   describe("Deployment and Configuration", () => {
@@ -73,27 +76,43 @@ contract("FlashLoan", (accounts) => {
       assert.equal(
         providerAddress,
         AAVE_POOL_PROVIDER_SEPOLIA,
-        "Incorrect Aave Pool Provider address."
+        "Incorrect Aave Pool Provider address.",
       );
     });
 
     it("should have both routers approved", async () => {
-      const isUniswapApproved = await flashLoanInstance.isRouterApproved(UNISWAP_ROUTER_SEPOLIA);
-      const isSushiswapApproved = await flashLoanInstance.isRouterApproved(SUSHISWAP_ROUTER_SEPOLIA);
-      
-      assert.equal(isUniswapApproved, true, "Uniswap router should be approved");
-      assert.equal(isSushiswapApproved, true, "SushiSwap router should be approved");
+      const isUniswapApproved = await flashLoanInstance.isRouterApproved(
+        UNISWAP_ROUTER_SEPOLIA,
+      );
+      const isSushiswapApproved = await flashLoanInstance.isRouterApproved(
+        SUSHISWAP_ROUTER_SEPOLIA,
+      );
+
+      assert.equal(
+        isUniswapApproved,
+        true,
+        "Uniswap router should be approved",
+      );
+      assert.equal(
+        isSushiswapApproved,
+        true,
+        "SushiSwap router should be approved",
+      );
     });
 
     it("should fail to approve a zero address router", async () => {
       await expectRevert.unspecified(
-        flashLoanInstance.setRouterApproval(ZERO_ADDRESS, true, { from: owner })
+        flashLoanInstance.setRouterApproval(ZERO_ADDRESS, true, {
+          from: owner,
+        }),
       );
     });
 
     it("should prevent non-owners from approving routers", async () => {
       await expectRevert.unspecified(
-        flashLoanInstance.setRouterApproval(UNISWAP_ROUTER_SEPOLIA, false, { from: nonOwner })
+        flashLoanInstance.setRouterApproval(UNISWAP_ROUTER_SEPOLIA, false, {
+          from: nonOwner,
+        }),
       );
     });
   });
@@ -113,7 +132,7 @@ contract("FlashLoan", (accounts) => {
       );
       assert(
         contractBalance.eq(new BN(amountToSend)),
-        "Contract should have received ETH."
+        "Contract should have received ETH.",
       );
 
       const tx = await flashLoanInstance.withdrawEther({ from: owner });
@@ -129,14 +148,14 @@ contract("FlashLoan", (accounts) => {
 
       assert(
         finalContractBalance.isZero(),
-        "Contract ETH balance should be zero after withdrawal."
+        "Contract ETH balance should be zero after withdrawal.",
       );
       // Check owner balance increased by amountToSend (minus gas costs)
       assert(
         finalOwnerBalance.eq(
           initialOwnerBalance.add(new BN(amountToSend)).sub(txCost),
         ),
-        "Owner balance should increase by withdrawn amount minus gas."
+        "Owner balance should increase by withdrawn amount minus gas.",
       );
     });
 
@@ -147,30 +166,30 @@ contract("FlashLoan", (accounts) => {
         value: web3.utils.toWei("1", "ether"),
       });
       await expectRevert.unspecified(
-        flashLoanInstance.withdrawEther({ from: nonOwner })
+        flashLoanInstance.withdrawEther({ from: nonOwner }),
       );
     });
 
     it("should allow the owner to withdraw any token", async () => {
       // This test now works with any token since the contract design has changed
       await flashLoanInstance.withdrawToken(USDC_SEPOLIA, { from: owner });
-      
+
       // Attempt with WETH as well
       await flashLoanInstance.withdrawToken(WETH_SEPOLIA, { from: owner });
-      
+
       // Placeholder assertion as we can't easily send tokens to the contract in this test
       assert(true, "Owner should be able to withdraw any token");
     });
 
     it("should prevent non-owners from withdrawing tokens", async () => {
       await expectRevert.unspecified(
-        flashLoanInstance.withdrawToken(USDC_SEPOLIA, { from: nonOwner })
+        flashLoanInstance.withdrawToken(USDC_SEPOLIA, { from: nonOwner }),
       );
     });
 
     it("should prevent withdrawing from zero address", async () => {
       await expectRevert.unspecified(
-        flashLoanInstance.withdrawToken(ZERO_ADDRESS, { from: owner })
+        flashLoanInstance.withdrawToken(ZERO_ADDRESS, { from: owner }),
       );
     });
   });
@@ -179,7 +198,7 @@ contract("FlashLoan", (accounts) => {
     it("should allow the owner to request a flash loan", async () => {
       // This test checks permission logic only
       const loanAmount = "1000000"; // 1 USDC (6 decimal places)
-      
+
       // Note: This will revert since we're not on a proper fork, but we're just testing ownership
       try {
         await flashLoanInstance.requestFlashLoan(
@@ -188,21 +207,21 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
-          { from: owner }
+          { from: owner },
         );
       } catch (error) {
         // Expected to fail on non-forked network or if Aave pool is unavailable
         // But it should at least pass authorization check
         assert(
           !error.message.includes("NotOwner"),
-          "Error should not be related to ownership"
+          "Error should not be related to ownership",
         );
       }
     });
 
     it("should prevent non-owners from requesting a flash loan", async () => {
       const loanAmount = "1000000"; // 1 USDC (6 decimal places)
-      
+
       await expectRevert.unspecified(
         flashLoanInstance.requestFlashLoan(
           USDC_SEPOLIA,
@@ -210,14 +229,14 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
-          { from: nonOwner }
-        )
+          { from: nonOwner },
+        ),
       );
     });
 
     it("should validate parameters for flash loan request", async () => {
       const loanAmount = "1000000"; // 1 USDC (6 decimal places)
-      
+
       // Test with zero address asset
       await expectRevert.unspecified(
         flashLoanInstance.requestFlashLoan(
@@ -226,8 +245,8 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
-          { from: owner }
-        )
+          { from: owner },
+        ),
       );
 
       // Test with zero address source router
@@ -238,8 +257,8 @@ contract("FlashLoan", (accounts) => {
           ZERO_ADDRESS,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
-          { from: owner }
-        )
+          { from: owner },
+        ),
       );
 
       // Test with zero address intermediate token
@@ -250,18 +269,18 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           ZERO_ADDRESS,
-          { from: owner }
-        )
+          { from: owner },
+        ),
       );
     });
 
     it("should validate custom path parameters", async () => {
       const loanAmount = "1000000"; // 1 USDC (6 decimal places)
-      
+
       // Create valid paths
       const firstPath = [USDC_SEPOLIA, WETH_SEPOLIA];
       const secondPath = [WETH_SEPOLIA, USDC_SEPOLIA];
-      
+
       // Test with invalid first path (wrong start token)
       const invalidFirstPath = [WETH_SEPOLIA, USDC_SEPOLIA]; // Should start with USDC
       await expectRevert.unspecified(
@@ -273,10 +292,10 @@ contract("FlashLoan", (accounts) => {
           WETH_SEPOLIA,
           invalidFirstPath,
           secondPath,
-          { from: owner }
-        )
+          { from: owner },
+        ),
       );
-      
+
       // Test with invalid second path (wrong end token)
       const invalidSecondPath = [WETH_SEPOLIA, ZERO_ADDRESS]; // Should end with USDC
       await expectRevert.unspecified(
@@ -288,19 +307,19 @@ contract("FlashLoan", (accounts) => {
           WETH_SEPOLIA,
           firstPath,
           invalidSecondPath,
-          { from: owner }
-        )
+          { from: owner },
+        ),
       );
     });
   });
 
   // The full arbitrage test would need to run on a mainnet or Sepolia fork
   // with proper Aave, Uniswap and SushiSwap setups
-  describe("Arbitrage Test (Fork Required)", function() {
-    it("should be able to execute a flash loan arbitrage", async function() {
+  describe("Arbitrage Test (Fork Required)", function () {
+    it("should be able to execute a flash loan arbitrage", async function () {
       // Skip this test unless we're on a fork
       this.skip();
-      
+
       // This would be the implementation for a fork test
       // But we skip it here since it requires a properly configured fork
     });

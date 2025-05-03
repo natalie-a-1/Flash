@@ -7,12 +7,12 @@ import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
  * Interface representing the structure of transaction fee statistics.
  */
 export interface FeeStats {
-  baseFeeGwei: string;       // Base fee per gas unit in Gwei
-  priorityFeeGwei: string;   // Priority fee per gas unit in Gwei
-  maxFeeGwei: string;        // Max fee per gas unit in Gwei
-  gasLimit: string;          // Estimated gas units (with buffer)
-  txFeeEth: string;          // Total estimated tx fee in ETH
-  txFeeUsdc: string;         // Total estimated tx fee in USDC
+  baseFeeGwei: string; // Base fee per gas unit in Gwei
+  priorityFeeGwei: string; // Priority fee per gas unit in Gwei
+  maxFeeGwei: string; // Max fee per gas unit in Gwei
+  gasLimit: string; // Estimated gas units (with buffer)
+  txFeeEth: string; // Total estimated tx fee in ETH
+  txFeeUsdc: string; // Total estimated tx fee in USDC
 }
 
 /**
@@ -38,8 +38,11 @@ export function useTransactionFees(): FeeStats {
 
     async function updateFees() {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-        const { lastBaseFeePerGas, maxPriorityFeePerGas, maxFeePerGas } = await provider.getFeeData();
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as any,
+        );
+        const { lastBaseFeePerGas, maxPriorityFeePerGas, maxFeePerGas } =
+          await provider.getFeeData();
         const baseFeeBN = lastBaseFeePerGas ?? ethers.BigNumber.from(0);
         const priorityFeeBN = maxPriorityFeePerGas ?? ethers.BigNumber.from(0);
         const effectiveMaxFeeBN = maxFeePerGas ?? baseFeeBN.add(priorityFeeBN);
@@ -57,7 +60,10 @@ export function useTransactionFees(): FeeStats {
           gasLimitBN = await provider.estimateGas(txReq);
           gasLimitBN = gasLimitBN.mul(12).div(10);
         } catch (err) {
-          console.warn("Failed to estimate gas for transaction fees, using default gas limit", err);
+          console.warn(
+            "Failed to estimate gas for transaction fees, using default gas limit",
+            err,
+          );
           gasLimitBN = ethers.BigNumber.from(21000);
         }
 
@@ -71,9 +77,15 @@ export function useTransactionFees(): FeeStats {
         const txFeeUsdc = (txFeeEthRaw * usdcPerWeth).toFixed(4);
 
         setStats({
-          baseFeeGwei: parseFloat(ethers.utils.formatUnits(baseFeeBN, "gwei")).toFixed(2),
-          priorityFeeGwei: parseFloat(ethers.utils.formatUnits(priorityFeeBN, "gwei")).toFixed(2),
-          maxFeeGwei: parseFloat(ethers.utils.formatUnits(effectiveMaxFeeBN, "gwei")).toFixed(2),
+          baseFeeGwei: parseFloat(
+            ethers.utils.formatUnits(baseFeeBN, "gwei"),
+          ).toFixed(2),
+          priorityFeeGwei: parseFloat(
+            ethers.utils.formatUnits(priorityFeeBN, "gwei"),
+          ).toFixed(2),
+          maxFeeGwei: parseFloat(
+            ethers.utils.formatUnits(effectiveMaxFeeBN, "gwei"),
+          ).toFixed(2),
           gasLimit: gasLimitBN.toString(),
           txFeeEth,
           txFeeUsdc,
@@ -94,9 +106,13 @@ export function useTransactionFees(): FeeStats {
 // New hook: estimate gas and total fee for loan amount transactions
 export function useEstimateLoanFee(
   loanAmount: string,
-  decimals: number
+  decimals: number,
 ): { gasLimit: string; txFeeEth: string; txFeeUsdc: string } {
-  const [estimate, setEstimate] = useState<{ gasLimit: string; txFeeEth: string; txFeeUsdc: string }>({
+  const [estimate, setEstimate] = useState<{
+    gasLimit: string;
+    txFeeEth: string;
+    txFeeUsdc: string;
+  }>({
     gasLimit: "",
     txFeeEth: "",
     txFeeUsdc: "",
@@ -126,12 +142,16 @@ export function useEstimateLoanFee(
           gasBN = await provider.estimateGas(txReq);
           gasBN = gasBN.mul(12).div(10);
         } catch (err) {
-          console.warn("Failed to estimate loan gas, using default gas limit", err);
+          console.warn(
+            "Failed to estimate loan gas, using default gas limit",
+            err,
+          );
           gasBN = ethers.BigNumber.from(21000);
         }
 
         // get fee data
-        const { lastBaseFeePerGas, maxPriorityFeePerGas, maxFeePerGas } = await provider.getFeeData();
+        const { lastBaseFeePerGas, maxPriorityFeePerGas, maxFeePerGas } =
+          await provider.getFeeData();
         const baseFeeBN = lastBaseFeePerGas ?? ethers.BigNumber.from(0);
         const priorityFeeBN = maxPriorityFeePerGas ?? ethers.BigNumber.from(0);
         const effectiveMaxFeeBN = maxFeePerGas ?? baseFeeBN.add(priorityFeeBN);
@@ -148,7 +168,11 @@ export function useEstimateLoanFee(
         const feeUsdc = (feeEthRaw * usdcPerWeth).toFixed(4);
 
         if (!canceled) {
-          setEstimate({ gasLimit: gasBN.toString(), txFeeEth: feeEth, txFeeUsdc: feeUsdc });
+          setEstimate({
+            gasLimit: gasBN.toString(),
+            txFeeEth: feeEth,
+            txFeeUsdc: feeUsdc,
+          });
         }
       } catch (err) {
         console.error("Failed to estimate loan fee", err);
@@ -156,8 +180,10 @@ export function useEstimateLoanFee(
     }
 
     calc();
-    return () => { canceled = true; };
+    return () => {
+      canceled = true;
+    };
   }, [loanAmount, decimals]);
 
   return estimate;
-} 
+}

@@ -23,7 +23,7 @@ declare global {
 
 /**
  * Retrieves a Web3 instance connected to the Ethereum provider.
- * 
+ *
  * @returns {Promise<Web3>} A promise that resolves to a Web3 instance.
  * @throws Will throw an error if MetaMask is not installed.
  */
@@ -36,20 +36,22 @@ export const getWeb3 = async (): Promise<Web3> => {
 
 /**
  * Retrieves an ethers.js Web3Provider instance.
- * 
+ *
  * @returns {ethers.providers.Web3Provider | null} An ethers.js Web3Provider instance or null if unavailable.
  */
 export const getEthersV5Provider = (): ethers.providers.Web3Provider | null => {
   if (typeof window !== "undefined" && window.ethereum) {
     return new ethers.providers.Web3Provider(window.ethereum);
   }
-  console.error("MetaMask is not installed or window.ethereum is not available.");
+  console.error(
+    "MetaMask is not installed or window.ethereum is not available.",
+  );
   return null;
 };
 
 /**
  * Fetches the current network details including ID and name.
- * 
+ *
  * @returns {Promise<{ id: number; name: string; }>} A promise that resolves to an object containing network ID and name.
  * @throws Will throw an error if MetaMask is not installed.
  */
@@ -69,7 +71,7 @@ export const getNetworkDetails = async (): Promise<{
 
 /**
  * Retrieves the list of accounts connected to the Web3 instance.
- * 
+ *
  * @param {Web3} web3 - An instance of the Web3 library.
  * @returns {Promise<string[]>} A promise that resolves to an array of account addresses.
  */
@@ -82,7 +84,7 @@ export const getAccounts = async (web3: Web3): Promise<string[]> => {
 
 /**
  * Checks if the current network is the Ethereum Mainnet.
- * 
+ *
  * @returns {Promise<boolean>} A promise that resolves to true if on Mainnet, false otherwise.
  */
 export const isMainnetNetwork = async (): Promise<boolean> => {
@@ -92,7 +94,7 @@ export const isMainnetNetwork = async (): Promise<boolean> => {
 
 /**
  * Switches the network to Ethereum Mainnet.
- * 
+ *
  * @returns {Promise<boolean>} A promise that resolves to true if the switch is successful, false otherwise.
  */
 export const switchToMainnet = async (): Promise<boolean> => {

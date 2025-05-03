@@ -26,7 +26,7 @@ export function getStatusStyle(reserve: HumanizedReserveData): string {
  */
 export function formatMaxAmount(
   reserve: HumanizedReserveData | undefined,
-  token: TokenInfo
+  token: TokenInfo,
 ): string {
   if (!reserve) return "0";
   if (!reserve.isActive || !reserve.flashLoanEnabled) {
@@ -35,24 +35,19 @@ export function formatMaxAmount(
 
   const humanAmount = ethers.utils.formatUnits(
     reserve.availableLiquidity,
-    token.decimals
+    token.decimals,
   );
-  const tokenDisplay = formatTokenAmount(
-    humanAmount,
-    4,
-    token.symbol,
-    true
-  );
+  const tokenDisplay = formatTokenAmount(humanAmount, 4, token.symbol, true);
 
   if (reserve.availableLiquidityUSD) {
     const usdDisplay = formatCurrencyAmount(
       reserve.availableLiquidityUSD,
       "USD",
       2,
-      true
+      true,
     );
     return `${tokenDisplay} (${usdDisplay})`;
   }
 
   return tokenDisplay;
-} 
+}

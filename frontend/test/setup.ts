@@ -5,4 +5,4 @@
 // You can import and configure global testing utilities here.
 // Currently, no setup code is required.
 
-export {}; 
+export {};

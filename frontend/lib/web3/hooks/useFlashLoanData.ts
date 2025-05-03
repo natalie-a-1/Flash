@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useWeb3 } from "@/components/web3/Web3Provider";
 import { getEthersV5Provider } from "@/lib/web3/web3";
-import { fetchFlashLoanReserves, fetchFlashLoanFees } from "@/lib/services/aaveService";
+import {
+  fetchFlashLoanReserves,
+  fetchFlashLoanFees,
+} from "@/lib/services/aaveService";
 import { HumanizedReserveData } from "@/types/aave";
 import { FlashLoanFees } from "@/types/flashloan";
 
@@ -10,8 +13,12 @@ import { FlashLoanFees } from "@/types/flashloan";
  */
 export function useFlashLoanData() {
   const { isConnected, isCorrectNetwork } = useWeb3();
-  const [reserves, setReserves] = useState<Record<string, HumanizedReserveData>>({});
-  const [flashLoanFees, setFlashLoanFees] = useState<FlashLoanFees | null>(null);
+  const [reserves, setReserves] = useState<
+    Record<string, HumanizedReserveData>
+  >({});
+  const [flashLoanFees, setFlashLoanFees] = useState<FlashLoanFees | null>(
+    null,
+  );
   const [loadingReserves, setLoadingReserves] = useState<boolean>(true);
   const [loadingFees, setLoadingFees] = useState<boolean>(true);
   const [errorReserves, setErrorReserves] = useState<string | null>(null);
@@ -74,4 +81,4 @@ export function useFlashLoanData() {
     errorFees,
     reload,
   };
-} 
+}

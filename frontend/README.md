@@ -72,13 +72,13 @@ Open http://localhost:3000 in your browser.
 
 In the `frontend` directory, run:
 
-| Command          | Description                               |
-| ---------------- | ----------------------------------------- |
-| `npm run dev`    | Start development server on port 3000     |
-| `npm run build`  | Build for production (Next.js)            |
-| `npm run start`  | Run the production build                  |
-| `npm run lint`   | Run ESLint                                |
-| `npm test`       | Run Mocha/Chai tests                      |
+| Command         | Description                           |
+| --------------- | ------------------------------------- |
+| `npm run dev`   | Start development server on port 3000 |
+| `npm run build` | Build for production (Next.js)        |
+| `npm run start` | Run the production build              |
+| `npm run lint`  | Run ESLint                            |
+| `npm test`      | Run Mocha/Chai tests                  |
 
 ---
 

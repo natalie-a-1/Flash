@@ -112,26 +112,27 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     address asset,
     uint256 amount,
     uint256 premium,
-    address _initiator, 
-    bytes calldata params 
+    address _initiator,
+    bytes calldata params
   ) external override returns (bool) {
     uint256 amountToRepay = amount + premium;
-    uint256 intermediateReceived; 
-    uint256 finalReceived; 
-    bool success = false; 
+    uint256 intermediateReceived;
+    uint256 finalReceived;
+    bool success = false;
 
     // Decode arbitrage parameters
     ArbitrageParams memory arbParams = abi.decode(params, (ArbitrageParams));
-    
+
     // Validate routers are approved
     if (!approvedRouters[arbParams.sourceRouter]) revert RouterNotApproved();
     if (!approvedRouters[arbParams.targetRouter]) revert RouterNotApproved();
-    
+
     // Validate paths
     if (arbParams.firstPath.length < 2) revert InvalidPath();
     if (arbParams.secondPath.length < 2) revert InvalidPath();
     if (arbParams.firstPath[0] != asset) revert InvalidPath();
-    if (arbParams.firstPath[arbParams.firstPath.length - 1] != arbParams.intermediateToken) revert InvalidPath();
+    if (arbParams.firstPath[arbParams.firstPath.length - 1] != arbParams.intermediateToken)
+      revert InvalidPath();
     if (arbParams.secondPath[0] != arbParams.intermediateToken) revert InvalidPath();
     if (arbParams.secondPath[arbParams.secondPath.length - 1] != asset) revert InvalidPath();
 
@@ -145,13 +146,14 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
       uint amountOutMin = _getMinAmountOut(arbParams.sourceRouter, amount, arbParams.firstPath);
 
       // Perform swap
-      uint[] memory actualAmounts = IUniswapV2Router02(arbParams.sourceRouter).swapExactTokensForTokens(
-        amount,
-        amountOutMin,
-        arbParams.firstPath,
-        address(this),
-        block.timestamp + SWAP_DEADLINE_OFFSET
-      );
+      uint[] memory actualAmounts = IUniswapV2Router02(arbParams.sourceRouter)
+        .swapExactTokensForTokens(
+          amount,
+          amountOutMin,
+          arbParams.firstPath,
+          address(this),
+          block.timestamp + SWAP_DEADLINE_OFFSET
+        );
       intermediateReceived = actualAmounts[actualAmounts.length - 1];
     }
 
@@ -161,16 +163,21 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
       _safeApprove(arbParams.intermediateToken, arbParams.targetRouter, intermediateReceived);
 
       // Calculate minimum output with slippage
-      uint amountOutMin = _getMinAmountOut(arbParams.targetRouter, intermediateReceived, arbParams.secondPath);
+      uint amountOutMin = _getMinAmountOut(
+        arbParams.targetRouter,
+        intermediateReceived,
+        arbParams.secondPath
+      );
 
       // Perform swap
-      uint[] memory actualAmounts = IUniswapV2Router02(arbParams.targetRouter).swapExactTokensForTokens(
-        intermediateReceived,
-        amountOutMin,
-        arbParams.secondPath,
-        address(this),
-        block.timestamp + SWAP_DEADLINE_OFFSET
-      );
+      uint[] memory actualAmounts = IUniswapV2Router02(arbParams.targetRouter)
+        .swapExactTokensForTokens(
+          intermediateReceived,
+          amountOutMin,
+          arbParams.secondPath,
+          address(this),
+          block.timestamp + SWAP_DEADLINE_OFFSET
+        );
       finalReceived = actualAmounts[actualAmounts.length - 1];
     }
     // --- End Arbitrage Logic ---
@@ -187,14 +194,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     success = true;
 
     // Emit event
-    emit ArbitrageExecution(
-      asset,
-      amount,
-      premium,
-      intermediateReceived,
-      finalReceived,
-      success
-    );
+    emit ArbitrageExecution(asset, amount, premium, intermediateReceived, finalReceived, success);
 
     return success;
   }
@@ -223,7 +223,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     if (_sourceRouter == address(0)) revert InvalidRouterAddress();
     if (_targetRouter == address(0)) revert InvalidRouterAddress();
     if (_intermediateToken == address(0)) revert InvalidTokenAddress();
-    
+
     if (!approvedRouters[_sourceRouter]) revert RouterNotApproved();
     if (!approvedRouters[_targetRouter]) revert RouterNotApproved();
 
@@ -276,7 +276,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     if (_sourceRouter == address(0)) revert InvalidRouterAddress();
     if (_targetRouter == address(0)) revert InvalidRouterAddress();
     if (_intermediateToken == address(0)) revert InvalidTokenAddress();
-    
+
     if (!approvedRouters[_sourceRouter]) revert RouterNotApproved();
     if (!approvedRouters[_targetRouter]) revert RouterNotApproved();
 
