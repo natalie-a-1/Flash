@@ -60,8 +60,9 @@ export async function fetchFlashLoanFees(
   const liquidityProvidersBpsBN = totalBpsBN.sub(protocolBpsBN);
 
   return {
-    total: totalBpsBN.toNumber() / 10000,
-    protocol: protocolBpsBN.toNumber() / 10000,
-    liquidityProviders: liquidityProvidersBpsBN.toNumber() / 10000,
+    totalBps: totalBpsBN.toNumber(),
+    totalPercent: totalBpsBN.toNumber() / 100,
+    protocolPercent: protocolBpsBN.toNumber() / 100,
+    liquidityProvidersPercent: liquidityProvidersBpsBN.toNumber() / 100,
   };
 } 

@@ -70,6 +70,4 @@ export interface ArbitrageProfitCalculatorProps {
   selectedToken: TokenInfo;
   flashLoanBps: number; // flash-loan premium in basis points
   dexPrices: ExchangePrices | null; // Pass prices from parent
-  selectedBuyDex: string | null;    // Pass selected buy DEX name
-  selectedSellDex: string | null;   // Pass selected sell DEX name
 } 

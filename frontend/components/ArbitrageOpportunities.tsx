@@ -3,13 +3,11 @@
 import { useState, useEffect } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
 import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
-import { TokenPairPrices, Exchange, ArbitrageProfitCalculatorProps } from "@/types/arbitrage";
+import { TokenPairPrices, Exchange } from "@/types/arbitrage";
 import { getTimeElapsed } from "@/lib/utils/timeUtils";
 import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
 import { ethers } from "ethers";
 import { formatTokenAmount } from "@/lib/web3/utils";
-import ArbitrageProfitCalculator from "./ArbitrageProfitCalculator";
-import { TokenInfo } from "@/types/aave";
 
 /**
  * ArbitrageOpportunities component displays potential arbitrage opportunities
@@ -27,16 +25,6 @@ export default function ArbitrageOpportunities() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Add state for selected DEXs and calculator props
-  const [selectedBuyDex, setSelectedBuyDex] = useState<string | null>(null);
-  const [selectedSellDex, setSelectedSellDex] = useState<string | null>(null);
-  const [calculatorProps, setCalculatorProps] = useState<ArbitrageProfitCalculatorProps | null>(null);
-
-  // Filter available exchanges (excluding commented out ones for selection)
-  const availableExchanges = EXCHANGES.filter(
-    ex => ex.name !== "Balancer V2" && ex.name !== "Curve USDC/ETH"
-  );
-
   /**
    * Fetches price data from DEXs using the ethers Web3Provider.
    * Updates the component state with the fetched prices or logs an error if fetching fails.
@@ -50,9 +38,6 @@ export default function ArbitrageOpportunities() {
 
     setIsLoading(true);
     setPrices({});
-    setSelectedBuyDex(null);
-    setSelectedSellDex(null);
-    setCalculatorProps(null);
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
@@ -89,7 +74,7 @@ export default function ArbitrageOpportunities() {
 
     if (isConnected && isCorrectNetwork) {
       fetchPrices();
-      const interval = setInterval(fetchPrices, 5 * 60 * 1000); // every 5 minutes
+      const interval = setInterval(fetchPrices, 60_000); // every 5 minutes
       setRefreshInterval(interval);
       return () => clearInterval(interval);
     } else {
@@ -99,68 +84,6 @@ export default function ArbitrageOpportunities() {
     }
 
   }, [isConnected, isCorrectNetwork, mounted]);
-
-  /**
-   * Effect to update selected DEXs when prices load or change
-   * Set initial default selection based on best path (if available)
-   * Or just the first two available exchanges if no path or prices yet
-   */
-  useEffect(() => {
-    if (!prices || Object.keys(prices).length === 0 || PAIRS.length === 0) {
-      setSelectedBuyDex(null);
-      setSelectedSellDex(null);
-      setCalculatorProps(null);
-      return;
-    }
-
-    const pairName = PAIRS[0].name; // Assuming only one pair for now
-    const pairPrices = prices[pairName] || {};
-    const bestPath = findBestArbitragePath(pairPrices); // Still calculate best path for initial default
-
-    // Filter available exchanges again here to ensure consistency
-    const currentAvailableExchanges = EXCHANGES.filter(
-      ex => ex.name !== "Balancer V2" && ex.name !== "Curve USDC/ETH"
-    );
-
-    const initialBuy = bestPath?.buy && currentAvailableExchanges.some(ex => ex.name === bestPath.buy)
-      ? bestPath.buy
-      : currentAvailableExchanges[0]?.name || null;
-
-    const initialSell = bestPath?.sell && currentAvailableExchanges.some(ex => ex.name === bestPath.sell) && bestPath.sell !== initialBuy
-      ? bestPath.sell
-      : currentAvailableExchanges.find(ex => ex.name !== initialBuy)?.name || null;
-
-    // Only set initial selections if they haven't been manually changed
-    if (selectedBuyDex === null) setSelectedBuyDex(initialBuy);
-    if (selectedSellDex === null) setSelectedSellDex(initialSell);
-
-    // Prepare props for the calculator
-    // Use the potentially updated selectedBuyDex/selectedSellDex if user changed them before prices reloaded
-    const currentBuy = selectedBuyDex ?? initialBuy;
-    const currentSell = selectedSellDex ?? initialSell;
-
-    // Example/Placeholder values for loanAmount, selectedToken, flashLoanBps
-    // These should ideally come from parent component or global state/context
-    const exampleLoanAmount = "1000";
-    const exampleToken: TokenInfo = {
-      symbol: PAIRS[0].baseSymbol,
-      address: PAIRS[0].tokens[0],
-      decimals: PAIRS[0].baseSymbol === 'USDC' ? 6 : 18, // Infer decimals
-      icon: PAIRS[0].baseSymbol === 'USDC' ? '💲' : 'Ξ', // Infer icon
-      color: PAIRS[0].baseSymbol === 'USDC' ? 'bg-blue-500' : 'bg-purple-500', // Infer color
-    };
-    const exampleFlashLoanBps = 9; // e.g., Aave flash loan fee 0.09%
-
-    setCalculatorProps({
-      loanAmount: exampleLoanAmount,
-      selectedToken: exampleToken,
-      flashLoanBps: exampleFlashLoanBps,
-      dexPrices: pairPrices,
-      selectedBuyDex: currentBuy,
-      selectedSellDex: currentSell,
-    });
-
-  }, [prices, selectedBuyDex, selectedSellDex]);
 
   /**
    * Renders a skeleton layout during server-side rendering to prevent hydration mismatch.
@@ -314,10 +237,6 @@ export default function ArbitrageOpportunities() {
               </div>
             );
           })}
-          {/* Add message if selections are incomplete (also moved outside loop) */}
-          {(!selectedBuyDex || !selectedSellDex) && !isLoading && prices && Object.keys(prices).length > 0 && (
-             <div className="text-center text-xs text-white/50 pt-2">Select Buy and Sell DEX above to estimate profit.</div>
-          )}
         </div>
       )}
     </div>

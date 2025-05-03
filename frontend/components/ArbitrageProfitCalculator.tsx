@@ -4,46 +4,50 @@ import { useState, useEffect } from 'react';
 import { formatCurrencyAmount, formatTokenAmount } from '@/lib/web3/utils';
 import { ArbitrageProfitCalculatorProps as UpdatedArbitrageProfitCalculatorProps, ExchangePrices } from '@/types/arbitrage';
 import { useArbitrageCalculator } from '@/hooks/useArbitrageCalculator';
-import { useTransactionFees } from '@/lib/web3/hooks/useTransactionFees';
+import { useTransactionFees, useEstimateLoanFee } from '@/lib/web3/hooks/useTransactionFees';
 import { TokenInfo } from '@/types/aave';
+import { findBestArbitragePath } from '@/lib/services/priceService';
 
 export default function ArbitrageProfitCalculator({
   loanAmount,
   selectedToken,
   flashLoanBps,
   dexPrices,
-  selectedBuyDex,
-  selectedSellDex,
 }: UpdatedArbitrageProfitCalculatorProps) {
   // Keep local UI state
   const [slippage, setSlippage] = useState<string>('0.5'); // Default 0.5%
   const [profitThreshold, setProfitThreshold] = useState<string>('10'); // Default $10
 
-  // Gas fee statistics from network
-  const { estimatedFee, estimatedFeeUSDC } = useTransactionFees();
+  // Fee statistics from network and estimate based on loan amount
+  const { txFeeEth, txFeeUsdc } = useTransactionFees();
+  const { gasLimit: loanGasLimit, txFeeEth: loanTxFeeEth, txFeeUsdc: loanTxFeeUsdc } = useEstimateLoanFee(loanAmount, selectedToken.decimals);
+
+  // Calculate flash loan fee and total fees based on loan amount
+  const loanAmtNum = parseFloat(loanAmount) || 0;
+  const flashLoanFeeAmt = loanAmtNum > 0 ? (loanAmtNum * flashLoanBps) / 10_000 : 0;
+  const gasFeeAmt = txFeeUsdc ? parseFloat(txFeeUsdc) : 0;
 
   // Fees are included or will be fetched internally; always use '0' for now
   const tradingFeesValue = '0';
 
-  // Determine buy/sell prices based on props
-  const buyPriceValue = (selectedBuyDex && dexPrices && dexPrices[selectedBuyDex]) ? dexPrices[selectedBuyDex].toString() : '0';
-  const sellPriceValue = (selectedSellDex && dexPrices && dexPrices[selectedSellDex]) ? dexPrices[selectedSellDex].toString() : '0';
+  // Determine best arbitrage path (auto-select buy/sell DEX)
+  const bestPath = dexPrices ? findBestArbitragePath(dexPrices) : null;
+  const buyExchange = bestPath?.buy || '';
+  const sellExchange = bestPath?.sell || '';
+  const buyPriceValue = buyExchange && dexPrices ? dexPrices[buyExchange].toString() : '0';
+  const sellPriceValue = sellExchange && dexPrices ? dexPrices[sellExchange].toString() : '0';
 
-  // Use custom hook for calculation
+  // Use custom hook for calculation, pass gasCost in USDC
   const { potentialProfit, isProfitable, roi } = useArbitrageCalculator({
     loanAmount,
     buyPrice: buyPriceValue,
     sellPrice: sellPriceValue,
     tradingFees: tradingFeesValue,
     slippage,
-    gasCost: estimatedFee,
+    gasCost: loanTxFeeUsdc,
     profitThreshold,
     flashLoanBps,
   });
-
-  // Use selected DEX names directly from props
-  const displayBuyExchange = selectedBuyDex;
-  const displaySellExchange = selectedSellDex;
 
   return (
     <div className="p-2 bg-white/5 border border-white/10 rounded-lg text-xs">
@@ -118,62 +122,22 @@ export default function ArbitrageProfitCalculator({
             isProfitable ? 'bg-green-900/20 border-green-600/30 text-green-300' :
             'bg-red-900/20 border-red-600/30 text-red-300'
           }`}>
-            {/* Net Profit */}
-            <div className="mb-1 text-center">
-              <div className="text-[10px] opacity-80">Potential Profit</div>
-              <div className="text-sm font-bold">
-                {potentialProfit === null ? '-' : formatCurrencyAmount(potentialProfit, 'USD', 2)}
-              </div>
-              {roi !== null && (
-                <div className="text-[10px] opacity-80">ROI: {roi.toFixed(2)}%</div>
+            {/* Summary of fees and profit relative to loan amount */}
+            <div className="text-[9px] space-y-1 border-t border-white/10 pt-1 opacity-80">
+              {/* Best Arbitrage Path */}
+              {buyExchange && sellExchange && (
+                <>
+                  <div>Buy on <span className="font-medium">{buyExchange}</span>: {parseFloat(buyPriceValue).toFixed(8)} WETH</div>
+                  <div>Sell on <span className="font-medium">{sellExchange}</span>: {parseFloat(sellPriceValue).toFixed(8)} WETH</div>
+                </>
               )}
+              {/* Flash Loan and Gas Costs */}
+              <div>Flash Loan Fee: {formatTokenAmount(flashLoanFeeAmt, selectedToken.decimals, selectedToken.symbol, true)}</div>
+              <div>Gas Estimate: {loanTxFeeUsdc ? formatCurrencyAmount(parseFloat(loanTxFeeUsdc), 'USD', 4) : '-'}</div>
+              {/* Profit and ROI */}
+              <div>Potential Profit: {potentialProfit !== null ? formatCurrencyAmount(potentialProfit, 'USD', 2) : '-'}</div>
+              {roi !== null && <div>ROI: {roi.toFixed(2)}%</div>}
             </div>
-
-            {/* Profit Breakdown */}
-            {dexPrices && potentialProfit !== null && displayBuyExchange && displaySellExchange && (
-              <div className="text-[9px] grid grid-cols-2 gap-x-1 border-t border-white/10 pt-1 opacity-80">
-                <div>Buy Price ({displayBuyExchange}):</div>
-                <div className="text-right">
-                  {formatCurrencyAmount(
-                      buyPriceValue,
-                      'USD',
-                      6
-                    )}
-                </div>
-
-                <div>Sell Price ({displaySellExchange}):</div>
-                <div className="text-right">
-                  {formatCurrencyAmount(
-                      sellPriceValue,
-                      'USD',
-                      6
-                    )}
-                </div>
-
-                <div>Flash Loan Fee:</div>
-                <div className="text-right">
-                  {parseFloat(loanAmount) > 0
-                    ? formatTokenAmount(
-                        (parseFloat(loanAmount) * flashLoanBps) / 10000,
-                        selectedToken.decimals,
-                        selectedToken.symbol,
-                        false
-                      )
-                    : '-'}
-                </div>
-
-                <div>Est. Gas:</div>
-                <div className="text-right">
-                  {estimatedFeeUSDC
-                    ? formatCurrencyAmount(
-                        parseFloat(estimatedFeeUSDC),
-                        'USD',
-                        2
-                      )
-                    : '-'}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

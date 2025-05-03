@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { calcArbWeth } from '@/lib/utils/arbitrageUtils';
+import { calcArbUsdc } from '@/lib/utils/arbitrageUtils';
 
 // Parameters required for arbitrage calculation hook
 interface UseArbitrageCalculatorParams {
@@ -39,16 +39,16 @@ export function useArbitrageCalculator({
     // parse threshold
     const threshold = parseFloat(profitThreshold);
 
-    // calculate using WETH arbitrage util
-    const { netProfit, roiPct } = calcArbWeth({
-      loanWeth: parseFloat(loanAmount),
-      buyPrice: parseFloat(buyPrice),
-      sellPrice: parseFloat(sellPrice),
+    // calculate using USDC arbitrage util
+    const { netProfit, roiPct } = calcArbUsdc({
+      loanUsdc: parseFloat(loanAmount),
+      buyPriceWethPerUsd: parseFloat(buyPrice),
+      sellPriceWethPerUsd: parseFloat(sellPrice),
       buyFeePct: parseFloat(tradingFees),
       sellFeePct: parseFloat(tradingFees),
       buySlipPct: parseFloat(slippage),
       sellSlipPct: parseFloat(slippage),
-      gasCostWeth: parseFloat(gasCost),
+      gasCostUsd: parseFloat(gasCost),
       flashLoanBps,
     });
 

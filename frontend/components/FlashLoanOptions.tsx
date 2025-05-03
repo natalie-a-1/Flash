@@ -41,16 +41,9 @@ export default function FlashLoanOptions() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Add state for DEX prices and selection
+  // Add state for DEX prices
   const [dexPrices, setDexPrices] = useState<ExchangePrices | null>(null);
-  const [selectedBuyDex, setSelectedBuyDex] = useState<string | null>(null);
-  const [selectedSellDex, setSelectedSellDex] = useState<string | null>(null);
   const [loadingPrices, setLoadingPrices] = useState<boolean>(false);
-
-  // Filter available exchanges (excluding problematic ones)
-  const availableExchanges = EXCHANGES.filter(
-    ex => ex.name !== "Balancer V2" && ex.name !== "Curve USDC/ETH"
-  );
 
   // Fetch DEX prices on initial load and when connection changes
   useEffect(() => {
@@ -72,23 +65,8 @@ export default function FlashLoanOptions() {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
       const fetchedPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
-      
-      // Assuming we're using the first pair (USDC/ETH)
       const pairPrices = fetchedPrices[PAIRS[0].name] || {};
       setDexPrices(pairPrices);
-      
-      // Set default DEXs if not already selected
-      if (!selectedBuyDex) {
-        // Pick first available exchange as default buy DEX
-        const firstDex = availableExchanges[0]?.name || null;
-        setSelectedBuyDex(firstDex);
-      }
-      
-      if (!selectedSellDex) {
-        // Pick second available exchange as default sell DEX
-        const secondDex = availableExchanges.find(ex => ex.name !== selectedBuyDex)?.name || null;
-        setSelectedSellDex(secondDex);
-      }
     } catch (error) {
       console.error("Error fetching DEX prices:", error);
       setError("Failed to fetch exchange prices. Please try again.");
@@ -253,84 +231,6 @@ export default function FlashLoanOptions() {
           )}
         </div>
 
-        {/* DEX Selection for Arbitrage */}
-        <div className="p-2 bg-white/5 border border-white/10 rounded-lg text-xs">
-          <h3 className="text-white/80 font-medium mb-2 flex items-center">
-            <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 9V7C2 4 4 2 7 2H17C20 2 22 4 22 7V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 15V17C2 20 4 22 7 22H17C20 22 22 20 22 17V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 15L8 11L12 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 11H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Arbitrage Exchanges
-          </h3>
-          
-          {loadingPrices ? (
-            <div className="flex items-center justify-center py-2 text-cyan-300 text-xs">
-              <svg className="animate-spin h-3 w-3 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Loading DEX prices...
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label htmlFor="buy-dex" className="block text-xs text-white/70 mb-1">Buy DEX</label>
-                <select
-                  id="buy-dex"
-                  value={selectedBuyDex || ''}
-                  onChange={(e) => {
-                    const buyDex = e.target.value;
-                    setSelectedBuyDex(buyDex);
-                    if (buyDex === selectedSellDex) setSelectedSellDex(null);
-                  }}
-                  className="w-full p-1 bg-white/5 border border-white/10 rounded text-white text-xs focus:outline-none focus:border-purple-500 appearance-none"
-                  disabled={!isConnected || !isCorrectNetwork}
-                >
-                  <option value="" disabled>Select Buy DEX</option>
-                  {availableExchanges.map(ex => (
-                    <option key={ex.name} value={ex.name}>{ex.icon} {ex.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="sell-dex" className="block text-xs text-white/70 mb-1">Sell DEX</label>
-                <select
-                  id="sell-dex"
-                  value={selectedSellDex || ''}
-                  onChange={(e) => {
-                    const sellDex = e.target.value;
-                    setSelectedSellDex(sellDex);
-                  }}
-                  className="w-full p-1 bg-white/5 border border-white/10 rounded text-white text-xs focus:outline-none focus:border-purple-500 appearance-none"
-                  disabled={!isConnected || !isCorrectNetwork || !selectedBuyDex}
-                >
-                  <option value="" disabled>Select Sell DEX</option>
-                  {availableExchanges
-                    .filter(ex => ex.name !== selectedBuyDex)
-                    .map(ex => (
-                      <option key={ex.name} value={ex.name}>{ex.icon} {ex.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
-          
-          {isConnected && isCorrectNetwork && !loadingPrices && (!dexPrices || !selectedBuyDex || !selectedSellDex) && (
-            <div className="text-center text-[10px] text-white/50 mt-2">
-              {!dexPrices ? "Failed to load DEX prices. " : ""}
-              {(!selectedBuyDex || !selectedSellDex) ? "Select Buy and Sell DEX to calculate potential profit." : ""}
-              <button
-                onClick={fetchDEXPrices}
-                className="ml-1 text-cyan-300 underline hover:text-cyan-200"
-              >
-                Refresh
-              </button>
-            </div>
-          )}
-        </div>
-
         {/* Error Message */}
         {(error || errorReserves || errorFees) && (
           <div className="p-2 bg-red-900/20 border border-red-600/30 rounded-lg text-red-300 text-xs">
@@ -421,7 +321,7 @@ export default function FlashLoanOptions() {
                 {loadingFees ? (
                   <span className="inline-block w-6 h-2 bg-white/10 animate-pulse rounded"></span>
                 ) : (
-                  <span className="font-medium text-white">{`${flashLoanFees?.total}%`}</span>
+                  <span className="font-medium text-white">{`${flashLoanFees?.totalPercent}%`}</span>
                 )}
               </div>
               <div className="pl-2 text-[10px]">
@@ -433,7 +333,7 @@ export default function FlashLoanOptions() {
                   {loadingFees ? (
                     <span className="inline-block w-6 h-2 bg-white/10 animate-pulse rounded"></span>
                   ) : (
-                    <span className="text-white">{`${flashLoanFees?.protocol}%`}</span>
+                    <span className="text-white">{`${flashLoanFees?.protocolPercent}%`}</span>
                   )}
                 </div>
                 <div className="flex justify-between items-center">
@@ -444,7 +344,7 @@ export default function FlashLoanOptions() {
                   {loadingFees ? (
                     <span className="inline-block w-6 h-2 bg-white/10 animate-pulse rounded"></span>
                   ) : (
-                    <span className="text-white">{`${flashLoanFees?.liquidityProviders}%`}</span>
+                    <span className="text-white">{`${flashLoanFees?.liquidityProvidersPercent}%`}</span>
                   )}
                 </div>
               </div>
@@ -453,14 +353,12 @@ export default function FlashLoanOptions() {
         )}
 
         {/* Arbitrage Profit Calculator - Only render when we have all required props */}
-        {dexPrices && selectedBuyDex && selectedSellDex && (
+        {dexPrices && (
           <ArbitrageProfitCalculator 
             loanAmount={loanAmount || "0"}
             selectedToken={selectedToken}
-            flashLoanBps={flashLoanFees?.total || 0.09}
+            flashLoanBps={flashLoanFees?.totalBps || 0.09}
             dexPrices={dexPrices}
-            selectedBuyDex={selectedBuyDex}
-            selectedSellDex={selectedSellDex}
           />
         )}
 

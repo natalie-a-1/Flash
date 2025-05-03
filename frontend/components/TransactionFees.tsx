@@ -10,16 +10,14 @@ import { formatCurrencyAmount } from "@/lib/web3/utils";
  * the values for display, including conversion to USD.
  */
 export default function QuickStats() {
-  // Destructure fee statistics from the useTransactionFees hook
+  // Destructure updated fee statistics from the useTransactionFees hook
   const {
-    baseFee,
-    priorityFee,
-    maxFeePerGas,
-    estimatedFee,
-    estimatedFeeUSDC,
-    convBaseFeeUSDC,
-    convPriorityFeeUSDC,
-    convMaxFeePerGasUSDC,
+    baseFeeGwei,
+    priorityFeeGwei,
+    maxFeeGwei,
+    gasLimit,
+    txFeeEth,
+    txFeeUsdc,
   } = useTransactionFees();
 
   return (
@@ -46,10 +44,7 @@ export default function QuickStats() {
                 <span className="ml-1 text-[8px] px-1 py-0.5 bg-purple-500/20 text-purple-300 rounded">Network Cap</span>
               </p>
               <div className="flex items-baseline">
-                <p className="text-white text-xs">{maxFeePerGas} Gwei</p>
-                <small className="text-white/50 ml-1 text-[8px]">
-                  ≈ {formatCurrencyAmount(convMaxFeePerGasUSDC, 'USD', 6, false)}/gas
-                </small>
+                <p className="text-white text-xs">{maxFeeGwei} Gwei</p>
               </div>
             </div>
           </div>
@@ -65,10 +60,7 @@ export default function QuickStats() {
                 <span className="ml-1 text-[8px] px-1 py-0.5 bg-cyan-500/20 text-cyan-300 rounded">Protocol Fee</span>
               </p>
               <div className="flex items-baseline">
-                <p className="text-white text-xs">{baseFee} Gwei</p>
-                <small className="text-white/50 ml-1 text-[8px]">
-                  ≈ {formatCurrencyAmount(convBaseFeeUSDC, 'USD', 6, false)}/gas
-                </small>
+                <p className="text-white text-xs">{baseFeeGwei} Gwei</p>
               </div>
             </div>
           </div>
@@ -84,25 +76,9 @@ export default function QuickStats() {
                 <span className="ml-1 text-[8px] px-1 py-0.5 bg-amber-500/20 text-amber-300 rounded">Validator Tip</span>
               </p>
               <div className="flex items-baseline">
-                <p className="text-white text-xs">{priorityFee} Gwei</p>
-                <small className="text-white/50 ml-1 text-[8px]">
-                  ≈ {formatCurrencyAmount(convPriorityFeeUSDC, 'USD', 6, false)}/gas
-                </small>
+                <p className="text-white text-xs">{priorityFeeGwei} Gwei</p>
               </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Display Estimated Transaction Fee */}
-        <div className="bg-gradient-to-r from-white/10 to-white/5 rounded-lg p-2 border border-white/10 mt-1">
-          <p className="text-white/70 text-xs font-medium mb-0.5">Estimated Tx Fee (21k gas units)</p>
-          <div className="flex items-baseline">
-            <p className="text-white text-xs font-medium">{estimatedFee} ETH</p>
-            {estimatedFeeUSDC && (
-              <span className="text-white/60 text-[8px] ml-1">
-                ≈ {formatCurrencyAmount(estimatedFeeUSDC, 'USD', 2, false)}
-              </span>
-            )}
           </div>
         </div>
       </div>
