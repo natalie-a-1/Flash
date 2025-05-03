@@ -12,6 +12,9 @@ const MNEMONIC = process.env.MNEMONIC || "Your mnemonic here...";
 const SEPOLIA_RPC_URL =
   process.env.SEPOLIA_RPC_URL ||
   "https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY";
+const MAINNET_RPC_URL =
+  process.NEXT_PUBLIC_MAINNET_RPC_URL ||
+  "https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY";
 
 module.exports = {
   // Configure networks
@@ -36,6 +39,19 @@ module.exports = {
       fork: SEPOLIA_RPC_URL,
       // A higher gas limit is often needed for complex interactions on forks,
       // like flash loans involving multiple external calls.
+      gas: 8000000,
+      // Optional: Set a reasonable gas price (e.g., 20 Gwei).
+      gasPrice: 20000000000,
+    },
+
+    // Development network forking Mainnet
+    mainnet_fork: {
+      host: "127.0.0.1", // Ganache's default host
+      port: 8545, // Ganache's default port
+      network_id: "*", // Match any network ID
+      // Fork from Mainnet using Alchemy RPC
+      fork: MAINNET_RPC_URL,
+      // A higher gas limit is often needed for complex interactions on forks
       gas: 8000000,
       // Optional: Set a reasonable gas price (e.g., 20 Gwei).
       gasPrice: 20000000000,

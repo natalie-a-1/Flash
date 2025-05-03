@@ -207,6 +207,7 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
+          50,
           { from: owner },
         );
       } catch (error) {
@@ -230,6 +231,7 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
+          50,
           { from: nonOwner },
         );
       } catch (error) {
@@ -251,6 +253,7 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
+          50,
           { from: owner },
         ),
       );
@@ -263,6 +266,7 @@ contract("FlashLoan", (accounts) => {
           ZERO_ADDRESS,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
+          50,
           { from: owner },
         ),
       );
@@ -275,6 +279,7 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           ZERO_ADDRESS,
+          50,
           { from: owner },
         ),
       );
@@ -298,6 +303,7 @@ contract("FlashLoan", (accounts) => {
           WETH_SEPOLIA,
           invalidFirstPath,
           secondPath,
+          50,
           { from: owner },
         ),
       );
@@ -313,6 +319,7 @@ contract("FlashLoan", (accounts) => {
           WETH_SEPOLIA,
           firstPath,
           invalidSecondPath,
+          50,
           { from: owner },
         ),
       );
@@ -329,6 +336,7 @@ contract("FlashLoan", (accounts) => {
             UNISWAP_ROUTER_SEPOLIA,
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
+            50,
             { from: nonOwner }
           );
         } catch (error) {
@@ -351,6 +359,7 @@ contract("FlashLoan", (accounts) => {
             UNISWAP_ROUTER_SEPOLIA,
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
+            50,
             { from: nonOwner }
           ); } catch {}
       }
@@ -362,6 +371,7 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
+          50,
           { from: nonOwner }
         )
       );
@@ -378,6 +388,7 @@ contract("FlashLoan", (accounts) => {
             UNISWAP_ROUTER_SEPOLIA,
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
+            50,
             { from: nonOwner }
           ); } catch {}
       }
@@ -389,6 +400,7 @@ contract("FlashLoan", (accounts) => {
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
+          50,
           { from: nonOwner, value: fee }
         );
       } catch (error) {
@@ -410,6 +422,7 @@ contract("FlashLoan", (accounts) => {
             UNISWAP_ROUTER_SEPOLIA,
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
+            50,
             { from: owner }
           );
         } catch (error) {

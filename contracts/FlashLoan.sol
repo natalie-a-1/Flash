@@ -39,7 +39,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
 
   // --- Configuration: Swap Parameters ---
   uint256 private constant SWAP_DEADLINE_OFFSET = 600; // 10 minutes from block timestamp
-  uint256 private constant SLIPPAGE_TOLERANCE_BPS = 50; // 0.5% expressed in basis points (1 BPS = 0.01%)
+  uint256 private constant MAX_BPS = 10000;
 
   // --- Router Registry ---
   mapping(address => bool) public approvedRouters;
@@ -56,6 +56,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     address intermediateToken;
     address[] firstPath;
     address[] secondPath;
+    uint256 slippageBps;
   }
 
   // ===================================================================
@@ -84,6 +85,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   error RouterNotApproved(); // The router used is not in the approved list
   error InvalidPath(); // The swap path provided is invalid
   error FlashLoanPaymentRequired();
+  error InvalidSlippageTolerance();
 
   // ===================================================================
   // Constructor
@@ -149,7 +151,12 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
       _safeApprove(asset, arbParams.sourceRouter, amount);
 
       // Calculate minimum output with slippage
-      uint amountOutMin = _getMinAmountOut(arbParams.sourceRouter, amount, arbParams.firstPath);
+      uint amountOutMin = _getMinAmountOut(
+        arbParams.sourceRouter,
+        amount,
+        arbParams.firstPath,
+        arbParams.slippageBps
+      );
 
       // Perform swap
       uint[] memory actualAmounts = IUniswapV2Router02(arbParams.sourceRouter)
@@ -172,7 +179,8 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
       uint amountOutMin = _getMinAmountOut(
         arbParams.targetRouter,
         intermediateReceived,
-        arbParams.secondPath
+        arbParams.secondPath,
+        arbParams.slippageBps
       );
 
       // Perform swap
@@ -217,14 +225,17 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
    * @param _sourceRouter The router to use for the first swap
    * @param _targetRouter The router to use for the second swap
    * @param _intermediateToken The token to use as intermediate for the arbitrage
+   * @param _slippageBps Slippage tolerance in basis points (1 BPS = 0.01%)
    */
   function requestFlashLoan(
     address _asset,
     uint256 _amount,
     address _sourceRouter,
     address _targetRouter,
-    address _intermediateToken
+    address _intermediateToken,
+    uint256 _slippageBps
   ) external payable {
+    if (_slippageBps > MAX_BPS) revert InvalidSlippageTolerance();
     // Pricing logic: track calls and enforce fee after free quota
     if (msg.sender != i_owner) {
       uint256 calls = s_flashLoanCalls[msg.sender];
@@ -261,7 +272,8 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
       targetRouter: _targetRouter,
       intermediateToken: _intermediateToken,
       firstPath: firstPath,
-      secondPath: secondPath
+      secondPath: secondPath,
+      slippageBps: _slippageBps
     });
 
     // Encode parameters for the flash loan callback
@@ -281,6 +293,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
    * @param _intermediateToken The intermediate token
    * @param _firstPath Custom path for first swap (must start with _asset and end with _intermediateToken)
    * @param _secondPath Custom path for second swap (must start with _intermediateToken and end with _asset)
+   * @param _slippageBps Slippage tolerance in basis points (1 BPS = 0.01%)
    */
   function requestFlashLoanWithCustomPaths(
     address _asset,
@@ -289,8 +302,10 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     address _targetRouter,
     address _intermediateToken,
     address[] calldata _firstPath,
-    address[] calldata _secondPath
+    address[] calldata _secondPath,
+    uint256 _slippageBps
   ) external payable {
+    if (_slippageBps > MAX_BPS) revert InvalidSlippageTolerance();
     // Pricing logic: track calls and enforce fee after free quota
     if (msg.sender != i_owner) {
       uint256 calls = s_flashLoanCalls[msg.sender];
@@ -325,7 +340,8 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
       targetRouter: _targetRouter,
       intermediateToken: _intermediateToken,
       firstPath: _firstPath,
-      secondPath: _secondPath
+      secondPath: _secondPath,
+      slippageBps: _slippageBps
     });
 
     // Encode parameters for the flash loan callback
@@ -403,12 +419,14 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
    * @param _router Address of the Uniswap/SushiSwap router
    * @param _amountIn The amount of input tokens
    * @param _path The swap path (array of token addresses)
+   * @param _slippageBps Slippage tolerance in basis points (1 BPS = 0.01%)
    * @return amountOutMin The minimum acceptable output amount
    */
   function _getMinAmountOut(
     address _router,
     uint _amountIn,
-    address[] memory _path
+    address[] memory _path,
+    uint256 _slippageBps
   ) internal view returns (uint amountOutMin) {
     require(_path.length >= 2, "Path must have at least 2 tokens");
 
@@ -426,7 +444,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     }
 
     uint expectedAmountOut = expectedAmounts[expectedAmounts.length - 1];
-    amountOutMin = (expectedAmountOut * (10000 - SLIPPAGE_TOLERANCE_BPS)) / 10000;
+    amountOutMin = (expectedAmountOut * (MAX_BPS - _slippageBps)) / MAX_BPS;
 
     if (amountOutMin == 0) {
       revert ArbitrageSwapFailed("Calculated min output is zero");

@@ -77,6 +77,33 @@ npm run dev
 2. Deploy contracts: `npm run migrate`
 3. Start frontend: `cd frontend && npm run dev`
 
+### Mainnet Fork Environment
+
+1. Create `.env` file from `.env.example` and add your Alchemy Mainnet API key:
+   ```bash
+   cp .env.example .env
+   # Update MAINNET_RPC_URL in .env with your Alchemy Mainnet key
+   ```
+2. Start Ganache with Mainnet fork: `npm run ganache:mainnet`
+   - This command forks the Ethereum mainnet using your `MAINNET_RPC_URL`.
+3. Deploy contracts to the forked network: `npm run migrate -- --network mainnet_fork`
+4. Run tests against the forked environment: `npm run test:fork:mainnet`
+5. Interact with the forked network in Truffle console:
+   ```bash
+   truffle console --network mainnet_fork
+   ```
+   - Now you can call and test your contracts against a fork of mainnet.
+   - For example, inspect ERC-20 balances of a mainnet address:
+     ```js
+     const token = await ERC20.at('0x...');
+     const balance = await token.balanceOf('0x...');
+     console.log(balance.toString());
+     ```
+### Notes
+- The ganache CLI fork command uses the Alchemy Mainnet archive node to provide historical state.
+- Use the Truffle console or write scripts to interact with existing mainnet contracts.
+- Remember this environment simulates mainnet but does not broadcast transactions.
+
 ### Sepolia Testnet
 
 1. Create `.env` file from `.env.example`
