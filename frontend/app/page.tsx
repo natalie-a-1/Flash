@@ -1,114 +1,195 @@
 "use client";
 
 import { useWeb3 } from "@/components/web3/Web3Provider";
-import { FAUCETS } from "@/lib/web3/config";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const {
-    account,
-    isConnected,
-    isCorrectNetwork,
-    networkName,
-    connectWallet,
-    switchNetwork,
-  } = useWeb3();
+/**
+ * LoginPage component handles the user login interface.
+ * It checks if the user's wallet is connected and redirects to the dashboard if so.
+ * Otherwise, it displays a login page with a connect wallet button.
+ */
+export default function LoginPage() {
+  const { isConnected, connectWallet } = useWeb3(); // Destructuring to get wallet connection status and connect function
+  const router = useRouter(); // Hook to programmatically navigate
+  const [mounted, setMounted] = useState(false); // State to track if the component is mounted
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
-        <h1 className="text-4xl font-bold mb-8 text-center">
-          Flash Blockchain Project
-        </h1>
+  /**
+   * useEffect hook to run side effects.
+   * Sets the mounted state to true when the component is mounted.
+   * Redirects to the dashboard if the wallet is already connected.
+   */
+  useEffect(() => {
+    setMounted(true);
 
-        <div className="bg-white/30 p-8 rounded-lg shadow-xl max-w-2xl mx-auto">
-          <h2 className="text-2xl font-semibold mb-4">
-            Ethereum Connection Status
-          </h2>
+    if (isConnected) {
+      router.push("/dashboard");
+    }
+  }, [isConnected, router]);
 
-          {isConnected ? (
-            <div className="space-y-4">
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                <p className="font-bold">Connected to MetaMask</p>
-                <p className="text-sm">Account: {account}</p>
-                <p className="text-sm">Network: {networkName}</p>
-              </div>
-
-              {isCorrectNetwork ? (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                  <p>Connected to Sepolia Testnet ✓</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <p>Please switch to Sepolia Testnet</p>
-                  </div>
-
-                  <button
-                    onClick={switchNetwork}
-                    className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded w-full"
-                  >
-                    Switch to Sepolia
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-                <p>Not connected to MetaMask</p>
-              </div>
-
-              <button
-                onClick={connectWallet}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-              >
-                Connect MetaMask
-              </button>
-            </div>
-          )}
-
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-2">Getting Started</h3>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Make sure MetaMask is installed</li>
-              <li>Connect your wallet using the button above</li>
-              <li>Switch to Sepolia Testnet in MetaMask</li>
-              <li>Get test ETH from a Sepolia faucet</li>
-            </ul>
+  /**
+   * Renders a placeholder during server-side rendering and the first mount.
+   * This ensures the structure remains consistent before the client-side logic takes over.
+   */
+  if (!mounted) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md w-full px-4">
+          <div className="text-center mb-10">
+            <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+              Flash
+            </h1>
+            <p className="text-xl text-white/80">
+              Flash loan arbitrage platform using Aave V3
+            </p>
           </div>
 
-          {isConnected && !isCorrectNetwork && (
-            <div className="mt-4">
-              <p className="font-medium">What is Sepolia?</p>
-              <p className="text-sm mt-1">
-                Sepolia is an Ethereum testnet used for development. You can
-                experiment without using real ETH.
-              </p>
+          <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-8 shadow-xl border border-white/20">
+            {/* Pre-rendering placeholder with animation */}
+            <div className="animate-pulse">
+              <div className="flex items-center justify-center">
+                <div className="w-16 h-16 bg-white/10 rounded-full"></div>
+              </div>
+              <div className="h-6 bg-white/10 rounded w-3/4 mx-auto mt-5"></div>
+              <div className="h-4 bg-white/10 rounded w-1/2 mx-auto mt-3 mb-8"></div>
+              <div className="h-12 bg-white/10 rounded-lg w-full mb-6"></div>
+              <div className="h-4 bg-white/10 rounded w-3/4 mx-auto"></div>
             </div>
-          )}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
-          {isConnected && isCorrectNetwork && (
-            <div className="mt-6">
-              <h3 className="text-xl font-semibold mb-2">Sepolia Faucets</h3>
-              <p className="text-sm mb-2">
-                Need test ETH? Get some from these faucets:
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                {FAUCETS[11155111].map((faucet, index) => (
-                  <li key={index}>
-                    <a
-                      href={faucet.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {faucet.name}
-                    </a>
-                  </li>
-                ))}
+  /**
+   * Renders the main login interface when the component is mounted.
+   * Displays a connect wallet button and information about the platform.
+   */
+  return (
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="max-w-md w-full px-4">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+            Flash
+          </h1>
+          <p className="text-xl text-white/80">
+            Flash loan arbitrage platform using Aave V3
+          </p>
+        </div>
+
+        <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-8 shadow-xl border border-white/20">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto">
+              <svg
+                className="w-8 h-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-semibold mt-4">Welcome to Flash</h2>
+            <p className="text-white/70 mt-2">
+              Connect your wallet to access the dashboard
+            </p>
+          </div>
+
+          <button
+            onClick={connectWallet}
+            className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg flex items-center justify-center"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M16 20V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V20"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Connect Wallet
+          </button>
+
+          <div className="mt-6 text-center">
+            <p className="text-white/60 text-sm">
+              This application requires a Web3 wallet like MetaMask
+            </p>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <div className="text-sm text-white/70">
+              <p className="mb-2">With Flash, you can:</p>
+              <ul className="space-y-1">
+                <li className="flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2 text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Monitor arbitrage opportunities
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2 text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Execute flash loans
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2 text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  View real-time pricing data
+                </li>
               </ul>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </main>

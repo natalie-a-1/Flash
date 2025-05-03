@@ -1,75 +1,161 @@
-# Flash Blockchain Frontend
+# Flash Frontend
 
-This is the frontend application for the Flash Blockchain project, built with Next.js, React, and Tailwind CSS.
+This directory contains the **Flash** arbitrage frontend: a Next.js web application that lets users monitor on-chain arbitrage opportunities between Uniswap V2 and SushiSwap and execute Flash Loans via Aave V3.
 
-## Quick Start
+---
+
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Available Scripts](#available-scripts)
+- [Environment Variables](#environment-variables)
+- [Project Structure](#project-structure)
+- [Blockchain Configuration](#blockchain-configuration)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Tech Stack
+
+- Next.js 15 (App Router)
+- React 19 + TypeScript
+- Tailwind CSS
+- Ethers.js & Web3.js
+- Aave Address Book (@bgd-labs/aave-address-book)
+- Uniswap V2 & SushiSwap V2 Router ABIs
+- Jest / Mocha + Chai (in `test/`)
+
+---
+
+## Features
+
+- **Wallet Connection**: MetaMask integration with network checks.
+- **Arbitrage Dashboard**: Live pricing from Uniswap and SushiSwap; best-path highlighting.
+- **Flash Loans**: Retrieve on-chain liquidity from Aave V3 via UI pool data provider.
+- **Responsive UI**: Built with Tailwind CSS and Next.js server + client components.
+
+---
+
+## Prerequisites
+
+- Node.js v16 or higher
+- npm (or Yarn) package manager
+- MetaMask or any `window.ethereum`-compatible wallet
+
+---
+
+## Installation
 
 ```bash
-# Navigate to the frontend directory
+# 1. Change into the frontend folder
 cd frontend
 
-# Install dependencies
+# 2. Install dependencies
 npm install
+# or: yarn install
 
-# Start development server
+# 3. Run in development mode
 npm run dev
+# or: yarn dev
 ```
 
-## Technology Stack
+Open http://localhost:3000 in your browser.
 
-- **Framework**: Next.js with App Router
-- **UI Library**: React
-- **Styling**: Tailwind CSS
-- **State Management**: React Context API
-- **Blockchain Connectivity**: Web3.js, ethers.js
-- **Testing**: (TBD)
+---
+
+## Available Scripts
+
+In the `frontend` directory, run:
+
+| Command         | Description                           |
+| --------------- | ------------------------------------- |
+| `npm run dev`   | Start development server on port 3000 |
+| `npm run build` | Build for production (Next.js)        |
+| `npm run start` | Run the production build              |
+| `npm run lint`  | Run ESLint                            |
+| `npm test`      | Run Mocha/Chai tests                  |
+
+---
+
+## Environment Variables
+
+Create a `.env.local` in `frontend/` if you need to override defaults:
+
+```ini
+# Example: custom mainnet RPC for price comparisons
+NEXT_PUBLIC_MAINNET_RPC_URL=https://eth.llamarpc.com
+```
+
+Next.js will automatically load any `NEXT_PUBLIC_*` variables.
+
+---
 
 ## Project Structure
 
-- `app/` - Next.js application routes
-- `components/` - Reusable React components
-- `lib/` - Utility functions and configurations
-- `contracts/` - Contract ABIs (copied from Truffle build)
-- `types/` - TypeScript type definitions
-- `public/` - Static assets
-
-## Connecting to Blockchain
-
-The application automatically connects to MetaMask if available and displays connection status on the homepage.
-
-### Features
-
-- MetaMask connection management
-- Network detection and switching
-- Contract interaction (coming soon)
-
-## Development Process
-
-1. Start the local blockchain: `npm run ganache` (from project root)
-2. Deploy contracts: `npm run migrate` (from project root)
-3. Start the frontend: `npm run dev` (from this directory)
-
-## Production Build
-
-```bash
-# Build for production
-npm run build
-
-# Start production server
-npm start
+```
+frontend/
+├── app/                  # Next.js App Router pages & layouts
+│   ├── layout.tsx        # Root layout with Web3Provider
+│   └── dashboard/        # Dashboard page (arbs + flash loans)
+├── components/           # Reusable React components
+│   ├── web3/             # Wallet & provider management
+│   ├── ArbitrageOpportunities.tsx
+│   └── FlashLoanOptions.tsx
+├── lib/                  # Application logic & constants
+│   ├── web3/             # Web3 & Ethers provider utilities
+│   ├── services/         # On-chain data fetch (priceService)
+│   └── constants/        # DEX/router & token definitions
+├── types/                # Shared TypeScript types
+├── public/               # Static assets (logos, icons)
+├── test/                 # Unit & integration tests
+├── next.config.ts        # Next.js configuration
+├── tailwind.config.js    # Tailwind CSS configuration
+└── tsconfig.json         # TypeScript configuration
 ```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Blockchain Configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **DEXes & Tokens** come from `lib/constants/dex.ts` and `lib/constants/tokens.ts` using your own `MAINNET_ADDRESSES` in `config.ts`.
+- **Aave Protocol** addresses (pool, UI provider, incentives) can be imported from:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+  ```ts
+  import { AaveV3Ethereum } from "@bgd-labs/aave-address-book";
+  ```
 
-## Deploy on Vercel
+- **FlashLoan Contract** address should be set manually in your deployment or via an environment variable.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Testing
+
+Tests live under `frontend/test`. To run:
+
+```bash
+npm test
+# or: yarn test
+```
+
+Make sure your local chain or fork is running if tests depend on on-chain state.
+
+---
+
+## Contributing
+
+1. Fork the repo and create a feature branch.
+2. Install dependencies and run tests.
+3. Submit a pull request with clear description.
+
+Please keep the code style consistent (Prettier + ESLint enforced via Husky pre-commit hooks).
+
+---
+
+## License
+
+This frontend is released under the **MIT License**. See the [LICENSE](../LICENSE) file at the project root.

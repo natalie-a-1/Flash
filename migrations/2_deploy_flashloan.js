@@ -1,12 +1,10 @@
 const FlashLoan = artifacts.require("FlashLoan");
+const constants = require("../constants.json"); // Load addresses
 
-// Sepolia Addresses
-const AAVE_POOL_PROVIDER_SEPOLIA = "0x012bAC54348C0E635dCAc9D5FB99f06F24136C9A";
-const UNISWAP_V2_ROUTER_SEPOLIA = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
-const SUSHISWAP_V2_ROUTER_SEPOLIA =
-  "0xeaBcE3E74EF41FB40024a21Cc2ee2F5dDc615791";
-const USDC_SEPOLIA = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8";
-const WETH_SEPOLIA = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
+// Sepolia Addresses from constants file
+const AAVE_POOL_PROVIDER_SEPOLIA = "0x012bAC54348C0E635dCAc9D5FB99f06F24136C9A"; // Aave provider address remains specific here for now
+const { WETH, USDC, UNISWAP_V2_ROUTER, SUSHISWAP_V2_ROUTER } =
+  constants.sepolia;
 
 module.exports = function (deployer, network, accounts) {
   // Only deploy if the network is Sepolia or a development fork (which mimics Sepolia)
@@ -20,25 +18,27 @@ module.exports = function (deployer, network, accounts) {
     console.log(
       `Using Aave Pool Provider (Sepolia): ${AAVE_POOL_PROVIDER_SEPOLIA}`,
     );
-    console.log(`Using Uniswap Router (Sepolia): ${UNISWAP_V2_ROUTER_SEPOLIA}`);
-    console.log(
-      `Using SushiSwap Router (Sepolia): ${SUSHISWAP_V2_ROUTER_SEPOLIA}`,
-    );
-    console.log(`Using USDC (Sepolia): ${USDC_SEPOLIA}`);
-    console.log(`Using WETH (Sepolia): ${WETH_SEPOLIA}`);
+    console.log(`Using Uniswap Router (Sepolia): ${UNISWAP_V2_ROUTER}`);
+    console.log(`Using SushiSwap Router (Sepolia): ${SUSHISWAP_V2_ROUTER}`);
+    console.log(`Using USDC (Sepolia): ${USDC}`);
+    console.log(`Using WETH (Sepolia): ${WETH}`);
     console.log(`Deployer account: ${accounts[0]}`);
 
     deployer
       .deploy(
         FlashLoan,
-        AAVE_POOL_PROVIDER_SEPOLIA,
-        UNISWAP_V2_ROUTER_SEPOLIA,
-        SUSHISWAP_V2_ROUTER_SEPOLIA,
-        USDC_SEPOLIA,
-        WETH_SEPOLIA,
+        AAVE_POOL_PROVIDER_SEPOLIA
       )
-      .then(() => {
+      .then(async (flashLoanInstance) => {
         console.log(`FlashLoan contract deployed successfully to ${network}.`);
+        
+        // Approve the routers for use with the contract
+        console.log("Setting up approved routers...");
+        await flashLoanInstance.setRouterApproval(UNISWAP_V2_ROUTER, true);
+        await flashLoanInstance.setRouterApproval(SUSHISWAP_V2_ROUTER, true);
+        console.log("Routers approved successfully.");
+        
+        console.log(`FlashLoan contract setup completed at: ${flashLoanInstance.address}`);
       })
       .catch((error) => {
         console.error(

@@ -1,6 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-This is a full-stack Ethereum dApp implementing an Aave V3 flash loan arbitrage strategy between Uniswap V2 and SushiSwap V2 on the Sepolia testnet. The backend uses Solidity/Truffle, and the frontend uses Next.js/React/TypeScript.

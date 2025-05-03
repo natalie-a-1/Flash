@@ -19,8 +19,10 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@root/*": ["../*"]
     },
     "types": ["node", "mocha", "chai"]
   },

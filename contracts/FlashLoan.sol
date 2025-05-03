@@ -22,10 +22,9 @@ import {ISushiSwapV2Router02} from "./interfaces/ISushiSwapV2Router02.sol"; // I
 // ===================================================================
 
 /**
- * @title FlashLoan Arbitrage Example
- * @notice Implements an Aave V3 Flash Loan Receiver for a *specific* arbitrage strategy.
- * @dev This contract demonstrates borrowing USDC on Aave (Sepolia), swapping it for WETH on Uniswap V2 (Sepolia),
- *      swapping the WETH back to USDC on SushiSwap V2 (Sepolia), and repaying the loan.
+ * @title Dynamic FlashLoan Arbitrage
+ * @notice Implements an Aave V3 Flash Loan Receiver for configurable arbitrage strategies.
+ * @dev This contract allows borrowing any supported token on Aave and swapping between any two exchanges.
  *      It includes basic slippage protection but is intended for educational purposes.
  *      Does NOT account for gas costs in profitability checks.
  * @author Your Name/Organization (or remove if desired)
@@ -38,19 +37,21 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // --- Owner ---
   address private immutable i_owner;
 
-  // --- Configuration: Sepolia Addresses ---
-  // @dev Ensure these addresses are correct for the target network (Sepolia).
-  // @dev USDC and WETH addresses specific to Sepolia testnet
-  address private immutable USDC; // Example: 0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8 on Sepolia
-  address private immutable WETH; // Example: 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14 on Sepolia
-
-  // --- Router Addresses ---
-  IUniswapV2Router02 private immutable uniswapRouter;
-  ISushiSwapV2Router02 private immutable sushiRouter;
-
   // --- Configuration: Swap Parameters ---
   uint256 private constant SWAP_DEADLINE_OFFSET = 600; // 10 minutes from block timestamp
   uint256 private constant SLIPPAGE_TOLERANCE_BPS = 50; // 0.5% expressed in basis points (1 BPS = 0.01%)
+
+  // --- Router Registry ---
+  mapping(address => bool) public approvedRouters;
+
+  // --- Transaction Parameters (for executeOperation) ---
+  struct ArbitrageParams {
+    address sourceRouter;
+    address targetRouter;
+    address intermediateToken;
+    address[] firstPath;
+    address[] secondPath;
+  }
 
   // ===================================================================
   // Events
@@ -59,66 +60,37 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     address indexed asset,
     uint256 amountBorrowed,
     uint256 premiumPaid,
-    uint256 wethReceived,
-    uint256 usdcRecovered,
+    uint256 intermediateReceived,
+    uint256 finalReceived,
     bool success
   );
+
+  event RouterApprovalChanged(address router, bool approved);
 
   // ===================================================================
   // Errors
   // ===================================================================
-  error NotOwner(); // Caller is not the owner.
-  error InvalidAsset(address expected, address actual); // Flash loan requested for an asset other than the configured one.
-  error ArbitrageSwapFailed(string reason); // Arbitrage execution failed (e.g., swap revert, insufficient balance).
-  error RepayFailed(); // Final approval step for Aave Pool failed.
-  error TransferFailed(); // ERC20 or Ether withdrawal failed.
-  error InvalidRouterAddress(); // Provided router address is the zero address.
-  error InvalidTokenAddress(); // Provided token address is the zero address.
+  error NotOwner(); // Caller is not the owner
+  error ArbitrageSwapFailed(string reason); // Arbitrage execution failed
+  error RepayFailed(); // Final approval step for Aave Pool failed
+  error TransferFailed(); // ERC20 or Ether withdrawal failed
+  error InvalidRouterAddress(); // Provided router address is the zero address
+  error InvalidTokenAddress(); // Provided token address is the zero address
+  error RouterNotApproved(); // The router used is not in the approved list
+  error InvalidPath(); // The swap path provided is invalid
 
   // ===================================================================
   // Constructor
   // ===================================================================
 
   /**
-   * @notice Sets up the contract, linking it to Aave, Routers and Tokens.
-   * @param _poolAddressesProvider The address of the Aave V3 IPoolAddressesProvider contract (for Sepolia).
-   * @param _uniswapRouterAddress The address of the Uniswap V2 Router contract (for Sepolia).
-   * @param _sushiRouterAddress The address of the SushiSwap V2 Router contract (for Sepolia).
-   * @param _usdcAddress The address of the USDC token contract (for Sepolia).
-   * @param _wethAddress The address of the WETH token contract (for Sepolia).
+   * @notice Sets up the contract, linking it to Aave
+   * @param _poolAddressesProvider The address of the Aave V3 IPoolAddressesProvider contract
    */
   constructor(
-    address _poolAddressesProvider,
-    address _uniswapRouterAddress,
-    address _sushiRouterAddress,
-    address _usdcAddress,
-    address _wethAddress
+    address _poolAddressesProvider
   ) FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_poolAddressesProvider)) {
-    if (_uniswapRouterAddress == address(0)) revert InvalidRouterAddress();
-    if (_sushiRouterAddress == address(0)) revert InvalidRouterAddress();
-    if (_usdcAddress == address(0)) revert InvalidTokenAddress();
-    if (_wethAddress == address(0)) revert InvalidTokenAddress();
-
     i_owner = msg.sender;
-    uniswapRouter = IUniswapV2Router02(_uniswapRouterAddress);
-    sushiRouter = ISushiSwapV2Router02(_sushiRouterAddress);
-    USDC = _usdcAddress;
-    WETH = _wethAddress;
-
-    // Basic validation: Ensure routers report the correct WETH address if possible
-    // Note: SushiSwap interface doesn't enforce WETH() function presence, handle potential errors
-    try uniswapRouter.WETH() returns (address uniWeth) {
-      if (uniWeth != WETH) revert InvalidRouterAddress(); // Or a more specific error
-    } catch {
-      // Handle cases where Uniswap router might not have WETH() or reverts
-      // Consider adding logging or a specific error if WETH check fails
-    }
-    // Similar check for SushiSwap if its interface included WETH()
-    // try sushiRouter.WETH() returns (address sushiWeth) {
-    //     if (sushiWeth != WETH) revert InvalidRouterAddress();
-    // } catch {
-    //     // Handle potential errors
-    // }
   }
 
   // ===================================================================
@@ -127,109 +99,103 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
 
   /**
    * @notice The core function called by the Aave Pool after transferring the flash loan funds.
-   * @dev Executes the predefined arbitrage strategy (USDC -> WETH -> USDC) and handles repayment.
+   * @dev Executes the dynamic arbitrage strategy and handles repayment.
    *      Reverts if the strategy fails or if repayment conditions are not met.
-   * @param asset The address of the borrowed token (must be USDC for this contract).
+   * @param asset The address of the borrowed token
    * @param amount The amount of the token borrowed.
    * @param premium The fee charged by Aave for the flash loan.
-   * @param _initiator The address that initiated the flash loan request (unused in this implementation).
-   * @param _params Arbitrary data passed during the `flashLoanSimple` call (unused in this implementation).
+   * @param _initiator The address that initiated the flash loan request
+   * @param params Encoded arbitrage parameters
    * @return bool Returns `true` if the operation and repayment approval were successful.
    */
   function executeOperation(
     address asset,
     uint256 amount,
     uint256 premium,
-    address _initiator, // Silence unused warning
-    bytes calldata _params // Silence unused warning
+    address _initiator,
+    bytes calldata params
   ) external override returns (bool) {
-    // Restore override
-    // 1. Input Validation
-    if (asset != USDC) revert InvalidAsset(USDC, asset); // Strategy only supports the configured USDC address
     uint256 amountToRepay = amount + premium;
-    uint256 wethReceived; // Declare before try
-    uint256 finalUsdcReceived; // Declare before try
-    bool success = false; // Declare and initialize before try
+    uint256 intermediateReceived;
+    uint256 finalReceived;
+    bool success = false;
+
+    // Decode arbitrage parameters
+    ArbitrageParams memory arbParams = abi.decode(params, (ArbitrageParams));
+
+    // Validate routers are approved
+    if (!approvedRouters[arbParams.sourceRouter]) revert RouterNotApproved();
+    if (!approvedRouters[arbParams.targetRouter]) revert RouterNotApproved();
+
+    // Validate paths
+    if (arbParams.firstPath.length < 2) revert InvalidPath();
+    if (arbParams.secondPath.length < 2) revert InvalidPath();
+    if (arbParams.firstPath[0] != asset) revert InvalidPath();
+    if (arbParams.firstPath[arbParams.firstPath.length - 1] != arbParams.intermediateToken)
+      revert InvalidPath();
+    if (arbParams.secondPath[0] != arbParams.intermediateToken) revert InvalidPath();
+    if (arbParams.secondPath[arbParams.secondPath.length - 1] != asset) revert InvalidPath();
 
     // --- Start Arbitrage Logic ---
-    // Note: Gas costs are NOT accounted for in this on-chain logic.
-    // Real profitability must consider transaction fees evaluated off-chain.
-    // Remove try...catch block wrapper
-    // try {
-
-    // Variable declarations remain outside
-
-    // 2. Uniswap Trade (USDC -> WETH)
+    // First Swap (borrowed asset -> intermediate token)
     {
-      // Scope limited variables for Uniswap swap
-      address[] memory path = new address[](2);
-      path[0] = USDC;
-      path[1] = WETH;
-
       // Approve router
-      _safeApprove(USDC, address(uniswapRouter), amount);
+      _safeApprove(asset, arbParams.sourceRouter, amount);
 
       // Calculate minimum output with slippage
-      uint amountOutMin = _getMinAmountOut(address(uniswapRouter), amount, path);
+      uint amountOutMin = _getMinAmountOut(arbParams.sourceRouter, amount, arbParams.firstPath);
 
       // Perform swap
-      uint[] memory actualAmounts = uniswapRouter.swapExactTokensForTokens(
-        amount,
-        amountOutMin,
-        path,
-        address(this), // Send WETH directly to this contract
-        block.timestamp + SWAP_DEADLINE_OFFSET
-      );
-      // Router guarantees path length >= 2, so actualAmounts length is >= 2
-      wethReceived = actualAmounts[actualAmounts.length - 1]; // WETH received is the last element
+      uint[] memory actualAmounts = IUniswapV2Router02(arbParams.sourceRouter)
+        .swapExactTokensForTokens(
+          amount,
+          amountOutMin,
+          arbParams.firstPath,
+          address(this),
+          block.timestamp + SWAP_DEADLINE_OFFSET
+        );
+      intermediateReceived = actualAmounts[actualAmounts.length - 1];
     }
 
-    // 3. SushiSwap Trade (WETH -> USDC)
+    // Second Swap (intermediate token -> original borrowed asset)
     {
-      // Scope limited variables for SushiSwap swap
-      address[] memory path = new address[](2);
-      path[0] = WETH;
-      path[1] = USDC;
-
-      // Approve router to spend the WETH we just received
-      _safeApprove(WETH, address(sushiRouter), wethReceived);
+      // Approve router
+      _safeApprove(arbParams.intermediateToken, arbParams.targetRouter, intermediateReceived);
 
       // Calculate minimum output with slippage
-      uint amountOutMin = _getMinAmountOut(address(sushiRouter), wethReceived, path);
+      uint amountOutMin = _getMinAmountOut(
+        arbParams.targetRouter,
+        intermediateReceived,
+        arbParams.secondPath
+      );
 
       // Perform swap
-      uint[] memory actualAmounts = sushiRouter.swapExactTokensForTokens(
-        wethReceived,
-        amountOutMin,
-        path,
-        address(this), // Send USDC directly to this contract
-        block.timestamp + SWAP_DEADLINE_OFFSET
-      );
-      finalUsdcReceived = actualAmounts[actualAmounts.length - 1]; // USDC received is the last element
+      uint[] memory actualAmounts = IUniswapV2Router02(arbParams.targetRouter)
+        .swapExactTokensForTokens(
+          intermediateReceived,
+          amountOutMin,
+          arbParams.secondPath,
+          address(this),
+          block.timestamp + SWAP_DEADLINE_OFFSET
+        );
+      finalReceived = actualAmounts[actualAmounts.length - 1];
     }
-
     // --- End Arbitrage Logic ---
 
-    // 4. Repayment Check & Approval
-    uint256 finalUsdcBalance = IERC20(USDC).balanceOf(address(this));
-    if (finalUsdcBalance < amountToRepay) {
+    // Repayment Check & Approval
+    uint256 finalBalance = IERC20(asset).balanceOf(address(this));
+    if (finalBalance < amountToRepay) {
       revert ArbitrageSwapFailed("Insufficient final balance for repayment");
     }
 
     // Approve the Aave Pool to pull the repayment amount
-    _safeApprove(USDC, address(POOL), amountToRepay);
+    _safeApprove(asset, address(POOL), amountToRepay);
 
-    success = true; // Mark as successful only if all steps pass
-
-    // Remove catch block
-    // } catch (bytes memory lowLevelData) {
-    //     revert ArbitrageSwapFailed(string(abi.encodePacked("Swap or Repay failed: ", _getRevertMsg(lowLevelData))));
-    // }
+    success = true;
 
     // Emit event
-    emit ArbitrageExecution(asset, amount, premium, wethReceived, finalUsdcReceived, success);
+    emit ArbitrageExecution(asset, amount, premium, intermediateReceived, finalReceived, success);
 
-    // Return success status
     return success;
   }
 
@@ -238,29 +204,125 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // ===================================================================
 
   /**
-   * @notice Initiates an Aave V3 flash loan for the configured USDC token.
-   * @dev Triggers the flash loan process; `executeOperation` will be called by Aave.
-   * @param _amount The amount of USDC to borrow.
+   * @notice Initiates an Aave V3 flash loan for arbitrage between two exchanges
+   * @dev Triggers the flash loan process; executeOperation will be called by Aave
+   * @param _asset The token to borrow
+   * @param _amount The amount to borrow
+   * @param _sourceRouter The router to use for the first swap
+   * @param _targetRouter The router to use for the second swap
+   * @param _intermediateToken The token to use as intermediate for the arbitrage
    */
-  function requestFlashLoan(uint256 _amount) external onlyOwner {
-    address receiverAddress = address(this);
-    address asset = USDC; // Use configured USDC address
-    uint256 amount = _amount;
-    bytes memory params = ""; // No parameters needed for this simple receiver
-    uint16 referralCode = 0; // No referral
+  function requestFlashLoan(
+    address _asset,
+    uint256 _amount,
+    address _sourceRouter,
+    address _targetRouter,
+    address _intermediateToken
+  ) external onlyOwner {
+    if (_asset == address(0)) revert InvalidTokenAddress();
+    if (_sourceRouter == address(0)) revert InvalidRouterAddress();
+    if (_targetRouter == address(0)) revert InvalidRouterAddress();
+    if (_intermediateToken == address(0)) revert InvalidTokenAddress();
+
+    if (!approvedRouters[_sourceRouter]) revert RouterNotApproved();
+    if (!approvedRouters[_targetRouter]) revert RouterNotApproved();
+
+    // Create paths for the swaps
+    address[] memory firstPath = new address[](2);
+    firstPath[0] = _asset;
+    firstPath[1] = _intermediateToken;
+
+    address[] memory secondPath = new address[](2);
+    secondPath[0] = _intermediateToken;
+    secondPath[1] = _asset;
+
+    // Create arbitrage parameters
+    ArbitrageParams memory arbParams = ArbitrageParams({
+      sourceRouter: _sourceRouter,
+      targetRouter: _targetRouter,
+      intermediateToken: _intermediateToken,
+      firstPath: firstPath,
+      secondPath: secondPath
+    });
+
+    // Encode parameters for the flash loan callback
+    bytes memory params = abi.encode(arbParams);
 
     // Call Aave Pool's flashLoanSimple function
-    POOL.flashLoanSimple(receiverAddress, asset, amount, params, referralCode);
+    POOL.flashLoanSimple(address(this), _asset, _amount, params, 0);
   }
 
   /**
-   * @notice Withdraw accumulated tokens (e.g., profits or accidentally sent tokens).
-   * @dev Can only be called by the owner. Only allows withdrawing the configured USDC or WETH.
-   * @param _tokenAddress The address of the ERC20 token to withdraw.
+   * @notice Advanced flash loan request with custom token paths
+   * @dev Allows specifying custom paths for more complex arbitrage routes
+   * @param _asset The token to borrow
+   * @param _amount The amount to borrow
+   * @param _sourceRouter The router to use for the first swap
+   * @param _targetRouter The router to use for the second swap
+   * @param _intermediateToken The intermediate token
+   * @param _firstPath Custom path for first swap (must start with _asset and end with _intermediateToken)
+   * @param _secondPath Custom path for second swap (must start with _intermediateToken and end with _asset)
+   */
+  function requestFlashLoanWithCustomPaths(
+    address _asset,
+    uint256 _amount,
+    address _sourceRouter,
+    address _targetRouter,
+    address _intermediateToken,
+    address[] calldata _firstPath,
+    address[] calldata _secondPath
+  ) external onlyOwner {
+    if (_asset == address(0)) revert InvalidTokenAddress();
+    if (_sourceRouter == address(0)) revert InvalidRouterAddress();
+    if (_targetRouter == address(0)) revert InvalidRouterAddress();
+    if (_intermediateToken == address(0)) revert InvalidTokenAddress();
+
+    if (!approvedRouters[_sourceRouter]) revert RouterNotApproved();
+    if (!approvedRouters[_targetRouter]) revert RouterNotApproved();
+
+    // Validate paths
+    if (_firstPath.length < 2) revert InvalidPath();
+    if (_secondPath.length < 2) revert InvalidPath();
+    if (_firstPath[0] != _asset) revert InvalidPath();
+    if (_firstPath[_firstPath.length - 1] != _intermediateToken) revert InvalidPath();
+    if (_secondPath[0] != _intermediateToken) revert InvalidPath();
+    if (_secondPath[_secondPath.length - 1] != _asset) revert InvalidPath();
+
+    // Create arbitrage parameters
+    ArbitrageParams memory arbParams = ArbitrageParams({
+      sourceRouter: _sourceRouter,
+      targetRouter: _targetRouter,
+      intermediateToken: _intermediateToken,
+      firstPath: _firstPath,
+      secondPath: _secondPath
+    });
+
+    // Encode parameters for the flash loan callback
+    bytes memory params = abi.encode(arbParams);
+
+    // Call Aave Pool's flashLoanSimple function
+    POOL.flashLoanSimple(address(this), _asset, _amount, params, 0);
+  }
+
+  /**
+   * @notice Add or remove a router from the approved list
+   * @dev Only callable by the owner
+   * @param _router The router address to approve or disapprove
+   * @param _approved Whether to approve or disapprove the router
+   */
+  function setRouterApproval(address _router, bool _approved) external onlyOwner {
+    if (_router == address(0)) revert InvalidRouterAddress();
+    approvedRouters[_router] = _approved;
+    emit RouterApprovalChanged(_router, _approved);
+  }
+
+  /**
+   * @notice Withdraw accumulated tokens (e.g., profits or accidentally sent tokens)
+   * @dev Can only be called by the owner
+   * @param _tokenAddress The address of the ERC20 token to withdraw
    */
   function withdrawToken(address _tokenAddress) external onlyOwner {
-    if (_tokenAddress != USDC && _tokenAddress != WETH)
-      revert InvalidAsset(_tokenAddress, _tokenAddress); // Use InvalidAsset for simplicity or add a new error
+    if (_tokenAddress == address(0)) revert InvalidTokenAddress();
 
     uint256 balance = IERC20(_tokenAddress).balanceOf(address(this));
     if (balance > 0) {
@@ -270,8 +332,8 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   }
 
   /**
-   * @notice Allows the owner to withdraw accumulated Ether from this contract.
-   * @dev Reverts if called by non-owner or if the transfer fails.
+   * @notice Allows the owner to withdraw accumulated Ether from this contract
+   * @dev Reverts if called by non-owner or if the transfer fails
    */
   function withdrawEther() external onlyOwner {
     uint256 balance = address(this).balance;
@@ -286,34 +348,19 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // View Functions (Getters)
   // ===================================================================
 
-  /** @notice Gets the owner address of the contract. */
+  /** @notice Gets the owner address of the contract */
   function getOwner() external view returns (address) {
     return i_owner;
   }
 
-  /** @notice Gets the configured Aave Pool Addresses Provider address. */
+  /** @notice Gets the configured Aave Pool Addresses Provider address */
   function getPoolProviderAddress() external view returns (address) {
     return address(ADDRESSES_PROVIDER);
   }
 
-  /** @notice Gets the configured USDC token address. */
-  function getUsdcAddress() external view returns (address) {
-    return USDC;
-  }
-
-  /** @notice Gets the configured WETH token address. */
-  function getWethAddress() external view returns (address) {
-    return WETH;
-  }
-
-  /** @notice Gets the configured Uniswap V2 Router address. */
-  function getUniswapRouterAddress() external view returns (address) {
-    return address(uniswapRouter);
-  }
-
-  /** @notice Gets the configured SushiSwap V2 Router address. */
-  function getSushiSwapRouterAddress() external view returns (address) {
-    return address(sushiRouter);
+  /** @notice Checks if a router is approved */
+  function isRouterApproved(address _router) external view returns (bool) {
+    return approvedRouters[_router];
   }
 
   // ===================================================================
@@ -321,11 +368,11 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // ===================================================================
 
   /**
-   * @notice Calculates the minimum amount of output tokens acceptable for a swap, applying slippage tolerance.
-   * @param _router Address of the Uniswap/SushiSwap router.
-   * @param _amountIn The amount of input tokens.
-   * @param _path The swap path (array of token addresses).
-   * @return amountOutMin The minimum acceptable output amount.
+   * @notice Calculates the minimum amount of output tokens acceptable for a swap, applying slippage tolerance
+   * @param _router Address of the Uniswap/SushiSwap router
+   * @param _amountIn The amount of input tokens
+   * @param _path The swap path (array of token addresses)
+   * @return amountOutMin The minimum acceptable output amount
    */
   function _getMinAmountOut(
     address _router,
@@ -335,8 +382,6 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     require(_path.length >= 2, "Path must have at least 2 tokens");
 
     uint[] memory expectedAmounts;
-    // Use a generic interface call assuming both routers implement getAmountsOut
-    // This requires ISushiSwapV2Router02 to also have getAmountsOut defined, which we did.
     try IUniswapV2Router02(_router).getAmountsOut(_amountIn, _path) returns (
       uint[] memory _expectedAmounts
     ) {
@@ -358,45 +403,17 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   }
 
   /**
-   * @dev Internal function to safely approve spending tokens. Handles non-standard ERC20 approve return values.
-   * @param _token The address of the ERC20 token.
-   * @param _spender The address authorized to spend the tokens.
-   * @param _amount The amount to approve.
+   * @dev Internal function to safely approve spending tokens. Handles non-standard ERC20 approve return values
+   * @param _token The address of the ERC20 token
+   * @param _spender The address authorized to spend the tokens
+   * @param _amount The amount to approve
    */
   function _safeApprove(address _token, address _spender, uint256 _amount) internal {
-    // Some tokens might implement approve incorrectly (e.g., return void or false on success).
-    // Standard is to return true on success.
-    // We use a low-level call to handle different return value patterns.
     (bool success, bytes memory data) = _token.call(
       abi.encodeWithSelector(IERC20.approve.selector, _spender, _amount)
     );
 
-    // Check for call success AND (if data is returned) if it decodes to `true`.
     require(success && (data.length == 0 || abi.decode(data, (bool))), "SafeApprove failed");
-  }
-
-  // Add helper function to decode revert reason
-  function _getRevertMsg(bytes memory _returnData) internal pure returns (string memory) {
-    // If the _returnData isAbiEncoded as a string, return the string
-    // if (_returnData.length >= 68 && bytes4(_returnData) == bytes4(keccak256("Error(string)"))) {
-    //     return abi.decode(bytes.concat(_returnData[4:]), (string));
-    // }
-    // Always return hex representation for simplicity and compatibility
-    return string(abi.encodePacked("0x", _toHex(_returnData)));
-  }
-
-  // Helper function to convert bytes to hex string
-  function _toHex(bytes memory _bytes) internal pure returns (string memory) {
-    bytes memory alphabet = "0123456789abcdef";
-    bytes memory str = new bytes(2 + _bytes.length * 2);
-    str[0] = "0";
-    str[1] = "x";
-    for (uint i = 0; i < _bytes.length; i++) {
-      uint8 b = uint8(_bytes[i]);
-      str[2 + i * 2] = alphabet[b >> 4];
-      str[3 + i * 2] = alphabet[b & 0x0f];
-    }
-    return string(str);
   }
 
   // ===================================================================
@@ -404,7 +421,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // ===================================================================
 
   /**
-   * @dev Throws if called by any account other than the owner.
+   * @dev Throws if called by any account other than the owner
    */
   modifier onlyOwner() {
     if (msg.sender != i_owner) revert NotOwner();
@@ -414,5 +431,5 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // ===================================================================
   // Receive Function (for receiving Ether, if needed)
   // ===================================================================
-  receive() external payable {} // Restore receive function
+  receive() external payable {}
 }
