@@ -74,7 +74,7 @@ export default function ArbitrageOpportunities() {
 
     if (isConnected && isCorrectNetwork) {
       fetchPrices();
-      const interval = setInterval(fetchPrices, 60_000); // every 5 minutes
+      const interval = setInterval(fetchPrices, 60_000); // every minute
       setRefreshInterval(interval);
       return () => clearInterval(interval);
     } else {
@@ -91,13 +91,25 @@ export default function ArbitrageOpportunities() {
    */
   if (!mounted) {
     return (
-      <div className="rounded-xl bg-white/10 backdrop-blur-lg p-3 shadow-lg border border-white/20">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-medium text-white">Arbitrage Opportunities</h2>
-          <div className="h-4 w-16 bg-white/10 rounded animate-pulse"></div>
+      <div className="rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-white flex items-center">
+            <div className="w-8 h-8 mr-2 bg-gradient-to-br from-amber-500 to-orange-400 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 8.5H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 16.5H8" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10.5 16.5H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M22 12.03V16.11C22 19.62 19.62 22 16.11 22H7.89C4.38 22 2 19.62 2 16.11V7.89C2 4.38 4.38 2 7.89 2H14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 7V2M17.5 4.5H22.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            Arbitrage Opportunities
+          </h2>
+          <div className="h-5 w-24 bg-white/10 rounded animate-pulse"></div>
         </div>
-        <div className="animate-pulse space-y-2">
-          <div className="h-24 bg-white/5 rounded-lg w-full"></div>
+        <div className="animate-pulse space-y-3">
+          <div className="h-32 bg-white/5 rounded-xl w-full"></div>
+          <div className="h-32 bg-white/5 rounded-xl w-full"></div>
         </div>
       </div>
     );
@@ -108,22 +120,34 @@ export default function ArbitrageOpportunities() {
    * Displays arbitrage opportunities or prompts the user to connect their wallet or switch networks.
    */
   return (
-    <div className="rounded-xl bg-white/10 backdrop-blur-lg p-3 shadow-lg border border-white/20">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-medium text-white">Arbitrage Opportunities</h2>
-        <div className="flex items-center">
+    <div className="rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold text-white flex items-center">
+          <div className="w-8 h-8 mr-2 bg-gradient-to-br from-amber-500 to-orange-400 rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 8.5H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 16.5H8" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10.5 16.5H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M22 12.03V16.11C22 19.62 19.62 22 16.11 22H7.89C4.38 22 2 19.62 2 16.11V7.89C2 4.38 4.38 2 7.89 2H14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M20 7V2M17.5 4.5H22.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+          Arbitrage Opportunities
+        </h2>
+        <div className="flex items-center bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
           <button
             onClick={fetchPrices}
             disabled={isLoading || !isConnected || !isCorrectNetwork}
-            className={`mr-1 p-1 rounded-full transition-all ${
+            className={`mr-2 p-1.5 rounded-lg transition-all ${
               isLoading || !isConnected || !isCorrectNetwork
-                ? "bg-gray-700 text-white/50 cursor-not-allowed"
-                : "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-gray-700/50 text-white/50 cursor-not-allowed"
+                : "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/30"
             }`}
+            aria-label="Refresh prices"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-3 w-3 ${isLoading ? "animate-spin" : ""}`}
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -136,64 +160,75 @@ export default function ArbitrageOpportunities() {
               />
             </svg>
           </button>
-          <span className="text-xs text-white/60">
+          <span className="text-sm text-white/70 font-medium">
             {isLoading ? "Updating..." : getTimeElapsed(lastUpdated)}
           </span>
         </div>
       </div>
 
       {!isConnected ? (
-        <div className="text-center py-2 text-white/60 text-xs">
-          <p>Connect wallet to view opportunities</p>
+        <div className="flex items-center justify-center p-6 bg-white/5 border border-white/10 rounded-xl text-white/70 text-sm">
+          <svg className="w-5 h-5 mr-2 text-amber-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M12 16V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M12 16V16.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+          Connect wallet to view arbitrage opportunities
         </div>
       ) : !isCorrectNetwork ? (
-        <div className="text-center py-2 text-white/60 text-xs">
-          <p>Switch to Ethereum Mainnet</p>
+        <div className="flex items-center justify-center p-6 bg-white/5 border border-white/10 rounded-xl text-white/70 text-sm">
+          <svg className="w-5 h-5 mr-2 text-amber-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M12 16V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M12 16V16.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+          Please switch to Ethereum Mainnet
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-4">
           {PAIRS.map((pair) => {
             const pairPrices = prices[pair.name] || {};
             const bestPath = findBestArbitragePath(pairPrices);
 
             return (
-              <div key={pair.name} className="border border-white/10 rounded-lg overflow-hidden">
-                <div className="bg-white/5 py-1 px-2">
+              <div key={pair.name} className="border border-white/10 rounded-xl overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-900/40">
+                <div className="bg-gradient-to-r from-slate-700/30 to-slate-800/30 py-2 px-3 border-b border-white/10">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white">{pair.name}</span>
+                    <span className="text-base text-white font-medium">{pair.name}</span>
                     {bestPath && bestPath.percentage > 0 && (
                       <span
-                        className={`text-xs rounded-full px-2 py-0.5 ${
+                        className={`text-xs rounded-lg px-2.5 py-1 ${
                           bestPath.percentage >= 1
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-amber-500/20 text-amber-400"
+                            ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                            : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                         }`}
                       >
-                        Best: {bestPath.percentage.toFixed(2)}% 
+                        Profit: {bestPath.percentage.toFixed(2)}% 
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="p-2">
-                  <div className="text-xs text-white/70 mb-1">
-                    Prices: <span className="font-medium">{pair.quoteSymbol} per 1 {pair.baseSymbol}</span>
+                <div className="p-3">
+                  <div className="text-sm text-white/80 mb-3 flex items-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 mr-2"></div>
+                    <span className="font-medium">{pair.quoteSymbol} per 1 {pair.baseSymbol}</span>
                   </div>
 
                   {isLoading ? (
-                    <div className="space-y-1">
-                      {EXCHANGES.map((exchange) => (
-                        <div key={exchange.name} className="flex justify-between">
+                    <div className="space-y-2.5 p-2">
+                      {EXCHANGES.map((exchange, index) => (
+                        <div key={exchange.name + index} className="flex justify-between items-center p-2 rounded-lg bg-white/5 border border-white/10">
                           <div className="flex items-center">
-                            <span className="text-sm mr-1">{exchange.icon}</span>
-                            <span className="text-white/70 text-xs">{exchange.name}</span>
+                            <span className="text-base mr-2">{exchange.icon}</span>
+                            <span className="text-white/70 text-sm">{exchange.name}</span>
                           </div>
-                          <div className="w-16 h-3 bg-white/10 animate-pulse rounded"></div>
+                          <div className="w-20 h-4 bg-white/10 animate-pulse rounded"></div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col space-y-1 mb-2">
+                    <div className="grid gap-2.5 mb-2">
                       {EXCHANGES.map((exchange) => {
                         if (exchange.name === "Balancer V2" || exchange.name === "Curve USDC/ETH") {
                           return null;
@@ -203,25 +238,38 @@ export default function ArbitrageOpportunities() {
                         const isBestBuy = bestPath?.buy === exchange.name;
                         const isBestSell = bestPath?.sell === exchange.name;
                         return (
-                          <div key={exchange.name} className="flex items-center justify-between">
+                          <div 
+                            key={exchange.name} 
+                            className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                              isBestBuy 
+                                ? "bg-green-900/20 border-green-600/30" 
+                                : isBestSell 
+                                ? "bg-amber-900/20 border-amber-600/30"
+                                : "bg-white/5 border-white/10 hover:bg-white/10 transition-colors"
+                            }`}
+                          >
                             <div className="flex items-center">
-                              <span className="text-sm mr-1">{exchange.icon}</span>
-                              <span className="text-white text-xs">{exchange.name}</span>
+                              <span className="text-base mr-2">{exchange.icon}</span>
+                              <span className={`text-sm ${isBestBuy || isBestSell ? "text-white" : "text-white/80"}`}>
+                                {exchange.name}
+                              </span>
                             </div>
                             <div className="flex items-center">
                               {(isBestBuy || isBestSell) && (
-                                <span className={`mr-1 px-1 py-0.5 text-[8px] rounded-full ${
-                                  isBestBuy ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
+                                <span className={`mr-2 px-2 py-0.5 text-xs rounded-lg ${
+                                  isBestBuy 
+                                  ? "bg-green-500/30 text-green-300 border border-green-500/40" 
+                                  : "bg-amber-500/30 text-amber-300 border border-amber-500/40"
                                 }`}>
                                   {isBestBuy ? "BEST BUY" : "BEST SELL"}
                                 </span>
                               )}
                               <span
-                                className={`text-xs font-medium ${
+                                className={`text-sm font-medium ${
                                   isBestBuy
-                                    ? "text-green-400"
+                                    ? "text-green-300"
                                     : isBestSell
-                                    ? "text-amber-400"
+                                    ? "text-amber-300"
                                     : "text-white"
                                 }`}
                               >
