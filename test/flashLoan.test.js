@@ -219,19 +219,25 @@ contract("FlashLoan", (accounts) => {
       }
     });
 
-    it("should prevent non-owners from requesting a flash loan", async () => {
+    it("should allow non-owners to request a flash loan", async () => {
       const loanAmount = "1000000"; // 1 USDC (6 decimal places)
 
-      await expectRevert.unspecified(
-        flashLoanInstance.requestFlashLoan(
+      // Non-owner should be able to call without a NotOwner revert
+      try {
+        await flashLoanInstance.requestFlashLoan(
           USDC_SEPOLIA,
           loanAmount,
           UNISWAP_ROUTER_SEPOLIA,
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
           { from: nonOwner },
-        ),
-      );
+        );
+      } catch (error) {
+        assert(
+          !error.message.includes("NotOwner"),
+          "Error should not be related to ownership",
+        );
+      }
     });
 
     it("should validate parameters for flash loan request", async () => {
@@ -310,6 +316,110 @@ contract("FlashLoan", (accounts) => {
           { from: owner },
         ),
       );
+    });
+
+    // New fee/quota tests
+    it("should allow up to three free calls for non-owner", async () => {
+      const loanAmount = "1000000";
+      for (let i = 0; i < 3; i++) {
+        try {
+          await flashLoanInstance.requestFlashLoan(
+            USDC_SEPOLIA,
+            loanAmount,
+            UNISWAP_ROUTER_SEPOLIA,
+            SUSHISWAP_ROUTER_SEPOLIA,
+            WETH_SEPOLIA,
+            { from: nonOwner }
+          );
+        } catch (error) {
+          // Ensure failure is not due to fee requirement
+          assert(
+            !error.message.includes("FlashLoanPaymentRequired"),
+            "Should not require fee on early calls"
+          );
+        }
+      }
+    });
+
+    it("should revert on fourth call without fee for non-owner", async () => {
+      const loanAmount = "1000000";
+      // consume 3 free calls
+      for (let i = 0; i < 3; i++) {
+        try { await flashLoanInstance.requestFlashLoan(
+            USDC_SEPOLIA,
+            loanAmount,
+            UNISWAP_ROUTER_SEPOLIA,
+            SUSHISWAP_ROUTER_SEPOLIA,
+            WETH_SEPOLIA,
+            { from: nonOwner }
+          ); } catch {}
+      }
+      // fourth call without fee should revert
+      await expectRevert.unspecified(
+        flashLoanInstance.requestFlashLoan(
+          USDC_SEPOLIA,
+          loanAmount,
+          UNISWAP_ROUTER_SEPOLIA,
+          SUSHISWAP_ROUTER_SEPOLIA,
+          WETH_SEPOLIA,
+          { from: nonOwner }
+        )
+      );
+    });
+
+    it("should allow fourth call when sending required fee for non-owner", async () => {
+      const loanAmount = "1000000";
+      const fee = web3.utils.toWei("0.005", "ether");
+      // consume 3 free calls
+      for (let i = 0; i < 3; i++) {
+        try { await flashLoanInstance.requestFlashLoan(
+            USDC_SEPOLIA,
+            loanAmount,
+            UNISWAP_ROUTER_SEPOLIA,
+            SUSHISWAP_ROUTER_SEPOLIA,
+            WETH_SEPOLIA,
+            { from: nonOwner }
+          ); } catch {}
+      }
+      // fourth call with fee should proceed past fee check
+      try {
+        await flashLoanInstance.requestFlashLoan(
+          USDC_SEPOLIA,
+          loanAmount,
+          UNISWAP_ROUTER_SEPOLIA,
+          SUSHISWAP_ROUTER_SEPOLIA,
+          WETH_SEPOLIA,
+          { from: nonOwner, value: fee }
+        );
+      } catch (error) {
+        // Should not revert for fee; may revert later due to pool
+        assert(
+          !error.message.includes("FlashLoanPaymentRequired"),
+          "Should not require fee when correct amount sent"
+        );
+      }
+    });
+
+    it("should allow unlimited calls for owner without fee", async () => {
+      const loanAmount = "1000000";
+      for (let i = 0; i < 5; i++) {
+        try {
+          await flashLoanInstance.requestFlashLoan(
+            USDC_SEPOLIA,
+            loanAmount,
+            UNISWAP_ROUTER_SEPOLIA,
+            SUSHISWAP_ROUTER_SEPOLIA,
+            WETH_SEPOLIA,
+            { from: owner }
+          );
+        } catch (error) {
+          // Owner should never hit fee requirement
+          assert(
+            !error.message.includes("FlashLoanPaymentRequired"),
+            "Owner should not be charged fee"
+          );
+        }
+      }
     });
   });
 

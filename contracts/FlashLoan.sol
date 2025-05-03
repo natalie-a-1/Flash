@@ -44,6 +44,11 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // --- Router Registry ---
   mapping(address => bool) public approvedRouters;
 
+  // Pricing: first 3 flash loan calls per user are free; 4th+ require fee
+  uint256 private constant FLASH_LOAN_FREE_CALLS = 3;
+  uint256 private constant FLASH_LOAN_FEE = 0.005 ether;
+  mapping(address => uint256) private s_flashLoanCalls;
+
   // --- Transaction Parameters (for executeOperation) ---
   struct ArbitrageParams {
     address sourceRouter;
@@ -78,6 +83,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   error InvalidTokenAddress(); // Provided token address is the zero address
   error RouterNotApproved(); // The router used is not in the approved list
   error InvalidPath(); // The swap path provided is invalid
+  error FlashLoanPaymentRequired();
 
   // ===================================================================
   // Constructor
@@ -218,7 +224,20 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     address _sourceRouter,
     address _targetRouter,
     address _intermediateToken
-  ) external onlyOwner {
+  ) external payable {
+    // Pricing logic: track calls and enforce fee after free quota
+    if (msg.sender != i_owner) {
+      uint256 calls = s_flashLoanCalls[msg.sender];
+      if (calls >= FLASH_LOAN_FREE_CALLS) {
+        if (msg.value < FLASH_LOAN_FEE) revert FlashLoanPaymentRequired();
+      }
+      // forward any ETH sent to owner
+      if (msg.value > 0) {
+        (bool sent, ) = payable(i_owner).call{value: msg.value}("");
+        if (!sent) revert TransferFailed();
+      }
+      s_flashLoanCalls[msg.sender] = calls + 1;
+    }
     if (_asset == address(0)) revert InvalidTokenAddress();
     if (_sourceRouter == address(0)) revert InvalidRouterAddress();
     if (_targetRouter == address(0)) revert InvalidRouterAddress();
@@ -271,7 +290,19 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     address _intermediateToken,
     address[] calldata _firstPath,
     address[] calldata _secondPath
-  ) external onlyOwner {
+  ) external payable {
+    // Pricing logic: track calls and enforce fee after free quota
+    if (msg.sender != i_owner) {
+      uint256 calls = s_flashLoanCalls[msg.sender];
+      if (calls >= FLASH_LOAN_FREE_CALLS) {
+        if (msg.value < FLASH_LOAN_FEE) revert FlashLoanPaymentRequired();
+      }
+      if (msg.value > 0) {
+        (bool sent, ) = payable(i_owner).call{value: msg.value}("");
+        if (!sent) revert TransferFailed();
+      }
+      s_flashLoanCalls[msg.sender] = calls + 1;
+    }
     if (_asset == address(0)) revert InvalidTokenAddress();
     if (_sourceRouter == address(0)) revert InvalidRouterAddress();
     if (_targetRouter == address(0)) revert InvalidRouterAddress();
