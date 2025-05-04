@@ -20,6 +20,8 @@ export default function WalletConnection() {
     networkId,
     connectWallet,
     switchNetwork,
+    usdcBalance,
+    refreshBalance,
   } = useWeb3();
 
   // State to manage tooltip visibility
@@ -35,6 +37,13 @@ export default function WalletConnection() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  /**
+   * Refresh the USDC balance when the refresh button is clicked
+   */
+  const handleRefreshBalance = async () => {
+    await refreshBalance();
+  };
 
   /**
    * Render a skeleton layout during server-side rendering.
@@ -106,6 +115,25 @@ export default function WalletConnection() {
               }`}
             >
               {networkName}
+            </div>
+          </div>
+
+          {/* USDC Balance Display */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-white/70">USDC Balance</span>
+              <button 
+                onClick={handleRefreshBalance}
+                className="text-blue-400 hover:text-blue-300"
+                title="Refresh Balance"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+            <div className="bg-blue-400/20 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
+              {usdcBalance !== null ? `${parseFloat(usdcBalance).toFixed(2)} USDC` : 'Loading...'}
             </div>
           </div>
 

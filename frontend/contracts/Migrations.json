@@ -1739,7 +1739,7 @@
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-05-04T21:04:13.561Z",
+  "updatedAt": "2025-05-04T22:35:05.130Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "This contract is used by Truffle to handle migrations",

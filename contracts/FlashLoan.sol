@@ -58,6 +58,7 @@ contract FlashLoan { // REMOVED Inheritance
     address[] firstPath;
     address[] secondPath;
     uint256 slippageBps;
+    address initiator; // Store the user who initiated the transaction
   }
 
   // ===================================================================
@@ -68,6 +69,7 @@ contract FlashLoan { // REMOVED Inheritance
   event SwapResult(string dex, uint amountReceived);
   event RepaymentCheck(uint finalBalance, uint amountToRepay);
   event ErrorMessage(string message);
+  event ProfitTransferred(address indexed recipient, address indexed token, uint256 amount);
 
   // ===================================================================
   // Events
@@ -272,6 +274,22 @@ contract FlashLoan { // REMOVED Inheritance
 
     success = true;
 
+    // Calculate profit and send it to the initiator
+    uint256 profit = finalBalance - amountToRepay;
+    if (profit > 0 && arbParams.initiator != address(0)) {
+        emit OperationStep("Sending profit to initiator");
+        
+        // Transfer profit to the transaction initiator
+        _safeApprove(asset, address(this), 0); // Reset approval first
+        bool sent = IERC20(asset).transfer(arbParams.initiator, profit);
+        if (!sent) {
+            emit ErrorMessage("Failed to transfer profit to initiator");
+        } else {
+            emit ProfitTransferred(arbParams.initiator, asset, profit);
+            emit OperationStep("Profit successfully transferred");
+        }
+    }
+
     // Emit event
     emit ArbitrageExecution(asset, amount, premium, intermediateReceived, finalReceived, success);
     emit OperationStep("Operation Successful");
@@ -343,7 +361,8 @@ contract FlashLoan { // REMOVED Inheritance
       intermediateToken: _intermediateToken,
       firstPath: firstPath,
       secondPath: secondPath,
-      slippageBps: _slippageBps
+      slippageBps: _slippageBps,
+      initiator: msg.sender // Store the transaction initiator
     });
 
     // Encode parameters for the flash loan callback
@@ -426,7 +445,8 @@ contract FlashLoan { // REMOVED Inheritance
       intermediateToken: _intermediateToken,
       firstPath: _firstPath,
       secondPath: _secondPath,
-      slippageBps: _slippageBps
+      slippageBps: _slippageBps,
+      initiator: msg.sender // Store the transaction initiator
     });
 
     // Encode parameters for the flash loan callback
