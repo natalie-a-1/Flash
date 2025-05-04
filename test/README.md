@@ -152,6 +152,7 @@ npm test
 ## Continuous Integration
 
 Tests are automatically run in CI environment on:
+
 - Pull requests to main branch
 - Daily scheduled runs
 - Version tags
@@ -163,14 +164,14 @@ Tests are automatically run in CI environment on:
 ```javascript
 const FlashLoan = artifacts.require("FlashLoan");
 
-contract("FlashLoan", accounts => {
+contract("FlashLoan", (accounts) => {
   let flashLoan;
   const owner = accounts[0];
-  
+
   beforeEach(async () => {
     flashLoan = await FlashLoan.new(addressProviderMock);
   });
-  
+
   it("should perform expected behavior", async () => {
     // Test implementation
     const result = await flashLoan.someFunction();
@@ -182,13 +183,13 @@ contract("FlashLoan", accounts => {
 ### Frontend Test Example
 
 ```javascript
-import { render, screen } from '@testing-library/react';
-import Component from './Component';
+import { render, screen } from "@testing-library/react";
+import Component from "./Component";
 
-describe('Component', () => {
-  it('renders correctly', () => {
+describe("Component", () => {
+  it("renders correctly", () => {
     render(<Component />);
-    expect(screen.getByText('Expected Text')).toBeInTheDocument();
+    expect(screen.getByText("Expected Text")).toBeInTheDocument();
   });
 });
 ```

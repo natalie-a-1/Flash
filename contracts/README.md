@@ -22,7 +22,7 @@ flowchart TD
         FL --> |implementation| FLRB["FlashLoanReceiverBase
         🏦 Aave Base Contract"]
     end
-    
+
     subgraph Interfaces["External Interfaces"]
         IWETH["IWETH.sol
         🔄 Wrapped ETH"]
@@ -33,12 +33,12 @@ flowchart TD
         IUniP["IUniswapV2Pair.sol
         💱 Trading Pairs"]
     end
-    
+
     subgraph Test["Testing"]
         MFLR["MockFlashLoanSimpleReceiver.sol
         🧪 Test Implementation"]
     end
-    
+
     FL --> Interfaces
     UI --> Interfaces
     SI --> Interfaces
@@ -114,12 +114,12 @@ A simplified implementation for testing flash loan functionality.
 
 Located in the `interfaces/` directory, these contracts standardize interaction with external protocols:
 
-| Interface | Purpose | Protocol |
-|-----------|---------|----------|
-| `IUniswapV2Router02.sol` | 🛣️ Token swapping and liquidity | Uniswap V2 |
-| `ISushiSwapV2Router02.sol` | 🛣️ Token swapping and liquidity | SushiSwap |
-| `IUniswapV2Pair.sol` | 💱 Direct pair interactions | Uniswap V2 |
-| `IWETH.sol` | 🔄 Wrapped Ether operations | WETH |
+| Interface                  | Purpose                         | Protocol   |
+| -------------------------- | ------------------------------- | ---------- |
+| `IUniswapV2Router02.sol`   | 🛣️ Token swapping and liquidity | Uniswap V2 |
+| `ISushiSwapV2Router02.sol` | 🛣️ Token swapping and liquidity | SushiSwap  |
+| `IUniswapV2Pair.sol`       | 💱 Direct pair interactions     | Uniswap V2 |
+| `IWETH.sol`                | 🔄 Wrapped Ether operations     | WETH       |
 
 ## 🛠️ Technical Stack
 
@@ -159,26 +159,26 @@ sequenceDiagram
     participant Aave as Aave V3 Pool
     participant DexA as Lower Price DEX
     participant DexB as Higher Price DEX
-    
+
     User->>FL: requestFlashLoan()
     FL->>Aave: flashLoanSimple()
     Aave-->>FL: Transfer borrowed assets
     Aave->>FL: executeOperation()
-    
+
     Note over FL: Check parameters are valid
-    
+
     FL->>DexA: swapExactTokensForTokens()
     DexA-->>FL: Return intermediate tokens
-    
+
     FL->>DexB: swapExactTokensForTokens()
     DexB-->>FL: Return original tokens
-    
+
     Note over FL: Verify profit margin
-    
+
     FL->>Aave: Approve repayment
     FL-->>Aave: Return loan + premium
     FL-->>User: Keep profit
-    
+
     style User fill:#0d1117,stroke:#30363d,color:#c9d1d9
     style FL fill:#1a1b26,stroke:#30363d,color:#c9d1d9
     style Aave fill:#1a1b26,stroke:#30363d,color:#c9d1d9
@@ -217,14 +217,14 @@ flowchart LR
         SI["SushiSwapInteractor.sol"] --- Tested
         MFLR["MockReceiver.sol"] --- Tested
     end
-    
+
     subgraph Environments["Testing Environments"]
-        Local["✅ Local"] 
+        Local["✅ Local"]
         Fork["✅ Mainnet Fork"]
         Testnet["✅ Testnet"]
         Mainnet["⚠️ Requires Audit"]
     end
-    
+
     Status --> Environments
 ```
 

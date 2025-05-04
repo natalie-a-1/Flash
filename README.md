@@ -8,6 +8,7 @@
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue.svg?style=flat)](https://soliditylang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.0-black.svg?style=flat)](https://nextjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
+
 </div>
 
 ## ⚡ Discover Opportunities. Execute Seamlessly.
@@ -53,7 +54,7 @@ flowchart LR
         Monitor["🔍 Monitor\nTrack price differences"] --> Discover["💡 Discover\nIdentify opportunities"]
         Discover --> Execute["🚀 Execute\nInitiate flash loan"]
     end
-    
+
     subgraph Execution["Execution Flow"]
         direction TB
         Borrow["💰 Borrow\nAave flash loan"] --> Buy["📈 Buy\nLower-priced DEX"]
@@ -61,7 +62,7 @@ flowchart LR
         Sell --> Repay["🔁 Repay\nLoan + fees"]
         Repay --> Profit["💎 Profit\nKeep difference"]
     end
-    
+
     Flash --> Execution
 ```
 
@@ -99,7 +100,7 @@ Visit `http://localhost:3000` and connect your wallet to the localhost network t
 
 ```mermaid
 flowchart LR
-    Flash(["⚡ Flash"]) --> UniV2["🦄 Uniswap V2 
+    Flash(["⚡ Flash"]) --> UniV2["🦄 Uniswap V2
     ✓ Full Support"]
     Flash --> Sushi["🍣 SushiSwap
     ✓ Full Support"]
@@ -122,7 +123,7 @@ classDiagram
         Mainnet Frontend: ⚠️ Limited testing
         Sepolia Integration: ❌ Not configured
     }
-    
+
     class NetworkSupport {
         Localhost: ✓ Full support
         Mainnet: ⚠️ Contracts ready, UI untested
@@ -131,6 +132,7 @@ classDiagram
 ```
 
 For detailed status information, visit our component documentation:
+
 - [Smart Contract Status](./contracts/README.md#development-status)
 - [Frontend Status](./frontend/README.md#network-compatibility)
 - [Deployment Guide](./migrations/README.md#network-support)

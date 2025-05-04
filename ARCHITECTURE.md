@@ -24,12 +24,14 @@ The smart contract layer is the core of the Flash system, handling all on-chain 
 #### Key Components
 
 - **FlashLoan.sol**: The central contract that implements the Aave flash loan receiver interface and orchestrates the arbitrage execution.
+
   - Manages flash loan borrowing and repayment
   - Executes DEX swaps through approved routers
   - Implements safety mechanisms and access controls
   - Handles profit calculation and verification
 
 - **UniswapInteractor.sol & SushiSwapInteractor.sol**: Exchange-specific contracts that standardize interactions with different DEXs.
+
   - Implement swap functions with error handling
   - Provide price discovery methods
   - Manage token approvals and transfers
@@ -54,6 +56,7 @@ The migration system handles the deployment and initialization of smart contract
 #### Key Components
 
 - **Migration Scripts**: Progressive deployment scripts that:
+
   - Deploy the core FlashLoan contract
   - Configure DEX router approvals
   - Set up necessary permissions and parameters
@@ -72,11 +75,13 @@ The frontend provides a user interface for monitoring arbitrage opportunities an
 #### Key Components
 
 - **Web3 Provider Layer**: Manages blockchain connectivity and state:
+
   - `Web3Provider.tsx`: Context provider for wallet connection
   - `WalletConnection.tsx`: UI component for wallet interaction
   - `web3.ts`: Utility functions for blockchain interaction
 
 - **Core Components**:
+
   - `ArbitrageOpportunities.tsx`: Monitors and displays price differentials
   - `FlashLoanOptions.tsx`: Interface for configuring and executing flash loans
   - `TransactionFees.tsx`: Displays network fees and cost estimates
@@ -134,6 +139,7 @@ flowchart TD
 The Flash Loan process relies on Aave V3's flash loan protocol, which allows borrowing assets without collateral as long as the loan is returned within the same transaction. The implementation follows these steps:
 
 1. **Loan Request**: The `requestFlashLoan` function in the FlashLoan contract is called with:
+
    - Token address to borrow
    - Amount to borrow
    - Source router (cheaper DEX)
@@ -142,6 +148,7 @@ The Flash Loan process relies on Aave V3's flash loan protocol, which allows bor
    - Slippage tolerance
 
 2. **Callback Execution**: When funds are received, Aave calls the `executeOperation` function with:
+
    - Asset address
    - Borrowed amount
    - Premium (fee)
@@ -149,6 +156,7 @@ The Flash Loan process relies on Aave V3's flash loan protocol, which allows bor
    - Encoded parameters for the arbitrage
 
 3. **Swap Logic**:
+
    - A path is constructed from the borrowed asset to the intermediate token
    - The first swap is executed on the source router
    - A second path is constructed from the intermediate token back to the original asset
@@ -186,15 +194,18 @@ The Flash contracts implement several gas optimization techniques:
 ### Attack Vector Mitigations
 
 1. **Front-running Protection**:
+
    - Slippage tolerance parameters
    - Deadline restrictions on swaps
    - Minimum output requirements
 
 2. **Access Controls**:
+
    - Owner-restricted functions for router approval
    - Fee system to prevent abuse of flash loan capability
 
 3. **Input Validation**:
+
    - Comprehensive parameter validation
    - Address verification
    - Amount checks
@@ -207,15 +218,18 @@ The Flash contracts implement several gas optimization techniques:
 ## Future Architecture Extensions
 
 1. **Multi-Hop Arbitrage**:
+
    - Support for arbitrage routes with multiple intermediate tokens
    - More complex path finding algorithms
 
 2. **Additional DEX Support**:
+
    - Integration with Balancer V2
    - Integration with Curve Finance
    - Support for Uniswap V3 direct execution
 
 3. **Cross-Chain Arbitrage**:
+
    - Layer 2 solution integration
    - Cross-chain bridges for arbitrage between networks
 
