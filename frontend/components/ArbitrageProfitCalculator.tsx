@@ -5,6 +5,7 @@ import { formatCurrencyAmount, formatTokenAmount } from "@/lib/web3/utils";
 import {
   ArbitrageProfitCalculatorProps as UpdatedArbitrageProfitCalculatorProps,
   ExchangePrices,
+  Exchange,
 } from "@/types/arbitrage";
 import { useArbitrageCalculator } from "@/hooks/useArbitrageCalculator";
 import {
@@ -32,32 +33,39 @@ export default function ArbitrageProfitCalculator({
     txFeeUsdc: loanTxFeeUsdc,
   } = useEstimateLoanFee(loanAmount, selectedToken.decimals);
 
-  // Calculate flash loan fee and total fees based on loan amount
+  // Calculate flash loan fee
   const loanAmtNum = parseFloat(loanAmount) || 0;
   const flashLoanFeeAmt =
     loanAmtNum > 0 ? (loanAmtNum * flashLoanBps) / 10_000 : 0;
   const gasFeeAmt = txFeeUsdc ? parseFloat(txFeeUsdc) : 0;
 
-  // Fees are included or will be fetched internally; always use '0' for now
-  const tradingFeesValue = "0";
-
   // Determine best arbitrage path (auto-select buy/sell DEX)
   const bestPath = dexPrices ? findBestArbitragePath(dexPrices) : null;
-  const buyExchange = bestPath?.buy || "";
-  const sellExchange = bestPath?.sell || "";
-  const buyPriceValue =
-    buyExchange && dexPrices ? dexPrices[buyExchange].toString() : "0";
-  const sellPriceValue =
-    sellExchange && dexPrices ? dexPrices[sellExchange].toString() : "0";
+  const buyExchange: Exchange | null = bestPath?.buy || null;
+  const sellExchange: Exchange | null = bestPath?.sell || null;
+  
+  const buyPriceValue = 
+      buyExchange && dexPrices && dexPrices[buyExchange.name] 
+      ? dexPrices[buyExchange.name].toString() 
+      : "0";
+  const sellPriceValue = 
+      sellExchange && dexPrices && dexPrices[sellExchange.name] 
+      ? dexPrices[sellExchange.name].toString() 
+      : "0";
 
-  // Use custom hook for calculation, pass gasCost in USDC
+  // Get fees from the selected exchanges, default to 0 if null
+  const buyFeePct = buyExchange?.feePct ?? 0;
+  const sellFeePct = sellExchange?.feePct ?? 0;
+
+  // Use custom hook for calculation, pass specific fees
   const { potentialProfit, isProfitable, roi } = useArbitrageCalculator({
     loanAmount,
     buyPrice: buyPriceValue,
     sellPrice: sellPriceValue,
-    tradingFees: tradingFeesValue,
+    buyFeePct, // Pass the specific buy fee % 
+    sellFeePct, // Pass the specific sell fee %
     slippage,
-    gasCost: loanTxFeeUsdc,
+    gasCost: loanTxFeeUsdc, // Pass gas cost in USDC
     profitThreshold,
     flashLoanBps,
   });
@@ -289,7 +297,7 @@ export default function ArbitrageProfitCalculator({
                       </svg>
                       <span>
                         Buy on{" "}
-                        <span className="font-medium">{buyExchange}</span>:
+                        <span className="font-medium">{buyExchange.name}</span>:
                       </span>
                     </div>
                     <span>{parseFloat(buyPriceValue).toFixed(8)} WETH</span>
@@ -326,7 +334,7 @@ export default function ArbitrageProfitCalculator({
                       </svg>
                       <span>
                         Sell on{" "}
-                        <span className="font-medium">{sellExchange}</span>:
+                        <span className="font-medium">{sellExchange.name}</span>:
                       </span>
                     </div>
                     <span>{parseFloat(sellPriceValue).toFixed(8)} WETH</span>
@@ -418,6 +426,23 @@ export default function ArbitrageProfitCalculator({
                       : "—"}
                   </span>
                 </div>
+                {/* Display Buy/Sell Fees */}
+                {buyExchange && sellExchange && (
+                    <>
+                        <div className="flex justify-between items-center p-1.5 rounded bg-white/5">
+                            <div className="flex items-center">
+                                <span>Buy Fee ({buyExchange.name}):</span>
+                            </div>
+                            <span>{buyFeePct.toFixed(2)}%</span>
+                        </div>
+                        <div className="flex justify-between items-center p-1.5 rounded bg-white/5">
+                            <div className="flex items-center">
+                                <span>Sell Fee ({sellExchange.name}):</span>
+                            </div>
+                            <span>{sellFeePct.toFixed(2)}%</span>
+                        </div>
+                    </>
+                )}
               </div>
             </div>
           </div>

@@ -26,8 +26,8 @@ export interface TokenPairPrices {
  * the buy and sell exchanges and the percentage profit.
  */
 export interface ArbitragePath {
-  buy: string; // The exchange to buy from
-  sell: string; // The exchange to sell to
+  buy: Exchange | null; // The full Exchange object to buy from, or null if none found
+  sell: Exchange | null; // The full Exchange object to sell to, or null if none found
   percentage: number; // The percentage profit from the arbitrage
 }
 
@@ -49,9 +49,9 @@ export interface Exchange {
   name: string; // The name of the exchange
   router: string; // The router address of the exchange
   icon: string; // The icon representing the exchange
+  feePct: number; // Standard trading fee percentage (e.g., 0.3 for 0.3%)
 
   // Optional metadata for different DEX versions and pool parameters
-  feesIncluded?: boolean; // Whether the on-chain call includes fees by default (e.g., V2)
   type?: ExchangeType; // Allow different DEX logic
   feeTier?: number; // Fee tier for Uniswap V3 pools (e.g., 500 for 0.05%)
   poolId?: string; // Pool ID for Balancer V2 single-hop swaps

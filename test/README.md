@@ -45,32 +45,36 @@ Verifies that individual smart contracts function correctly in isolation.
 - `FlashLoan.test.js` — Tests the core flash loan contract functionality
 - `UniswapInteractor.test.js` — Tests Uniswap integration functions
 - `SushiSwapInteractor.test.js` — Tests SushiSwap integration functions
+- `MockFlashLoanSimpleReceiver.sol` — A simple contract used in tests to simulate receiving a flash loan callback from Aave.
 
 ### Key Test Scenarios
 
-- Flash loan borrowing and repayment
-- Arbitrage execution with positive profit
-- Failed arbitrage due to insufficient profit
-- Router approval mechanisms
-- Error handling and revert conditions
-- Gas efficiency measurements
+- Flash loan borrowing and repayment (successful)
+- Router approval and revocation
+- Attempting trades with unapproved routers (should fail)
+- Standard arbitrage execution with positive profit (buy high WETH/USDC, sell low WETH/USDC)
+- Failed arbitrage due to insufficient profit margin
+- Failed arbitrage due to slippage parameter being too tight
+- Error handling and specific revert conditions (e.g., InvalidRouter, NotOwner)
+- Gas efficiency measurements for core operations
 
 ## Integration Tests
 
-Confirms that contracts work together properly in real-world scenarios.
+Confirms that contracts work together properly in real-world scenarios, often using a forked environment.
 
 ### Files
 
-- `Arbitrage.test.js` — Tests full arbitrage workflows
-- `NetworkCompatibility.test.js` — Tests behavior across different networks
+- `Arbitrage.test.js` — Tests full arbitrage workflows using multiple DEXs
+- `NetworkCompatibility.test.js` — Tests behavior across different forked networks (if applicable)
 
 ### Key Test Scenarios
 
-- Complete arbitrage execution flow
-- Cross-DEX interaction scenarios
-- Token approval and allowance handling
-- Edge case token pairs and amounts
-- Fee calculation and profit margins
+- Complete USDC -> WETH -> USDC arbitrage flow using approved routers
+- Verification of correct profit calculation against known price differences
+- Cross-DEX interaction scenarios (e.g., Uniswap V2 -> SushiSwap)
+- Token approval and allowance handling within the flow
+- Edge case token pairs and amounts (if applicable beyond USDC/WETH)
+- Fee calculation and profit margins across the entire transaction
 
 ## Frontend Tests
 
@@ -88,16 +92,19 @@ Ensures the UI components function correctly and provide accurate information.
 ### Prerequisites
 
 - Node.js 16+
-- Ganache running locally
-- Truffle installed globally
+- Ganache running locally (preferably using the mainnet fork script)
+- Truffle installed globally (`npm install -g truffle`)
 
 ### Contract and Integration Tests
 
 ```bash
-# Start Ganache with Mainnet fork in one terminal
-npm run ganache:mainnet
+# Terminal 1: Start Ganache with Mainnet fork using persistent DB
+# (Ensure .env is populated)
+export $(grep -v '^#' .env | xargs)
+npm run ganache:mainnet:persistent
 
-# Run the tests in another terminal
+# Terminal 2: Run all tests
+# (Assumes contracts are deployed via migrations or test setup)
 truffle test
 ```
 
@@ -107,8 +114,8 @@ truffle test
 # Run a specific test file
 truffle test ./test/FlashLoan.test.js
 
-# Run tests with a specific tag
-truffle test --grep "arbitrage"
+# Run tests with a specific describe block or test name
+truffle test ./test/Arbitrage.test.js --grep "profitable arbitrage"
 ```
 
 ### Frontend Tests
@@ -196,7 +203,7 @@ describe("Component", () => {
 
 ## Test Environment
 
-- Contract tests run against Truffle's built-in blockchain or Ganache
-- Mainnet fork tests use a snapshot of Ethereum mainnet state
-- Mocks are used for external dependencies where appropriate
-- Time-based tests use Truffle's time manipulation utilities
+- Contract tests run against Truffle's built-in Ganache or the specified Ganache instance.
+- **Mainnet Fork** (`mainnet_fork` network or `ganache:mainnet:persistent` script) is heavily used for realistic integration testing.
+- Mocks (`MockFlashLoanSimpleReceiver`) are used for external dependencies like the Aave callback.
+- Time-based tests use Truffle's time manipulation utilities.

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
 import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
-import { TokenPairPrices, Exchange } from "@/types/arbitrage";
+import { NETWORK_IDS } from "@/lib/web3/config";
+import { TokenPairPrices, Exchange, ExchangePrices } from "@/types/arbitrage";
 import { getTimeElapsed } from "@/lib/utils/timeUtils";
 import {
   fetchDexPrices,
@@ -19,7 +20,7 @@ import { formatTokenAmount } from "@/lib/web3/utils";
  */
 export default function ArbitrageOpportunities() {
   // Destructure necessary values from the Web3 context
-  const { web3, isConnected, isCorrectNetwork } = useWeb3();
+  const { web3, isConnected, isCorrectNetwork, networkId } = useWeb3();
 
   // State variables to manage component data and UI state
   const [prices, setPrices] = useState<TokenPairPrices>({});
@@ -96,6 +97,31 @@ export default function ArbitrageOpportunities() {
       setIsLoading(false);
     }
   }, [isConnected, isCorrectNetwork, mounted]);
+
+  // --- Determine which exchanges to display based on network ---
+  const exchangesToShow = EXCHANGES.filter((exchange) => {
+    // If connected to localhost fork, hide the V3 exchanges
+    if (networkId === NETWORK_IDS.LOCALHOST) {
+      return (
+        exchange.name !== "Uniswap V3 (0.05%)" &&
+        exchange.name !== "Uniswap V3 (0.30%)"
+        // Keep Balancer and Curve hidden for now as per previous logic
+        && exchange.name !== "Balancer V2" 
+        && exchange.name !== "Curve USDC/ETH"
+      );
+    } 
+    // --- TEMPORARILY KEEP V3 HIDDEN ON MAINNET TOO (as Balancer/Curve are also hidden) ---
+    // You might want to adjust this logic later if Balancer/Curve are re-enabled
+    // Currently hides V3, Balancer, Curve on all networks
+     return (
+        exchange.name !== "Uniswap V3 (0.05%)" &&
+        exchange.name !== "Uniswap V3 (0.30%)"
+        && exchange.name !== "Balancer V2" 
+        && exchange.name !== "Curve USDC/ETH"
+      );
+    // Original logic (show all except Balancer/Curve on mainnet):
+    // return exchange.name !== "Balancer V2" && exchange.name !== "Curve USDC/ETH";
+  });
 
   /**
    * Renders a skeleton layout during server-side rendering to prevent hydration mismatch.
@@ -312,7 +338,17 @@ export default function ArbitrageOpportunities() {
         <div className="space-y-3">
           {PAIRS.map((pair) => {
             const pairPrices = prices[pair.name] || {};
-            const bestPath = findBestArbitragePath(pairPrices);
+
+            // Filter prices to include only those from visible exchanges
+            const visiblePrices: ExchangePrices = {};
+            exchangesToShow.forEach((exchange) => {
+              if (pairPrices.hasOwnProperty(exchange.name)) {
+                visiblePrices[exchange.name] = pairPrices[exchange.name];
+              }
+            });
+
+            // Find the best path using only the visible prices
+            const bestPath = findBestArbitragePath(visiblePrices);
 
             return (
               <div
@@ -348,7 +384,7 @@ export default function ArbitrageOpportunities() {
 
                   {isLoading ? (
                     <div className="space-y-2 p-1.5">
-                      {EXCHANGES.map((exchange, index) => (
+                      {exchangesToShow.map((exchange, index) => (
                         <div
                           key={exchange.name + index}
                           className="flex justify-between items-center p-1.5 rounded-lg bg-white/5 border border-white/10"
@@ -367,17 +403,10 @@ export default function ArbitrageOpportunities() {
                     </div>
                   ) : (
                     <div className="grid gap-2 mb-4">
-                      {EXCHANGES.map((exchange) => {
-                        if (
-                          exchange.name === "Balancer V2" ||
-                          exchange.name === "Curve USDC/ETH"
-                        ) {
-                          return null;
-                        }
-
+                      {exchangesToShow.map((exchange) => {
                         const price = pairPrices[exchange.name] ?? 0;
-                        const isBestBuy = bestPath?.buy === exchange.name;
-                        const isBestSell = bestPath?.sell === exchange.name;
+                        const isBestBuy = bestPath?.buy?.name === exchange.name;
+                        const isBestSell = bestPath?.sell?.name === exchange.name;
                         return (
                           <div
                             key={exchange.name}

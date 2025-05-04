@@ -47,23 +47,40 @@ Flash transforms arbitrage trading with an elegant system that empowers you to i
 
 ## 🔄 How It Works
 
+The core arbitrage strategy for USDC -> WETH -> USDC involves:
+
+1.  **Monitoring:** Tracking WETH/USDC prices across DEXs.
+2.  **Discovery:** Identifying when DEX A offers a *higher* WETH/USDC price than DEX B by a sufficient margin.
+3.  **Execution:**
+    *   Borrow USDC via Aave flash loan.
+    *   Buy WETH on DEX A (where WETH/USDC price is highest).
+    *   Sell WETH on DEX B (where WETH/USDC price is lowest).
+    *   Repay USDC loan + premium.
+    *   Keep the remaining USDC as profit.
+
 ```mermaid
 flowchart LR
-    subgraph Flash["⚡ Flash System"]
+    subgraph Monitor & Discover
         direction TB
-        Monitor["🔍 Monitor\nTrack price differences"] --> Discover["💡 Discover\nIdentify opportunities"]
-        Discover --> Execute["🚀 Execute\nInitiate flash loan"]
+        A[DEX A Price WETH/USDC] --> C{Compare Prices}
+        B[DEX B Price WETH/USDC] --> C
+        C --> |Price A > Price B + Margin?| D(✅ Opportunity!)
     end
 
-    subgraph Execution["Execution Flow"]
+    subgraph Execution
         direction TB
-        Borrow["💰 Borrow\nAave flash loan"] --> Buy["📈 Buy\nLower-priced DEX"]
-        Buy --> Sell["📉 Sell\nHigher-priced DEX"]
-        Sell --> Repay["🔁 Repay\nLoan + fees"]
-        Repay --> Profit["💎 Profit\nKeep difference"]
+        E[💰 Borrow USDC\
+Aave Flash Loan] --> F[📈 Buy WETH on DEX A\
+(High WETH/USDC Price)]
+        F --> G[📉 Sell WETH on DEX B\
+(Low WETH/USDC Price)]
+        G --> H[🔁 Repay USDC Loan\
++ Premium]
+        H --> I[💎 Keep Profit\
+(Remaining USDC)]
     end
 
-    Flash --> Execution
+    Monitor & Discover -- Opportunity Found --> Execution
 ```
 
 ## 🏁 Try Flash Today
@@ -76,17 +93,20 @@ git clone https://github.com/natalie-a-1/Flash.git
 cd Flash
 
 # Setup environment
-cp .env.local .env
-# Open .env and fill in NEXT_PUBLIC_ALCHEMY_API_KEY with your Alchemy API key
+# Create .env from example if it doesn't exist
+cp .env.example .env 
+# Open .env and fill in MAINNET_RPC_URL (e.g., from Alchemy) and MNEMONIC
 
-# Install dependencies
+# Install dependencies (in root and frontend)
 npm install
 cd frontend && npm install && cd ..
 
-# Terminal 1: Start local Ethereum fork with deployed contracts
+# Terminal 1: Export .env contents and start local Ethereum fork with deployed contracts
+export $(grep -v '^#' .env | xargs)  
 npm run ganache:mainnet:persistent
 
 # Terminal 2: Deploy Contract and move to frontend
+# (Run this only once after cloning, or after deleting ./ganache-db)
 npx truffle migrate --network mainnet_fork
 node copy-contracts.js
 
@@ -95,19 +115,11 @@ cd frontend && npm run dev
 ```
 
 > **Note:**
-> - You only need to deploy your smart contracts once after cloning (or whenever you delete the `./ganache-db` folder) using:
->   ```bash
->   npx truffle migrate --network mainnet_fork
->   node copy-contracts.js
->   ```
-> - If Ganache's DB persists and you need to force a fresh deployment (for example, after changing contracts), add the `--reset` flag:
->   ```bash
->   npx truffle migrate --network mainnet_fork --reset
->   node copy-contracts.js
->   ```
-> - Since Ganache is started with `--db ./ganache-db`, your contract deployments and chain state persist across restarts—no redeploy needed on subsequent runs.
+> - You typically only need to deploy your smart contracts (`truffle migrate...` & `node copy-contracts.js`) once after cloning, as the Ganache database persists.
+> - If you modify contracts and need a *fresh* deployment (clearing previous state), use the `--reset` flag: `npx truffle migrate --network mainnet_fork --reset`, then run `node copy-contracts.js`.
+> - The `ganache:mainnet:persistent` script uses `--db ./ganache-db` to save the chain state.
 
-Visit `http://localhost:3000` and connect your wallet to the localhost network to start exploring arbitrage opportunities.
+Visit `http://localhost:3000` and connect your wallet (configured for localhost:8545) to start exploring arbitrage opportunities.
 
 <!-- <div align="center">
   <img src="./frontend/public/dashboard_preview.png" alt="Flash Dashboard" width="80%" />

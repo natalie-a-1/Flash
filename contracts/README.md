@@ -57,12 +57,15 @@ flowchart TD
 
 **Features:**
 
-- 🛠️ Configurable arbitrage paths between any supported DEXs
-- 🧩 Dynamic strategy configuration for optimal execution
+- 🛠️ Configurable arbitrage paths between supported DEXs
+- 🔧 Explicit router approval for enhanced security
+- 🧩 Dynamic strategy configuration potential
 - 🛡️ Precise slippage controls to prevent sandwich attacks
-- 💰 Tiered fee system for sustainable platform economics
-- 📊 Comprehensive event emission for transaction tracking
+- 💰 Tiered fee system potential (if implemented)
+- 📊 Comprehensive event emission for transaction tracking (including approvals)
 - ⚡ Gas-optimized for maximum capital efficiency
+- Inherits `Ownable` for access control
+- Uses `SafeERC20` for secure token interactions
 
 **Usage:**
 
@@ -99,6 +102,8 @@ Specialized contract for SushiSwap operations, with enhanced safety features.
 - 🚨 Custom error types for precise error reporting
 - 👑 Owner-controlled withdrawal functions
 - ✅ Comprehensive validation checks
+- Inherits `Ownable`
+- Uses `SafeERC20`
 
 ### MockFlashLoanSimpleReceiver.sol
 
@@ -150,43 +155,46 @@ Located in the `interfaces/` directory, these contracts standardize interaction 
   </table>
 </div>
 
-## 💸 Flash Loan Execution Flow
+## 💸 Flash Loan Execution Flow (USDC -> WETH -> USDC Example)
 
 ```mermaid
 sequenceDiagram
     actor User
     participant FL as FlashLoan Contract
     participant Aave as Aave V3 Pool
-    participant DexA as Lower Price DEX
-    participant DexB as Higher Price DEX
+    participant DexBuy as Higher Price DEX (High WETH/USDC)
+    participant DexSell as Lower Price DEX (Low WETH/USDC)
 
     User->>FL: requestFlashLoan()
-    FL->>Aave: flashLoanSimple()
-    Aave-->>FL: Transfer borrowed assets
-    Aave->>FL: executeOperation()
+    FL->>Aave: flashLoanSimple() // Request USDC Loan
+    Aave-->>FL: Transfer borrowed USDC
+    Aave->>FL: executeOperation() // Callback
 
-    Note over FL: Check parameters are valid
+    Note over FL: Check parameters & router approvals
 
-    FL->>DexA: swapExactTokensForTokens()
-    DexA-->>FL: Return intermediate tokens
+    FL->>DexBuy: swapExactTokensForTokens() // Buy WETH with USDC
+    DexBuy-->>FL: Return WETH
 
-    FL->>DexB: swapExactTokensForTokens()
-    DexB-->>FL: Return original tokens
+    FL->>DexSell: swapExactTokensForTokens() // Sell WETH for USDC
+    DexSell-->>FL: Return USDC
 
-    Note over FL: Verify profit margin
+    Note over FL: Verify profit margin (USDC out > USDC in + premium)
 
     FL->>Aave: Approve repayment
-    FL-->>Aave: Return loan + premium
-    FL-->>User: Keep profit
+    FL-->>Aave: Return loan USDC + premium
+    Note over FL: Keep profit (remaining USDC)
 ```
+
+**Logic:** For a USDC -> WETH -> USDC arbitrage, the goal is to buy WETH where it costs the *least* USDC (i.e., where the WETH/USDC price is *highest*) and sell it where it yields the *most* USDC (i.e., where the WETH/USDC price is *lowest*). The difference must cover the flash loan premium and gas fees.
 
 ## 🔐 Security Considerations
 
 Flash implements multiple layers of security:
 
+- ✅ **Router Approval**: Explicit approval required for DEX routers.
 - 🔒 **SafeERC20** for protected token transfers
 - ⚠️ **Custom error types** for precise revert reasons
-- 👑 **Ownership controls** for administrative functions
+- 👑 **Ownership controls** via `Ownable` for administrative functions
 - 🛡️ **Slippage protection** against price manipulation
 - ⏱️ **Deadline parameters** to prevent stale transactions
 - ✅ **Comprehensive input validation** to prevent exploits
@@ -222,7 +230,7 @@ flowchart LR
     Status --> Environments
 ```
 
-All contracts are functionally complete and tested on local and forked environments, but should undergo formal audit before mainnet deployment.
+All core contracts are functionally complete and tested on local and forked environments, but should undergo formal audit before mainnet deployment.
 
 <div align="center">
   <h3>🔒</h3>

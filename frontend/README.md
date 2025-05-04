@@ -33,11 +33,12 @@
   <tr>
     <td width="50%" valign="top">
       <h3>🔍 Arbitrage Discovery</h3>
-      <p>Automatically identify profitable trading opportunities across exchanges.</p>
+      <p>Automatically identify profitable trading opportunities across supported exchanges based on real-time price data.</p>
       <ul>
         <li><strong>Status:</strong> ✓ Complete</li>
-        <li><strong>Exchanges:</strong> Uniswap V2/V3, SushiSwap, Curve (partial)</li>
-        <li><strong>Features:</strong> Profit calculation, slippage estimation, sorting</li>
+        <li><strong>Logic:</strong> Buys on DEX with highest WETH/USDC, sells on DEX with lowest WETH/USDC.</li>
+        <li><strong>Exchanges:</strong> Uniswap V2/V3, SushiSwap (V3 display-only, execution limited to V2/Sushi)</li>
+        <li><strong>Features:</strong> Profit calculation (including DEX fees, slippage, gas, flash loan premium), dynamic exchange filtering based on network.</li>
       </ul>
     </td>
     <td width="50%" valign="top">
@@ -101,13 +102,35 @@
     </td>
     <td width="50%" valign="top">
       <h4>ArbitrageOpportunities.tsx</h4>
-      <p><strong>Purpose:</strong> Discovers and displays profitable trading routes.</p>
+      <p><strong>Purpose:</strong> Discovers and displays profitable trading routes, dynamically filtering exchanges based on network.</p>
       <p><strong>Key Functions:</strong></p>
       <ul>
-        <li><code>fetchPrices()</code>: Retrieves current DEX prices</li>
-        <li><code>calculateArbitrage()</code>: Identifies profitable routes</li>
-        <li><code>estimateProfit()</code>: Calculates expected returns</li>
-        <li><code>sortOpportunities()</code>: Ranks by profitability</li>
+        <li><code>fetchPrices()</code>: Retrieves current DEX prices (WETH/USDC).</li>
+        <li><code>findBestArbitragePath()</code>: Identifies optimal buy (highest WETH/USDC) and sell (lowest WETH/USDC) exchanges among visible ones.</li>
+        <li>Displays correct "BEST BUY" / "BEST SELL" labels.</li>
+        <li>Calculates potential % profit using <code>calculateArbitragePercentage</code>.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h4>ArbitrageProfitCalculator.tsx</h4>
+      <p><strong>Purpose:</strong> Calculates detailed profit estimates based on user inputs and selected path.</p>
+      <p><strong>Key Functions:</strong></p>
+      <ul>
+        <li>Uses <code>useArbitrageCalculator</code> hook.</li>
+        <li>Accepts user input for slippage and profit threshold.</li>
+        <li>Displays estimated profit/loss, ROI, flash loan fee, gas estimate, and specific buy/sell DEX fees.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h4>useArbitrageCalculator.ts</h4>
+      <p><strong>Purpose:</strong> Custom hook for arbitrage calculations.</p>
+      <p><strong>Key Functions:</strong></p>
+      <ul>
+        <li>Takes loan amount, buy/sell prices, specific buy/sell DEX fees (<code>buyFeePct</code>, <code>sellFeePct</code>), slippage, gas cost, threshold, flash loan bps.</li>
+        <li>Uses <code>calcArbUsdc</code> utility for core calculation.</li>
+        <li>Returns potential profit, profitability flag, ROI.</li>
       </ul>
     </td>
   </tr>
@@ -214,33 +237,29 @@
 - MetaMask or compatible Web3 wallet
 - Ethereum RPC endpoint (Alchemy recommended)
 
-### Installation
+### Installation & Setup
+
+Follow the steps in the main project [README.md](../README.md#🏁-try-flash-today) to clone, install dependencies, configure your `.env` file, start the local Ganache fork, and deploy the contracts.
+
+Crucially, after deploying contracts with Truffle, ensure the ABI artifacts are copied to the frontend:
 
 ```bash
-# Clone the repository
-git clone https://github.com/natalie-a-1/Flash.git
-
-# Navigate to frontend
-cd Flash/frontend
-
-# Install dependencies
-npm install
+# From the project root directory
+npx truffle migrate --network mainnet_fork # Or --reset if needed
+node copy-contracts.js
 ```
 
-### Configuration
-
-Create a `.env.local` file with your configuration:
-
-```
-NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_key
-NEXT_PUBLIC_DEFAULT_NETWORK=localhost
-```
+This `copy-contracts.js` script places the necessary JSON ABI files (including `FlashLoan.json`, `Ownable.json`, `SafeERC20.json`, etc.) into the `frontend/contracts/` directory, allowing the frontend to interact with the deployed contracts.
 
 ### Development
 
-Start the development server with TurboPack:
+Once contracts are deployed and copied, start the frontend development server:
 
 ```bash
+# Navigate to frontend directory
+cd frontend
+
+# Start the dev server
 npm run dev
 ```
 
@@ -251,17 +270,12 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 ```
 frontend/
 ├── app/                    # Next.js App Router pages
-│   ├── dashboard/          # Dashboard interface
-│   └── page.tsx            # Landing/authentication
 ├── components/             # React components
-│   ├── web3/               # Wallet connectivity
-│   └── ...                 # UI components
-├── lib/                    # Utilities
-│   ├── constants/          # Application constants
-│   ├── services/           # API services
-│   ├── utils/              # Helper functions
-│   └── web3/               # Blockchain utilities
-└── public/                 # Static assets
+├── contracts/              # Copied contract ABI artifacts (via copy-contracts.js)
+├── hooks/                  # Custom React hooks (e.g., useArbitrageCalculator)
+├── lib/                    # Utilities, constants, services, web3 helpers
+├── public/                 # Static assets
+└── ...                     # Config files (tailwind, postcss, tsconfig, etc.)
 ```
 
 ## Performance Optimizations
