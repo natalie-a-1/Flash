@@ -94,6 +94,19 @@ node copy-contracts.js
 cd frontend && npm run dev
 ```
 
+> **Note:**
+> - You only need to deploy your smart contracts once after cloning (or whenever you delete the `./ganache-db` folder) using:
+>   ```bash
+>   npx truffle migrate --network mainnet_fork
+>   node copy-contracts.js
+>   ```
+> - If Ganache's DB persists and you need to force a fresh deployment (for example, after changing contracts), add the `--reset` flag:
+>   ```bash
+>   npx truffle migrate --network mainnet_fork --reset
+>   node copy-contracts.js
+>   ```
+> - Since Ganache is started with `--db ./ganache-db`, your contract deployments and chain state persist across restarts—no redeploy needed on subsequent runs.
+
 Visit `http://localhost:3000` and connect your wallet to the localhost network to start exploring arbitrage opportunities.
 
 <!-- <div align="center">
