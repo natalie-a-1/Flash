@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  NETWORK_IDS,
-  NETWORK_NAMES,
-  RPC_URLS,
-} from "@/lib/web3/config";
+import { NETWORK_IDS, NETWORK_NAMES, RPC_URLS } from "@/lib/web3/config";
 import { switchToMainnet, getNetworkDetails } from "@/lib/web3/web3";
 
 /**
  * @deprecated This component's functionality has been integrated into the Header component.
  * Please update any references to use the network switcher in the Header instead.
- * 
+ *
  * NetworkSwitch component for toggling between Mainnet and Local networks.
  */
 const NetworkSwitch: React.FC = () => {
@@ -77,8 +73,10 @@ const NetworkSwitch: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       // MetaMask may throw an internal error code when the chain actually changed
-      if (err.code === -32603 ||
-          (err.message && err.message.includes('change in selected network'))) {
+      if (
+        err.code === -32603 ||
+        (err.message && err.message.includes("change in selected network"))
+      ) {
         // suppress this error; chainChanged event will update the UI
         return;
       }
@@ -88,24 +86,28 @@ const NetworkSwitch: React.FC = () => {
 
   return (
     <div className="flex items-center space-x-2 bg-slate-800/40 px-3 py-1.5 rounded-full border border-slate-700/70 shadow-sm transition-all hover:border-slate-600/70">
-      <span className={`text-xs font-medium ${isFork ? 'text-slate-400' : 'text-cyan-400'}`}>
+      <span
+        className={`text-xs font-medium ${isFork ? "text-slate-400" : "text-cyan-400"}`}
+      >
         Mainnet
       </span>
-      <button 
+      <button
         onClick={toggleNetwork}
         className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-cyan-500 bg-slate-700"
         role="switch"
         aria-checked={isFork}
       >
-        <span 
-          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${isFork ? 'translate-x-4' : 'translate-x-0'}`}
+        <span
+          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${isFork ? "translate-x-4" : "translate-x-0"}`}
         />
       </button>
-      <span className={`text-xs font-medium ${isFork ? 'text-cyan-400' : 'text-slate-400'}`}>
+      <span
+        className={`text-xs font-medium ${isFork ? "text-cyan-400" : "text-slate-400"}`}
+      >
         Local
       </span>
     </div>
   );
 };
 
-export default NetworkSwitch; 
+export default NetworkSwitch;

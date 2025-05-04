@@ -337,13 +337,13 @@ contract("FlashLoan", (accounts) => {
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
             50,
-            { from: nonOwner }
+            { from: nonOwner },
           );
         } catch (error) {
           // Ensure failure is not due to fee requirement
           assert(
             !error.message.includes("FlashLoanPaymentRequired"),
-            "Should not require fee on early calls"
+            "Should not require fee on early calls",
           );
         }
       }
@@ -353,15 +353,17 @@ contract("FlashLoan", (accounts) => {
       const loanAmount = "1000000";
       // consume 3 free calls
       for (let i = 0; i < 3; i++) {
-        try { await flashLoanInstance.requestFlashLoan(
+        try {
+          await flashLoanInstance.requestFlashLoan(
             USDC_SEPOLIA,
             loanAmount,
             UNISWAP_ROUTER_SEPOLIA,
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
             50,
-            { from: nonOwner }
-          ); } catch {}
+            { from: nonOwner },
+          );
+        } catch {}
       }
       // fourth call without fee should revert
       await expectRevert.unspecified(
@@ -372,8 +374,8 @@ contract("FlashLoan", (accounts) => {
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
           50,
-          { from: nonOwner }
-        )
+          { from: nonOwner },
+        ),
       );
     });
 
@@ -382,15 +384,17 @@ contract("FlashLoan", (accounts) => {
       const fee = web3.utils.toWei("0.005", "ether");
       // consume 3 free calls
       for (let i = 0; i < 3; i++) {
-        try { await flashLoanInstance.requestFlashLoan(
+        try {
+          await flashLoanInstance.requestFlashLoan(
             USDC_SEPOLIA,
             loanAmount,
             UNISWAP_ROUTER_SEPOLIA,
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
             50,
-            { from: nonOwner }
-          ); } catch {}
+            { from: nonOwner },
+          );
+        } catch {}
       }
       // fourth call with fee should proceed past fee check
       try {
@@ -401,13 +405,13 @@ contract("FlashLoan", (accounts) => {
           SUSHISWAP_ROUTER_SEPOLIA,
           WETH_SEPOLIA,
           50,
-          { from: nonOwner, value: fee }
+          { from: nonOwner, value: fee },
         );
       } catch (error) {
         // Should not revert for fee; may revert later due to pool
         assert(
           !error.message.includes("FlashLoanPaymentRequired"),
-          "Should not require fee when correct amount sent"
+          "Should not require fee when correct amount sent",
         );
       }
     });
@@ -423,13 +427,13 @@ contract("FlashLoan", (accounts) => {
             SUSHISWAP_ROUTER_SEPOLIA,
             WETH_SEPOLIA,
             50,
-            { from: owner }
+            { from: owner },
           );
         } catch (error) {
           // Owner should never hit fee requirement
           assert(
             !error.message.includes("FlashLoanPaymentRequired"),
-            "Owner should not be charged fee"
+            "Owner should not be charged fee",
           );
         }
       }

@@ -11,7 +11,7 @@ import { ethers } from "ethers";
 
 /**
  * Custom hook to fetch Aave flash loan reserves and premium fee configuration.
- * 
+ *
  * @returns {Object} An object containing:
  * - reserves: A record of flash loan reserves data.
  * - flashLoanFees: The flash loan fee configuration.
@@ -46,7 +46,7 @@ export function useFlashLoanData() {
     }
     // Always use a public mainnet RPC for reading Aave data
     const provider = new ethers.providers.JsonRpcProvider(
-      RPC_URLS[NETWORK_IDS.MAINNET]
+      RPC_URLS[NETWORK_IDS.MAINNET],
     );
     if (!provider) {
       setErrorReserves("Provider not available");

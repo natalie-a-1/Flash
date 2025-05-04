@@ -14,7 +14,11 @@ import {
   MetaMaskEthereumProvider,
 } from "@/lib/web3/web3";
 import Web3 from "web3";
-import { NETWORK_IDS, NETWORK_NAMES, SUPPORTED_NETWORK_IDS } from "@/lib/web3/config";
+import {
+  NETWORK_IDS,
+  NETWORK_NAMES,
+  SUPPORTED_NETWORK_IDS,
+} from "@/lib/web3/config";
 import { loadContract } from "@/lib/web3/contracts";
 import { ethers } from "ethers";
 

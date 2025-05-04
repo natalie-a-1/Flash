@@ -5,11 +5,7 @@ import { usePathname } from "next/navigation";
 import { useWeb3 } from "./web3/Web3Provider";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import {
-  NETWORK_IDS,
-  NETWORK_NAMES,
-  RPC_URLS,
-} from "@/lib/web3/config";
+import { NETWORK_IDS, NETWORK_NAMES, RPC_URLS } from "@/lib/web3/config";
 import { switchToMainnet, getNetworkDetails } from "@/lib/web3/web3";
 
 /**
@@ -25,11 +21,11 @@ export default function Header() {
   // Destructure necessary values from the Web3 context
   const { isConnected, isCorrectNetwork, account, connectWallet, networkName } =
     useWeb3();
-    
+
   // Network switch state
   const [isFork, setIsFork] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+
   // For the dropdown portal
   const [isBrowser, setIsBrowser] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -38,7 +34,7 @@ export default function Header() {
   useEffect(() => {
     setIsBrowser(true);
   }, []);
-  
+
   // Initialize state and subscribe to chain changes
   useEffect(() => {
     const updateNetwork = async () => {
@@ -46,7 +42,7 @@ export default function Header() {
       console.log("Current network ID:", id);
       setIsFork(id === NETWORK_IDS.LOCALHOST);
     };
-    
+
     if (isConnected) {
       updateNetwork();
 
@@ -67,14 +63,18 @@ export default function Header() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isDropdownOpen && buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+      if (
+        isDropdownOpen &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
 
@@ -85,8 +85,11 @@ export default function Header() {
 
   // Switch network function
   const switchNetwork = async (toLocalhost: boolean) => {
-    console.log("Attempting to switch to:", toLocalhost ? "localhost" : "mainnet");
-    
+    console.log(
+      "Attempting to switch to:",
+      toLocalhost ? "localhost" : "mainnet",
+    );
+
     if (!window.ethereum) {
       alert("MetaMask is not installed");
       return;
@@ -99,7 +102,7 @@ export default function Header() {
         // Switch to local fork (localhost)
         const chainIdHex = `0x${NETWORK_IDS.LOCALHOST.toString(16)}`;
         console.log("Switching to chain ID:", chainIdHex);
-        
+
         try {
           await window.ethereum.request({
             method: "wallet_switchEthereumChain",
@@ -179,27 +182,27 @@ export default function Header() {
                 <div
                   className={`h-1.5 w-1.5 rounded-full mr-1.5 ${isCorrectNetwork ? "bg-green-400" : "bg-amber-400"}`}
                 ></div>
-                
+
                 {/* Display the connected account address */}
                 <span className="text-xs text-white/80 hidden md:inline-block">
                   {account?.slice(0, 6)}...{account?.slice(-4)}
                 </span>
-                
+
                 {/* Network Switch - Simplified */}
                 <div className="relative ml-2">
                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-800/40 border border-slate-700/70 shadow-sm transition-all hover:border-slate-600/70">
-                    <button 
-                      onClick={() => switchNetwork(false)} 
-                      className={`text-xs font-medium ${!isFork ? 'text-cyan-400' : 'text-slate-400'} px-2 py-0.5 rounded hover:bg-slate-700/50`}
+                    <button
+                      onClick={() => switchNetwork(false)}
+                      className={`text-xs font-medium ${!isFork ? "text-cyan-400" : "text-slate-400"} px-2 py-0.5 rounded hover:bg-slate-700/50`}
                     >
                       Mainnet
                     </button>
-                    
+
                     <div className="h-3 w-px bg-slate-600/50"></div>
-                    
-                    <button 
-                      onClick={() => switchNetwork(true)} 
-                      className={`text-xs font-medium ${isFork ? 'text-cyan-400' : 'text-slate-400'} px-2 py-0.5 rounded hover:bg-slate-700/50`}
+
+                    <button
+                      onClick={() => switchNetwork(true)}
+                      className={`text-xs font-medium ${isFork ? "text-cyan-400" : "text-slate-400"} px-2 py-0.5 rounded hover:bg-slate-700/50`}
                     >
                       Local
                     </button>

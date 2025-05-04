@@ -22,11 +22,7 @@ export async function executeAaveFlashLoan(
     throw new Error("FlashLoan contract not loaded");
   }
   const flashLoanContract = window.flashLoanContract;
-  const {
-    UNISWAP_V2_ROUTER,
-    SUSHISWAP_V2_ROUTER,
-    WETH,
-  } = MAINNET_ADDRESSES;
+  const { UNISWAP_V2_ROUTER, SUSHISWAP_V2_ROUTER, WETH } = MAINNET_ADDRESSES;
   const slippageBps = 50; // default 0.5% slippage tolerance
 
   try {

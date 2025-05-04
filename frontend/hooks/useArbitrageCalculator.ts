@@ -5,19 +5,19 @@ import { calcArbUsdc } from "@/lib/utils/arbitrageUtils";
  * Parameters required for the arbitrage calculation hook.
  */
 interface UseArbitrageCalculatorParams {
-  loanAmount: string;       // The amount of the loan in USDC
-  buyPrice: string;         // The price at which the asset is bought (WETH per USD)
-  sellPrice: string;        // The price at which the asset is sold (WETH per USD)
-  tradingFees: string;      // The trading fees percentage
-  slippage: string;         // The slippage percentage
-  gasCost: string;          // The cost of gas in USD
-  profitThreshold: string;  // The minimum profit threshold in USD
-  flashLoanBps: number;     // The basis points for the flash loan fee
+  loanAmount: string; // The amount of the loan in USDC
+  buyPrice: string; // The price at which the asset is bought (WETH per USD)
+  sellPrice: string; // The price at which the asset is sold (WETH per USD)
+  tradingFees: string; // The trading fees percentage
+  slippage: string; // The slippage percentage
+  gasCost: string; // The cost of gas in USD
+  profitThreshold: string; // The minimum profit threshold in USD
+  flashLoanBps: number; // The basis points for the flash loan fee
 }
 
 /**
  * Custom hook to calculate potential profit, profitability flag, and ROI for arbitrage opportunities.
- * 
+ *
  * @param {UseArbitrageCalculatorParams} params - The parameters for the arbitrage calculation.
  * @returns {Object} - An object containing potential profit, profitability status, and ROI.
  */
@@ -32,8 +32,8 @@ export function useArbitrageCalculator({
   flashLoanBps,
 }: UseArbitrageCalculatorParams) {
   const [potentialProfit, setPotentialProfit] = useState<number | null>(null); // State for potential profit
-  const [isProfitable, setIsProfitable] = useState<boolean>(false);           // State for profitability status
-  const [roi, setRoi] = useState<number | null>(null);                        // State for return on investment
+  const [isProfitable, setIsProfitable] = useState<boolean>(false); // State for profitability status
+  const [roi, setRoi] = useState<number | null>(null); // State for return on investment
 
   useEffect(() => {
     if (!loanAmount) {
