@@ -26,8 +26,14 @@ import { ethers } from "ethers";
 declare global {
   interface Window {
     ethereum: MetaMaskEthereumProvider;
+    ethers: typeof ethers;
     flashLoanContract?: ethers.Contract | null;
   }
+}
+
+// Add ethers to window object for global access
+if (typeof window !== 'undefined') {
+  window.ethers = ethers;
 }
 
 // Define the structure of the Web3 context
