@@ -5,7 +5,6 @@ import ArbitrageOpportunities from "@/components/ArbitrageOpportunities";
 import FlashLoanOptions from "@/components/FlashLoanOptions";
 import QuickStats from "@/components/TransactionFees";
 import WalletConnection from "@/components/web3/WalletConnection";
-import NetworkSwitch from "@/components/NetworkSwitch";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -134,9 +133,6 @@ export default function Dashboard() {
    */
   return (
     <main className="container mx-auto px-3 py-4">
-      <div className="flex justify-end mb-4">
-        <NetworkSwitch />
-      </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <div className="lg:col-span-4">
           <div className="space-y-3">
