@@ -9,12 +9,12 @@
  * @requires dotenv - Requires USDC_WHALE_ADDRESS environment variable.
  */
 
+// Load environment variables from the root .env file
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+
 const Web3 = require('web3');
 const constants = require('../../constants.json');
 const IERC20 = require('../../build/contracts/IERC20.json');
-
-// Load environment variables
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
 async function seedWallet() {
   console.log('\n── Running Wallet Seeding Script ────────────────────────────');

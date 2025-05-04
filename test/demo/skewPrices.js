@@ -10,6 +10,9 @@
  * @requires ../../build/contracts/IUniswapV2Router02.json
  */
 
+// Load environment variables from the root .env file (if needed by the script later)
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+
 const Web3 = require('web3');
 const constants = require('../../constants.json');
 const IERC20 = require('../../build/contracts/IERC20.json');

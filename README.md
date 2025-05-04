@@ -92,25 +92,33 @@ The quickest way to experience Flash is with our verified local setup:
 git clone https://github.com/natalie-a-1/Flash.git
 cd Flash
 
-# Setup environment
-# Create .env from example if it doesn't exist
+# --- Environment Setup --- #
+# 1. Create/Populate Root .env file
+#    (Used by Truffle, Ganache, Backend Scripts)
 cp .env.example .env 
-# Open .env and fill in MAINNET_RPC_URL (e.g., from Alchemy) and MNEMONIC
+#    -> Open .env and fill in MAINNET_RPC_URL, MNEMONIC, USDC_WHALE_ADDRESS
+
+# 2. Create/Populate Frontend .env.local file
+#    (Used by Next.js App - copy relevant vars, prefixing client-side ones)
+cp .env.example frontend/.env
+#    -> Open frontend/.env.local and ensure NEXT_PUBLIC_MAINNET_RPC_URL is set
+#       (It should match MAINNET_RPC_URL from the root .env)
 
 # Install dependencies (in root and frontend)
 npm install
 cd frontend && npm install && cd ..
 
-# Terminal 1: Export .env contents and start local Ethereum fork with deployed contracts
-export $(grep -v '^#' .env | xargs)  
+# Terminal 1: Start local Ethereum fork with persistent database
+# (Environment variables are loaded automatically from root .env by ganache)
 npm run ganache:mainnet:persistent
 
-# Terminal 2: Deploy Contract and move to frontend
+# Terminal 2: Deploy Contract and copy artifacts
 # (Run this only once after cloning, or after deleting ./ganache-db)
 npx truffle migrate --network mainnet_fork
 node copy-contracts.js
 
 # In a new terminal, launch the frontend
+# (Next.js loads variables from frontend/.env.local)
 cd frontend && npm run dev
 ```
 

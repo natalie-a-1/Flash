@@ -241,6 +241,14 @@
 
 Follow the steps in the main project [README.md](../README.md#🏁-try-flash-today) to clone, install dependencies, configure your `.env` file, start the local Ganache fork, and deploy the contracts.
 
+**Important:** For the frontend application to function correctly, especially for accessing RPC URLs and other configuration needed client-side or during build, you must also create a `.env.local` file specifically within this `frontend/` directory. Copy the relevant variables from the root `.env.example` (or your root `.env`), ensuring client-exposed variables are prefixed with `NEXT_PUBLIC_`. 
+
+Example `frontend/.env.local`:
+```dotenv
+NEXT_PUBLIC_MAINNET_RPC_URL=https://your_alchemy_or_infura_url_here
+# Add other NEXT_PUBLIC_ variables if needed
+```
+
 Crucially, after deploying contracts with Truffle, ensure the ABI artifacts are copied to the frontend:
 
 ```bash
