@@ -70,6 +70,12 @@ const NetworkSwitch: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
+      // MetaMask may throw an internal error code when the chain actually changed
+      if (err.code === -32603 ||
+          (err.message && err.message.includes('change in selected network'))) {
+        // suppress this error; chainChanged event will update the UI
+        return;
+      }
       alert(`Failed to switch network: ${err.message || err}`);
     }
   };

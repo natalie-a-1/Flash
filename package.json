@@ -13,6 +13,7 @@
     "dev": "truffle develop",
     "ganache": "ganache-cli",
     "ganache:mainnet": "ganache-cli --fork $MAINNET_RPC_URL",
+    "ganache:mainnet:persistent": "ganache --fork $NEXT_PUBLIC_MAINNET_RPC_URL --db ./ganache-db -a 10 -e 1000 -d --chain.chainId=1 --chain.networkId=1",
     "copy-contracts": "node copy-contracts.js",
     "postmigrate": "npm run copy-contracts",
     "format": "prettier --write .",

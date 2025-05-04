@@ -13,7 +13,7 @@ const SEPOLIA_RPC_URL =
   process.env.SEPOLIA_RPC_URL ||
   "https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY";
 const MAINNET_RPC_URL =
-  process.NEXT_PUBLIC_MAINNET_RPC_URL ||
+  process.env.NEXT_PUBLIC_MAINNET_RPC_URL ||
   "https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY";
 
 module.exports = {

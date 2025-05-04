@@ -4,13 +4,12 @@ pragma solidity ^0.8.10;
 // ===================================================================
 // Imports
 // ===================================================================
-import {FlashLoanSimpleReceiverBase} from "@aave/core-v3/contracts/flashloan/base/FlashLoanSimpleReceiverBase.sol";
 import {IPoolAddressesProvider} from "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
+import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IUniswapV2Router02} from "./interfaces/IUniswapV2Router02.sol"; // Import Uniswap Router Interface
 import {ISushiSwapV2Router02} from "./interfaces/ISushiSwapV2Router02.sol"; // Import SushiSwap Router Interface
-// IFlashLoanReceiver interface is implicitly inherited via FlashLoanSimpleReceiverBase
-// import {IFlashLoanReceiver} from "@aave/core-v3/contracts/flashloan/interfaces/IFlashLoanReceiver.sol";
+// IFlashLoanReceiver is pulled in via the base contract
 
 // ===================================================================
 // Interfaces
@@ -23,19 +22,17 @@ import {ISushiSwapV2Router02} from "./interfaces/ISushiSwapV2Router02.sol"; // I
 
 /**
  * @title Dynamic FlashLoan Arbitrage
- * @notice Implements an Aave V3 Flash Loan Receiver for configurable arbitrage strategies.
- * @dev This contract allows borrowing any supported token on Aave and swapping between any two exchanges.
- *      It includes basic slippage protection but is intended for educational purposes.
- *      Does NOT account for gas costs in profitability checks.
- * @author Your Name/Organization (or remove if desired)
+ * @notice Implements an Aave V3 Flash Loan receiver for configurable arbitrage strategies.
  */
-contract FlashLoan is FlashLoanSimpleReceiverBase {
+contract FlashLoan {
   // ===================================================================
   // State Variables
   // ===================================================================
 
   // --- Owner ---
   address private immutable i_owner;
+  // --- Addresses Provider ---
+  IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
 
   // --- Configuration: Swap Parameters ---
   uint256 private constant SWAP_DEADLINE_OFFSET = 600; // 10 minutes from block timestamp
@@ -92,12 +89,11 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
   // ===================================================================
 
   /**
-   * @notice Sets up the contract, linking it to Aave
-   * @param _poolAddressesProvider The address of the Aave V3 IPoolAddressesProvider contract
+   * @notice Sets up the contract with the Aave Addresses Provider address
+   * @param _addressesProvider The Aave Pool Addresses Provider address
    */
-  constructor(
-    address _poolAddressesProvider
-  ) FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_poolAddressesProvider)) {
+  constructor(address _addressesProvider) {
+    ADDRESSES_PROVIDER = IPoolAddressesProvider(_addressesProvider);
     i_owner = msg.sender;
   }
 
@@ -122,7 +118,9 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     uint256 premium,
     address _initiator,
     bytes calldata params
-  ) external override returns (bool) {
+  ) external returns (bool) {
+    // Fetch the Aave Pool from the provider
+    IPool pool = IPool(ADDRESSES_PROVIDER.getPool());
     uint256 amountToRepay = amount + premium;
     uint256 intermediateReceived;
     uint256 finalReceived;
@@ -203,7 +201,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     }
 
     // Approve the Aave Pool to pull the repayment amount
-    _safeApprove(asset, address(POOL), amountToRepay);
+    _safeApprove(asset, address(pool), amountToRepay);
 
     success = true;
 
@@ -279,8 +277,9 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     // Encode parameters for the flash loan callback
     bytes memory params = abi.encode(arbParams);
 
-    // Call Aave Pool's flashLoanSimple function
-    POOL.flashLoanSimple(address(this), _asset, _amount, params, 0);
+    // Fetch the Aave Pool and initiate flash loan
+    IPool pool = IPool(ADDRESSES_PROVIDER.getPool());
+    pool.flashLoanSimple(address(this), _asset, _amount, params, 0);
   }
 
   /**
@@ -347,8 +346,9 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
     // Encode parameters for the flash loan callback
     bytes memory params = abi.encode(arbParams);
 
-    // Call Aave Pool's flashLoanSimple function
-    POOL.flashLoanSimple(address(this), _asset, _amount, params, 0);
+    // Fetch the Aave Pool and initiate flash loan
+    IPool pool = IPool(ADDRESSES_PROVIDER.getPool());
+    pool.flashLoanSimple(address(this), _asset, _amount, params, 0);
   }
 
   /**
