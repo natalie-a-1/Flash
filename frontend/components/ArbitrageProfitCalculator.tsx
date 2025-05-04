@@ -14,6 +14,9 @@ import {
 } from "@/lib/web3/hooks/useTransactionFees";
 import { TokenInfo } from "@/types/aave";
 import { findBestArbitragePath } from "@/lib/services/priceService";
+import { useWeb3 } from "../components/web3/Web3Provider";
+import { NETWORK_IDS } from "@/lib/web3/config";
+import { EXCHANGES } from "@/lib/constants/dex";
 
 export default function ArbitrageProfitCalculator({
   loanAmount,
@@ -39,18 +42,41 @@ export default function ArbitrageProfitCalculator({
     loanAmtNum > 0 ? (loanAmtNum * flashLoanBps) / 10_000 : 0;
   const gasFeeAmt = txFeeUsdc ? parseFloat(txFeeUsdc) : 0;
 
-  // Determine best arbitrage path (auto-select buy/sell DEX)
-  const bestPath = dexPrices ? findBestArbitragePath(dexPrices) : null;
+  // Get network context
+  const { networkId } = useWeb3();
+
+  // Filter DEX prices for executable exchanges on local fork
+  let filteredDexPrices: ExchangePrices | null = dexPrices;
+  if (networkId === NETWORK_IDS.LOCALHOST && dexPrices) {
+    const allowedExchanges = ["Uniswap V2", "SushiSwap"]; // Only these are configured for execution
+    filteredDexPrices = {};
+    for (const exchangeName of allowedExchanges) {
+      if (dexPrices[exchangeName] !== undefined) {
+        filteredDexPrices[exchangeName] = dexPrices[exchangeName];
+      }
+    }
+     // If filteredDexPrices is empty after filtering, set it back to null
+    if (Object.keys(filteredDexPrices).length === 0) {
+      filteredDexPrices = null;
+    }
+  }
+
+  // Determine best arbitrage path from *filtered* prices
+  const bestPath = filteredDexPrices ? findBestArbitragePath(filteredDexPrices) : null;
   const buyExchange: Exchange | null = bestPath?.buy || null;
   const sellExchange: Exchange | null = bestPath?.sell || null;
   
+  // Get router addresses using the exchange name from the constants
+  const buyRouterAddress = buyExchange ? EXCHANGES.find(ex => ex.name === buyExchange.name)?.router : undefined;
+  const sellRouterAddress = sellExchange ? EXCHANGES.find(ex => ex.name === sellExchange.name)?.router : undefined;
+
   const buyPriceValue = 
-      buyExchange && dexPrices && dexPrices[buyExchange.name] 
-      ? dexPrices[buyExchange.name].toString() 
+      buyExchange && filteredDexPrices && filteredDexPrices[buyExchange.name] 
+      ? filteredDexPrices[buyExchange.name].toString() 
       : "0";
   const sellPriceValue = 
-      sellExchange && dexPrices && dexPrices[sellExchange.name] 
-      ? dexPrices[sellExchange.name].toString() 
+      sellExchange && filteredDexPrices && filteredDexPrices[sellExchange.name] 
+      ? filteredDexPrices[sellExchange.name].toString() 
       : "0";
 
   // Get fees from the selected exchanges, default to 0 if null

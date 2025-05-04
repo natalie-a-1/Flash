@@ -47,9 +47,10 @@ export type ExchangeType =
  */
 export interface Exchange {
   name: string; // The name of the exchange
-  router: string; // The router address of the exchange
+  router: string; // Renamed from routerAddress - Contract address of the DEX router
   icon: string; // The icon representing the exchange
   feePct: number; // Standard trading fee percentage (e.g., 0.3 for 0.3%)
+  // routerAddress: string; // REMOVED - Replaced by 'router'
 
   // Optional metadata for different DEX versions and pool parameters
   type?: ExchangeType; // Allow different DEX logic

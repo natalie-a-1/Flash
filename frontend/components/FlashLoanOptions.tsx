@@ -9,16 +9,18 @@ import { formatMaxAmount, getStatusStyle } from "../lib/utils/flashLoanUtils";
 import { formatTokenAmount, formatCurrencyAmount } from "@/lib/web3/utils";
 import { TOKENS } from "@/lib/constants/tokens";
 import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
-import { fetchDexPrices } from "@/lib/services/priceService";
-import { ExchangePrices } from "@/types/arbitrage";
+import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
+import { ExchangePrices, Exchange } from "@/types/arbitrage";
 import ArbitrageProfitCalculator from "./ArbitrageProfitCalculator";
+import { MAINNET_ADDRESSES } from "@/lib/web3/config"; // Need WETH address
+import { NETWORK_IDS } from "@/lib/web3/config"; // Ensure NETWORK_IDS is imported
 
 /**
  * FlashLoanOptions component provides the interface for executing flash loans.
  * It manages state for reserves, selected token, loan amount, and error handling.
  */
 export default function FlashLoanOptions() {
-  const { web3, isConnected, isCorrectNetwork, account } = useWeb3();
+  const { web3, isConnected, isCorrectNetwork, account, networkId } = useWeb3();
 
   // Unified hook for reserves and fee data
   const {
@@ -44,6 +46,9 @@ export default function FlashLoanOptions() {
   // Add state for DEX prices
   const [dexPrices, setDexPrices] = useState<ExchangePrices | null>(null);
   const [loadingPrices, setLoadingPrices] = useState<boolean>(false);
+
+  // Add state for slippage (which is used by ArbitrageProfitCalculator)
+  const [slippage, setSlippage] = useState<string>("0.5"); // Default 0.5%
 
   // Fetch DEX prices on initial load and when connection changes
   useEffect(() => {
@@ -95,22 +100,67 @@ export default function FlashLoanOptions() {
       return;
     }
 
+    if (!window.flashLoanContract) {
+      alert(
+        "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits without the ability to execute loans.",
+      );
+      return;
+    }
+
+    // Filter Prices for Execution (Only V2/Sushi on Fork)
+    let executionDexPrices: ExchangePrices | null = dexPrices;
+    if (networkId === NETWORK_IDS.LOCALHOST && dexPrices) {
+        const allowedExchanges = ["Uniswap V2", "SushiSwap"];
+        executionDexPrices = {};
+        for (const exchangeName of allowedExchanges) {
+            if (dexPrices[exchangeName] !== undefined) {
+                executionDexPrices[exchangeName] = dexPrices[exchangeName];
+            }
+        }
+        // If filteredDexPrices is empty after filtering, set it back to null
+        if (Object.keys(executionDexPrices).length === 0) {
+            executionDexPrices = null;
+        }
+    }
+
+    // Get Dynamic Parameters based on *FILTERED* prices
+    const bestPath = executionDexPrices ? findBestArbitragePath(executionDexPrices) : null;
+    const buyExchange: Exchange | null = bestPath?.buy || null;
+    const sellExchange: Exchange | null = bestPath?.sell || null;
+
+    if (!buyExchange || !sellExchange) {
+        setError("Could not determine executable arbitrage path (Uniswap V2 / SushiSwap). No prices available or profitable path found between them.");
+        setIsLoading(false);
+        return;
+    }
+
+    // Intermediate token is WETH for USDC/WETH pair
+    const intermediateToken = MAINNET_ADDRESSES.WETH; // Assuming USDC/WETH arbitrage
+
+    // Convert slippage string to basis points (BPS)
+    const slippageNum = parseFloat(slippage) || 0;
+    const slippageBps = Math.round(slippageNum * 100); // e.g., 0.5% = 50 BPS
+
+    // Validate slippage
+    if (slippageBps <= 0 || slippageBps > 10000) { // 10000 BPS = 100%
+        setError("Invalid slippage tolerance. Must be between 0% and 100%.");
+        return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
 
-      if (!window.flashLoanContract) {
-        alert(
-          "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits without the ability to execute loans.",
-        );
-        setIsLoading(false);
-        return;
-      }
-
+      // Prepare amount
       const amountInWei = ethers.utils.parseUnits(
         loanAmount,
         selectedToken.decimals,
       );
+      // --- DEBUG: Force small amount ---
+      // const amountInWei = ethers.utils.parseUnits("1", selectedToken.decimals); // Hardcode to 1 USDC // COMMENTED OUT
+      // console.log("[handleFlashLoan] DEBUG: Forcing loan amount to 1 USDC (in wei):", amountInWei.toString()); // COMMENTED OUT
+      // --- END DEBUG ---
+
       const availableLiquidityBN = ethers.utils.parseUnits(
         selectedReserve.availableLiquidity,
         selectedToken.decimals,
@@ -129,10 +179,15 @@ export default function FlashLoanOptions() {
         return;
       }
 
+      // Execute with dynamic parameters derived from filtered prices
       const success = await executeAaveFlashLoan(
-        web3,
+        web3, 
         selectedToken,
         amountInWei.toString(),
+        buyExchange.router, // Use .router
+        sellExchange.router, // Use .router
+        intermediateToken, 
+        slippageBps,
       );
 
       if (success) {
@@ -244,7 +299,7 @@ export default function FlashLoanOptions() {
       )}
 
       <div className="space-y-3">
-        {/* Amount Input */}
+        {/* Amount Input - Keep for UI, but value ignored in handleFlashLoan for now */}
         <div className="bg-white/5 p-2.5 rounded-lg border border-white/10">
           <div className="flex justify-between mb-1.5">
             <label
@@ -315,6 +370,31 @@ export default function FlashLoanOptions() {
               Available: {formatMaxAmount(reserve, selectedToken)}
             </p>
           )}
+          <p className="text-center text-amber-400 text-[10px] mt-1.5">(DEBUG: Hardcoding loan amount to 1 USDC for testing)</p>
+        </div>
+
+        {/* Slippage Input - ADDED */}
+        <div className="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <label
+            htmlFor="slippage-percent"
+            className="block text-white/80 text-xs font-medium mb-1.5 flex items-center"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 mr-1.5"></div>
+            Slippage Tolerance (%)
+          </label>
+          <input
+            id="slippage-percent"
+            type="number"
+            step="0.1"
+            min="0"
+            max="100" // Max 100%
+            value={slippage} // Controlled by slippage state
+            onChange={(e) => setSlippage(e.target.value)} // Update slippage state
+            placeholder="0.5"
+            className="w-full p-2 bg-white/5 border border-white/20 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+            aria-label="Enter slippage tolerance percentage"
+          />
+           <p className="text-white/60 text-[10px] mt-1.5">Recommended: 0.1% - 1%. High slippage can lead to unfavorable trades.</p>
         </div>
 
         {/* Error Message */}
@@ -526,13 +606,16 @@ export default function FlashLoanOptions() {
           </div>
         )}
 
-        {/* Arbitrage Profit Calculator - Only render when we have all required props */}
+        {/* Arbitrage Profit Calculator - Pass slippage state */}
         {dexPrices && (
           <ArbitrageProfitCalculator
             loanAmount={loanAmount || "0"}
             selectedToken={selectedToken}
             flashLoanBps={flashLoanFees?.totalBps || 0.09}
             dexPrices={dexPrices}
+            // Pass slippage state and its setter to the calculator
+            // (or ensure calculator reads slippage from its own input)
+            // This component doesn't directly need slippage, handleFlashLoan reads it.
           />
         )}
 

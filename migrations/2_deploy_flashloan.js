@@ -22,11 +22,25 @@ module.exports = async function (deployer, network, accounts) {
 
   // Deploy contract
   await deployer.deploy(FlashLoan, POOL_PROVIDER);
-  const instance = await FlashLoan.deployed();
+  const flashLoanInstance = await FlashLoan.deployed();
+  console.log(`FlashLoan contract deployed at: ${flashLoanInstance.address}`);
+
+  // === REMOVED: Verify Pool Address ===
+  /* try {
+    console.log("Attempting to verify Pool address accessibility...");
+    const poolAddress = await flashLoanInstance.verifyPoolAddressIsAccessible();
+    console.log(`SUCCESS: Pool address verified and accessible: ${poolAddress}`);
+  } catch (error) {
+    console.error("ERROR: Failed to verify Pool address after deployment.");
+    console.error("This likely means the ADDRESSES_PROVIDER is invalid or getPool() failed on the fork.");
+    console.error(error);
+    throw new Error("Pool verification failed"); // Halt migration
+  } */
+  // === END REMOVED ===
 
   // Approve routers
   console.log("Approving Uniswap and SushiSwap routers...");
-  await instance.setRouterApproval(UNISWAP_V2_ROUTER, true);
-  await instance.setRouterApproval(SUSHISWAP_V2_ROUTER, true);
+  await flashLoanInstance.setRouterApproval(UNISWAP_V2_ROUTER, true);
+  await flashLoanInstance.setRouterApproval(SUSHISWAP_V2_ROUTER, true);
   console.log("Router approval complete.");
 };

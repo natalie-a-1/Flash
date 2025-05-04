@@ -15,6 +15,7 @@ import {
   WETH_DECIMALS,
   EXCHANGES,
 } from "@/lib/constants/dex";
+import { NETWORK_IDS } from "@/lib/web3/config"; // Import network IDs
 
 /**
  * Fetches price data from decentralized exchanges (DEXs) for specified token pairs.
@@ -30,6 +31,11 @@ export async function fetchDexPrices(
   pairs: TokenPair[],
 ): Promise<TokenPairPrices> {
   const fetchedPrices: TokenPairPrices = {};
+
+  // Get network ID (you might need to pass the provider or use a hook if not available here)
+  // For simplicity, assume provider has getNetwork method
+  const network = await provider.getNetwork();
+  const networkId = network.chainId; 
 
   for (const pair of pairs) {
     const pairName = pair.name;
@@ -48,12 +54,25 @@ export async function fetchDexPrices(
     for (const exchange of exchanges) {
       const { name, router, type, feeTier, poolId } = exchange;
 
+      // <<< START MODIFICATION: Only fetch V2/Sushi on Local Fork >>>
+      if (networkId === NETWORK_IDS.LOCALHOST) {
+        if (name !== "Uniswap V2" && name !== "SushiSwap") {
+           console.log(`Skipping ${name} price fetch on local fork.`);
+           fetchedPrices[pairName][name] = 0; // Set price to 0 or skip entry
+           continue; // Skip to the next exchange
+        }
+      }
+      // <<< END MODIFICATION >>>
+
       // --- TEMPORARILY COMMENT OUT BALANCER AND CURVE ---
+      // This block can likely be removed now due to the explicit skipping above
+      /*
       if (name === "Balancer V2" || name === "Curve USDC/ETH") {
         console.log(`Temporarily skipping ${name} price fetch.`);
         fetchedPrices[pairName][name] = 0; // Set price to 0
         continue; // Skip to the next exchange
       }
+      */
       // --- END TEMPORARY COMMENT OUT ---
 
       // Skip if router is not a valid Ethereum address
@@ -70,8 +89,9 @@ export async function fetchDexPrices(
         let outAmount: ethers.BigNumber;
 
         if (type === "v3") {
-          // Uniswap V3 Quoter
-          const quoter = new Contract(router, QUOTER_ABI, provider);
+          // Uniswap V3 Quoter - Needs QUOTER Address, not Router Address
+          // const quoter = new Contract(MAINNET_ADDRESSES.UNISWAP_V3_QUOTER, QUOTER_ABI, provider); // Correct address
+          const quoter = new Contract(router, QUOTER_ABI, provider); // Current INCORRECT code for V3
           outAmount = await quoter.quoteExactInputSingle(
             tokenInAddress,
             tokenOutAddress,
