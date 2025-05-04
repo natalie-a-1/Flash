@@ -71,38 +71,47 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
    * Sets the contract in the global window object for access.
    */
   const initializeFlashLoanContract = async () => {
+    console.log("Attempting to initialize FlashLoan contract...");
     try {
+      console.log("Calling loadContract('FlashLoan')...");
       const flashLoanContract = await loadContract("FlashLoan");
+      console.log("loadContract result:", flashLoanContract ? 'Contract loaded' : 'Contract NOT loaded');
+
       if (flashLoanContract) {
+        console.log("Creating ethers provider...");
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as any,
         );
+        console.log("Getting signer...");
         const signer = provider.getSigner();
 
         const address = flashLoanContract.options.address;
+        console.log("Contract address from artifact:", address);
         if (!address) {
-          console.error("FlashLoan contract address is undefined");
-          return null;
+          console.error("FlashLoan contract address is undefined in artifact for this network");
+          window.flashLoanContract = null;
+          return false;
         }
 
         const abi = Array.isArray(flashLoanContract.options.jsonInterface)
           ? flashLoanContract.options.jsonInterface
           : [];
+        console.log("ABI retrieved, attempting to create ethers.Contract...");
 
         window.flashLoanContract = new ethers.Contract(address, abi, signer);
-        console.log("FlashLoan contract initialized:", address);
+        console.log("FlashLoan contract successfully initialized and assigned to window:", window.flashLoanContract);
         return true;
       } else {
-        console.log(
-          "FlashLoan contract not found on this network - using read-only mode",
+        console.warn(
+          "FlashLoan contract not found by loadContract for this network - using read-only mode",
         );
         window.flashLoanContract = null;
-        return true;
+        return false;
       }
     } catch (error) {
-      console.error("Error initializing FlashLoan contract:", error);
+      console.error("CRITICAL ERROR initializing FlashLoan contract:", error);
       window.flashLoanContract = null;
-      return true;
+      return false;
     }
   };
 
@@ -121,9 +130,15 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
       const supported = SUPPORTED_NETWORK_IDS.includes(chainId);
       setIsCorrectNetwork(supported);
+      console.log(`Network ID: ${chainId}, Name: ${name}, Supported: ${supported}`);
 
       if (supported) {
-        await initializeFlashLoanContract();
+        console.log("Network supported, calling initializeFlashLoanContract...");
+        const initSuccess = await initializeFlashLoanContract();
+        console.log(`initializeFlashLoanContract finished. Success: ${initSuccess}`);
+      } else {
+        console.log("Network not supported, skipping contract initialization.");
+        window.flashLoanContract = null;
       }
     } catch (error) {
       console.error("Error getting network info", error);

@@ -249,11 +249,11 @@ NEXT_PUBLIC_MAINNET_RPC_URL=https://your_alchemy_or_infura_url_here
 # Add other NEXT_PUBLIC_ variables if needed
 ```
 
-Crucially, after deploying contracts with Truffle, ensure the ABI artifacts are copied to the frontend:
+Crucially, after starting Ganache and deploying contracts with Truffle, ensure the ABI artifacts are copied to the frontend using the commands specified in the root README (which involve `truffle migrate --network mainnet_fork --reset` and `node copy-contracts.js`):
 
 ```bash
-# From the project root directory
-npx truffle migrate --network mainnet_fork # Or --reset if needed
+# From the project root directory after starting Ganache
+npx truffle migrate --network mainnet_fork --reset 
 node copy-contracts.js
 ```
 
@@ -263,51 +263,4 @@ This `copy-contracts.js` script places the necessary JSON ABI files (including `
 
 Once contracts are deployed and copied, start the frontend development server:
 
-```bash
-# Navigate to frontend directory
-cd frontend
-
-# Start the dev server
-npm run dev
 ```
-
-Visit [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
-
-```
-frontend/
-├── app/                    # Next.js App Router pages
-├── components/             # React components
-├── contracts/              # Copied contract ABI artifacts (via copy-contracts.js)
-├── hooks/                  # Custom React hooks (e.g., useArbitrageCalculator)
-├── lib/                    # Utilities, constants, services, web3 helpers
-├── public/                 # Static assets
-└── ...                     # Config files (tailwind, postcss, tsconfig, etc.)
-```
-
-## Performance Optimizations
-
-- **Batched RPC Calls**: Reduces network requests
-- **SWR Data Caching**: Minimizes redundant fetching
-- **React.memo**: Prevents unnecessary re-renders
-- **Throttled Updates**: Limits API call frequency
-- **Code Splitting**: Improves initial load time
-
-## Known Limitations
-
-- **Mainnet Integration**: UI connects but transactions need testing
-- **Exchange Support**: Only Uniswap V2 and SushiSwap execute trades
-- **Route Complexity**: Limited to single-pair arbitrage routes
-- **Mobile Experience**: Functional but not fully optimized
-
-## Troubleshooting
-
-- **Wallet Connection Issues**: Ensure browser permissions are enabled
-- **Missing Opportunities**: Check RPC endpoint and network connection
-- **Transaction Failures**: Verify gas settings during network congestion
-- **Network Switching Problems**: Some networks require manual configuration
-
-<div align="center">
-  <p><em>We're here to help</em></p>
-</div>

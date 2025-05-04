@@ -50,7 +50,7 @@ module.exports = {
     mainnet_fork: {
       host: "127.0.0.1", // Ganache's default host
       port: 8545, // Ganache's default port
-      network_id: "*", // Match any network ID
+      network_id: "*", // Revert to wildcard to accept ID '1' from Ganache fork report
       // Fork from Mainnet using Alchemy RPC
       fork: MAINNET_RPC_URL,
       // A higher gas limit is often needed for complex interactions on forks

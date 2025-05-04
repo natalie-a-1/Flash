@@ -186,23 +186,23 @@ MAINNET_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY
 This is the recommended approach for realistic testing.
 
 ```bash
-# Terminal 1: Start Ganache with mainnet fork using persistent DB
-# (Ensure .env is populated with MAINNET_RPC_URL)
+# Terminal 1: Start Ganache with mainnet fork
+# (Ensure .env is populated with MAINNET_RPC_URL. Command now includes --chain.chainId 1337)
 export $(grep -v '^#' .env | xargs)
 npm run ganache:mainnet:persistent
 
 # Terminal 2: Deploy contracts
-# (Uses gas settings from truffle-config.js)
-npx truffle migrate --network mainnet_fork
+# (Uses gas settings from truffle-config.js. Use --reset for fresh deployments)
+npx truffle migrate --network mainnet_fork --reset
 
-# Terminal 3 (Optional): Copy ABIs to frontend if running UI
+# Terminal 3 (If running UI): Copy ABIs to frontend
 node copy-contracts.js
 ```
 
 **Notes:**
-- The `mainnet_fork` network in `truffle-config.js` is configured with specific gas limits and prices suitable for fork interactions.
-- Using `ganache:mainnet:persistent` stores the chain state in `./ganache-db`, allowing you to restart Ganache without losing deployed contracts.
-- If you modify contracts and need a fresh deployment on the fork, use `truffle migrate --network mainnet_fork --reset`.
+- The `mainnet_fork` network in `truffle-config.js` is configured with specific gas limits and `network_id: "*"`.
+- The `ganache:mainnet:persistent` script uses `--chain.chainId 1337` to ensure MetaMask/frontend detect the correct ID (1337), while Truffle saves deployment artifacts under network ID `1` (the ID Ganache reports for the forked network). The frontend logic handles this mismatch.
+- If you modify contracts, use `truffle migrate --network mainnet_fork --reset` to ensure a clean deployment.
 
 ## Technical Implementation
 

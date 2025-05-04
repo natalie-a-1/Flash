@@ -60,74 +60,101 @@ The core arbitrage strategy for USDC -> WETH -> USDC involves:
 
 ```mermaid
 flowchart LR
-    subgraph Monitor & Discover
+    subgraph "Monitor & Discover"
         direction TB
-        A[DEX A Price WETH/USDC] --> C{Compare Prices}
-        B[DEX B Price WETH/USDC] --> C
-        C --> |Price A > Price B + Margin?| D(✅ Opportunity!)
+        A["DEX A Price WETH/USDC"] --> C{Compare Prices}
+        B["DEX B Price WETH/USDC"] --> C
+        C -->|Price A > Price B + Margin?| D["✅ Opportunity!"]
     end
 
-    subgraph Execution
+    subgraph "Execution"
         direction TB
-        E[💰 Borrow USDC\
-Aave Flash Loan] --> F[📈 Buy WETH on DEX A\
-(High WETH/USDC Price)]
-        F --> G[📉 Sell WETH on DEX B\
-(Low WETH/USDC Price)]
-        G --> H[🔁 Repay USDC Loan\
-+ Premium]
-        H --> I[💎 Keep Profit\
-(Remaining USDC)]
+        E["💰 Borrow USDC<br/>Aave Flash Loan"] --> F["📈 Buy WETH on DEX A<br/>(High WETH/USDC Price)"]
+        F --> G["📉 Sell WETH on DEX B<br/>(Low WETH/USDC Price)"]
+        G --> H["🔁 Repay USDC Loan<br/>+ Premium"]
+        H --> I["💎 Keep Profit<br/>(Remaining USDC)"]
     end
 
-    Monitor & Discover -- Opportunity Found --> Execution
+    C -->|Opportunity Found| E
 ```
 
 ## 🏁 Try Flash Today
 
 The quickest way to experience Flash is with our verified local setup:
 
+**1. Clone the Repository**
+
 ```bash
-# Clone the repository
+# Clone the repository and navigate into the directory
 git clone https://github.com/natalie-a-1/Flash.git
 cd Flash
+```
 
-# --- Environment Setup --- #
-# 1. Create/Populate Root .env file
-#    (Used by Truffle, Ganache, Backend Scripts)
+**2. Configure Environment Variables**
+
+Copy the example environment files. You will need to edit these to include your specific RPC URLs and wallet details.
+
+```bash
+# Create/Populate Root .env file (for Truffle, Ganache, backend scripts)
 cp .env.example .env 
-#    -> Open .env and fill in MAINNET_RPC_URL, MNEMONIC, USDC_WHALE_ADDRESS
+# -> EDIT .env and fill in MAINNET_RPC_URL, MNEMONIC, USDC_WHALE_ADDRESS
 
-# 2. Create/Populate Frontend .env.local file
-#    (Used by Next.js App - copy relevant vars, prefixing client-side ones)
-cp .env.example frontend/.env
-#    -> Open frontend/.env.local and ensure NEXT_PUBLIC_MAINNET_RPC_URL is set
-#       (It should match MAINNET_RPC_URL from the root .env)
+# Create/Populate Frontend .env.local file (for Next.js App)
+cp .env.example frontend/.env.local
+# -> EDIT frontend/.env.local and ensure NEXT_PUBLIC_MAINNET_RPC_URL is set
+```
 
-# Install dependencies (in root and frontend)
+**3. Install Dependencies**
+
+Install necessary packages for both the root project and the frontend.
+
+```bash
+# Install root dependencies
 npm install
+
+# Install frontend dependencies
 cd frontend && npm install && cd ..
+```
 
-# Terminal 1: Start local Ethereum fork with persistent database
-# (Environment variables are loaded automatically from root .env by ganache)
-npm run ganache:mainnet:persistent
+**4. Start Local Forked Blockchain (Terminal 1)**
 
-# Terminal 2: Deploy Contract and copy artifacts
-# (Run this only once after cloning, or after deleting ./ganache-db)
-npx truffle migrate --network mainnet_fork
+Run a local Ganache instance forking Ethereum Mainnet. This requires the `MAINNET_RPC_URL` and `USDC_WHALE_ADDRESS` to be set in your root `.env` file.
+
+```bash
+# Ensure .env is populated. This command includes --chain.chainId 1337
+npm run ganache:mainnet:persistent 
+```
+
+**5. Deploy Contracts & Copy Artifacts (Terminal 2)**
+
+Compile and deploy the smart contracts to your running Ganache fork, then copy the resulting ABI files (artifacts) to the frontend directory. Run this after starting a *fresh* Ganache instance.
+
+```bash
+# Compile contracts (if needed, usually handled by migrate)
+truffle compile
+
+# Deploy contracts to the fork (use --reset for a clean deploy)
+npx truffle migrate --network mainnet_fork --reset
+
+# Copy contract ABIs to the frontend directory
 node copy-contracts.js
+```
 
-# In a new terminal, launch the frontend
-# (Next.js loads variables from frontend/.env.local)
-cd frontend && npm run dev
+**6. Launch the Frontend Application (Terminal 3)**
+
+Start the Next.js development server.
+
+```bash
+cd frontend 
+npm run dev
 ```
 
 > **Note:**
-> - You typically only need to deploy your smart contracts (`truffle migrate...` & `node copy-contracts.js`) once after cloning, as the Ganache database persists.
-> - If you modify contracts and need a *fresh* deployment (clearing previous state), use the `--reset` flag: `npx truffle migrate --network mainnet_fork --reset`, then run `node copy-contracts.js`.
-> - The `ganache:mainnet:persistent` script uses `--db ./ganache-db` to save the chain state.
+> - You must run the migration (`truffle migrate...` & `node copy-contracts.js`) after starting a *fresh* Ganache instance (e.g., after deleting `./ganache-db` or if not using `--db`).
+> - If Ganache state persists (using `--db`), you only need to re-run migration steps if contracts change.
+> - The `ganache:mainnet:persistent` script is configured to use Chain ID 1337 internally, which is necessary for MetaMask and the frontend, even though Truffle might interact with Ganache using Network ID 1 (the forked network's ID).
 
-Visit `http://localhost:3000` and connect your wallet (configured for localhost:8545) to start exploring arbitrage opportunities.
+Visit `http://localhost:3000` and connect your wallet (configured for localhost:8545, Chain ID 1337) to start exploring arbitrage opportunities.
 
 <!-- <div align="center">
   <img src="./frontend/public/dashboard_preview.png" alt="Flash Dashboard" width="80%" />

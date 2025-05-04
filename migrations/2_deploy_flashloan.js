@@ -13,10 +13,11 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   // Determine which set of addresses to use
-  const env = network === "mainnet_fork" ? "mainnet" : "sepolia";
+  // USE MAINNET addresses if network is 'development' (local fork) or 'mainnet_fork'
+  const env = (network === "development" || network === "mainnet_fork") ? "mainnet" : "sepolia";
   const { POOL_PROVIDER, UNISWAP_V2_ROUTER, SUSHISWAP_V2_ROUTER } = constants[env];
 
-  console.log(`\nDeploying FlashLoan to ${network} (${env} addresses)`);
+  console.log(`\nDeploying FlashLoan to ${network} (using ${env} addresses)`);
   console.log(`Pool Provider: ${POOL_PROVIDER}`);
 
   // Deploy contract

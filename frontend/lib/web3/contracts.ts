@@ -25,19 +25,34 @@ export async function loadContract(
 
     // Get the current network ID
     const networkDetails = await getNetworkDetails();
-    const networkId = networkDetails.id.toString();
+    let networkId = networkDetails.id.toString();
+    console.log(`[loadContract] Network ID detected by frontend (eth_chainId): ${networkId}`);
 
-    // Check if the contract is deployed on this network
-    if (contractJson.networks && contractJson.networks[networkId]) {
+    // Handle Ganache fork reporting network ID 1 during migration
+    // while MetaMask reports 1337 for the running instance.
+    let artifactNetworkKey = networkId;
+    if (networkId === '1337') {
+      console.log(`[loadContract] Detected local fork (1337), attempting to load artifact using key '1'`);
+      artifactNetworkKey = '1'; // Truffle saved artifact under network ID 1 for forks
+    }
+
+    console.log(`[loadContract] contractJson.networks object:`, contractJson.networks);
+    console.log(`[loadContract] Looking for key '${artifactNetworkKey}' in networks object...`);
+    console.log(`[loadContract] contractJson.networks[${artifactNetworkKey}] entry:`, contractJson.networks ? contractJson.networks[artifactNetworkKey] : 'N/A (networks obj missing)');
+
+    // Check if the contract is deployed on this network (using the adjusted key)
+    if (contractJson.networks && contractJson.networks[artifactNetworkKey]) {
+      console.log(`[loadContract] Found network entry for key '${artifactNetworkKey}'. Address: ${contractJson.networks[artifactNetworkKey].address}`);
       // Create and return the contract instance using network deployment info
       return createContractInstance(
         contractJson.abi,
-        contractJson.networks[networkId].address,
+        contractJson.networks[artifactNetworkKey].address,
       );
     } else {
       // Contract not deployed on this network
       console.warn(
-        `Contract ${contractName} not deployed on network ${networkId}, attempting to use fallback address`,
+        `[loadContract] Contract ${contractName} not found in artifact for effective key '${artifactNetworkKey}' (detected network: ${networkId}). networks obj exists: ${!!contractJson.networks}`,
+        `Attempting to use fallback address`,
       );
 
       // Try to use a fallback address if available
