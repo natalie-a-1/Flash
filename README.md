@@ -83,8 +83,12 @@ cp .env.local .env
 npm install
 cd frontend && npm install && cd ..
 
-# Start local Ethereum fork with deployed contracts
+# Terminal 1: Start local Ethereum fork with deployed contracts
 npm run ganache:mainnet:persistent
+
+# Terminal 2: Deploy Contract and move to frontend
+npx truffle migrate --network mainnet_fork
+node copy-contracts.js
 
 # In a new terminal, launch the frontend
 cd frontend && npm run dev
@@ -92,9 +96,9 @@ cd frontend && npm run dev
 
 Visit `http://localhost:3000` and connect your wallet to the localhost network to start exploring arbitrage opportunities.
 
-<div align="center">
+<!-- <div align="center">
   <img src="./frontend/public/dashboard_preview.png" alt="Flash Dashboard" width="80%" />
-</div>
+</div> -->
 
 ## 🔄 Supported Exchanges
 

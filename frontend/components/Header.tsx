@@ -204,7 +204,7 @@ export default function Header() {
                       onClick={() => switchNetwork(true)}
                       className={`text-xs font-medium ${isFork ? "text-cyan-400" : "text-slate-400"} px-2 py-0.5 rounded hover:bg-slate-700/50`}
                     >
-                      Local
+                      Fork
                     </button>
                   </div>
                 </div>
