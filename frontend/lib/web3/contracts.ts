@@ -41,18 +41,9 @@ export async function loadContract(
       );
 
       // Try to use a fallback address if available
-      if (networkId === "1" && contractName === "FlashLoan") {
-        // If on mainnet, provide a fallback address
-        const fallbackAddress = await getFallbackContractAddress(
-          contractName,
-          networkId,
-        );
-        if (fallbackAddress) {
-          console.log(
-            `Using fallback address for ${contractName}: ${fallbackAddress}`,
-          );
-          return createContractInstance(contractJson.abi, fallbackAddress);
-        }
+      if (contractName === "FlashLoan") {
+        // No fallback address provided for FlashLoan; ensure it's deployed on this network
+        return null;
       }
 
       return null;

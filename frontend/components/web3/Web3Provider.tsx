@@ -14,7 +14,11 @@ import {
   MetaMaskEthereumProvider,
 } from "@/lib/web3/web3";
 import Web3 from "web3";
-import { NETWORK_IDS, NETWORK_NAMES } from "@/lib/web3/config";
+import {
+  NETWORK_IDS,
+  NETWORK_NAMES,
+  SUPPORTED_NETWORK_IDS,
+} from "@/lib/web3/config";
 import { loadContract } from "@/lib/web3/contracts";
 import { ethers } from "ethers";
 
@@ -108,16 +112,17 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
    */
   const updateNetworkInfo = async (web3Instance: Web3) => {
     try {
-      const netId = Number(await web3Instance.eth.net.getId());
-      setNetworkId(netId);
+      // Use chainId (EIP-155) rather than network ID to differentiate mainnet and local fork
+      const chainId = Number(await web3Instance.eth.getChainId());
+      setNetworkId(chainId);
 
-      const name = NETWORK_NAMES[netId] || `Unknown Network (${netId})`;
+      const name = NETWORK_NAMES[chainId] || `Unknown Network (${chainId})`;
       setNetworkName(name);
 
-      const onMainnet = netId === NETWORK_IDS.MAINNET;
-      setIsCorrectNetwork(onMainnet);
+      const supported = SUPPORTED_NETWORK_IDS.includes(chainId);
+      setIsCorrectNetwork(supported);
 
-      if (onMainnet) {
+      if (supported) {
         await initializeFlashLoanContract();
       }
     } catch (error) {
