@@ -10,6 +10,11 @@ interface RouterApprovalStatusProps {
 }
 
 export default function RouterApprovalStatus({ className = '' }: RouterApprovalStatusProps) {
+  // Always return null to prevent this component from displaying in the frontend
+  return null;
+  
+  // Original component code is kept but not executed
+  /* 
   const { isConnected, account } = useWeb3();
   const [owner, setOwner] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
@@ -157,4 +162,5 @@ export default function RouterApprovalStatus({ className = '' }: RouterApprovalS
       )}
     </div>
   );
+  */
 } 
