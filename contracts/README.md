@@ -178,12 +178,6 @@ sequenceDiagram
     FL->>Aave: Approve repayment
     FL-->>Aave: Return loan + premium
     FL-->>User: Keep profit
-
-    style User fill:#0d1117,stroke:#30363d,color:#c9d1d9
-    style FL fill:#1a1b26,stroke:#30363d,color:#c9d1d9
-    style Aave fill:#1a1b26,stroke:#30363d,color:#c9d1d9
-    style DexA fill:#1a1b26,stroke:#30363d,color:#c9d1d9
-    style DexB fill:#1a1b26,stroke:#30363d,color:#c9d1d9
 ```
 
 ## 🔐 Security Considerations
