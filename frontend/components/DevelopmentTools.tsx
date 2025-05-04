@@ -5,6 +5,10 @@ import { useWeb3 } from "./web3/Web3Provider";
 import { NETWORK_IDS } from "@/lib/web3/config";
 import { ethers } from "ethers";
 
+/**
+ * DevelopmentTools component provides UI buttons to interact with local blockchain
+ * functionalities such as seeding a wallet, skewing prices, and funding a wallet.
+ */
 export default function DevelopmentTools() {
   const { web3, account, isConnected, networkId } = useWeb3();
   const [mounted, setMounted] = useState(false);
@@ -22,6 +26,10 @@ export default function DevelopmentTools() {
     setMounted(true);
   }, []);
 
+  /**
+   * Handles the wallet seeding process by calling the backend API.
+   * Resets error and success states before execution.
+   */
   const handleSeedWallet = async () => {
     setIsSeeding(true);
     setSeedError(null);
@@ -50,6 +58,10 @@ export default function DevelopmentTools() {
     }
   };
 
+  /**
+   * Handles the price skewing process by calling the backend API.
+   * Resets error and success states before execution.
+   */
   const handleSkewPrices = async () => {
     setIsSkewing(true);
     setSeedError(null);
@@ -78,6 +90,10 @@ export default function DevelopmentTools() {
     }
   };
 
+  /**
+   * Handles the wallet funding process by sending ETH from a local node account.
+   * Validates connection and account status before proceeding.
+   */
   const handleFundWallet = async () => {
     if (!web3 || !account) {
       setFundError("Wallet not connected.");
@@ -131,88 +147,188 @@ export default function DevelopmentTools() {
     }
   };
 
+  // Render nothing if the component is not mounted, not connected, or not on the localhost network
   if (!mounted || !isConnected || networkId !== NETWORK_IDS.LOCALHOST) {
     return null;
   }
 
+  // Status indicator component
+  const StatusIndicator = ({ success, error }: { success: string | null, error: string | null }) => {
+    if (!success && !error) return null;
+    
+    return (
+      <div className={`mt-1 text-[10px] font-medium rounded px-1.5 py-1 transition-all duration-300 ${
+        success 
+          ? "bg-green-900/20 text-green-300 border border-green-500/30" 
+          : "bg-red-900/20 text-red-300 border border-red-500/30"
+      }`}>
+        <div className="flex items-center">
+          {success && (
+            <>
+              <svg className="w-2.5 h-2.5 mr-1 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>{success}</span>
+            </>
+          )}
+          {error && (
+            <>
+              <svg className="w-2.5 h-2.5 mr-1 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              <span className="break-words">{error}</span>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="mb-3 rounded-xl bg-gradient-to-b from-yellow-800/30 to-yellow-900/30 backdrop-blur-sm p-3 shadow-lg border border-yellow-500/30">
-      <h3 className="text-base font-semibold text-yellow-300 mb-2 flex items-center">
-        <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.63-6.837.688-.688a1.875 1.875 0 1 0-2.652-2.652L10.582 7.5m5.63 6.837-5.63 6.837m0-11.317 2.651-3.03m0 0L7.5 10.582l-1.598-1.597a1.875 1.875 0 1 0-2.652 2.651l1.597 1.598" />
-        </svg>
-        Local Fork Dev Tools
-      </h3>
+    <div className="rounded-lg bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
+      <h2 className="text-lg font-semibold text-white mb-3 flex items-center">
+        <div className="w-5 h-5 mr-1.5 bg-gradient-to-br from-amber-500 to-orange-400 rounded-full flex items-center justify-center">
+          <svg
+            className="w-3 h-3 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.63-6.837.688-.688a1.875 1.875 0 1 0-2.652-2.652L10.582 7.5m5.63 6.837-5.63 6.837m0-11.317 2.651-3.03m0 0L7.5 10.582l-1.598-1.597a1.875 1.875 0 1 0-2.652 2.651l1.597 1.598"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        Dev Tools
+        <span className="text-[10px] text-slate-400 font-light italic ml-2">
+          Local fork only
+        </span>
+      </h2>
+      
       <div className="space-y-3">
-        <div>
-            <button
-            onClick={handleSeedWallet}
-            disabled={isSeeding || isSkewing || isFunding}
-            className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center ${
-                isSeeding || isSkewing || isFunding
-                ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white cursor-pointer shadow-md"
-            }`}
-            >
-            {isSeeding ? (
-                <>
-                    <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
-                    Seeding Wallet...
-                </>
-            ) : (
-                "🌱 Seed Wallet (100k USDC + Approvals)"
-            )}
-            </button>
-             {seedSuccess && <p className="text-green-400 text-xs mt-1 px-1">{seedSuccess}</p>}
-             {seedError && <p className="text-red-400 text-xs mt-1 px-1 break-words">{seedError}</p>}
+        {/* Seed Wallet Button */}
+        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-blue-500/30 group">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-blue-500/20 transition-all">
+              <span className="text-white flex items-center justify-center w-3.5 h-3.5">🌱</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-center">
+                <p className="text-white/80 text-xs font-medium">Seed Wallet</p>
+                <span className="text-xs px-1 py-0 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[10px]">
+                  100k USDC
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-1">
+                <button
+                  onClick={handleSeedWallet}
+                  disabled={isSeeding || isSkewing || isFunding}
+                  className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
+                    ${isSeeding || isSkewing || isFunding
+                      ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                      : "bg-blue-500/80 hover:bg-blue-600 hover:shadow-sm"}`}
+                >
+                  {isSeeding ? (
+                    <div className="flex justify-center items-center">
+                      <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Seeding...</span>
+                    </div>
+                  ) : (
+                    <span>Execute</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          <StatusIndicator success={seedSuccess} error={seedError} />
         </div>
 
-        <div>
-            <button
-            onClick={handleSkewPrices}
-            disabled={isSeeding || isSkewing || isFunding}
-            className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center ${
-                isSeeding || isSkewing || isFunding
-                ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                : "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white cursor-pointer shadow-md"
-            }`}
-            >
-            {isSkewing ? (
-                <>
-                    <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
-                    Skewing Uniswap Price...
-                </>
-            ) : (
-                "📈 Skew Uniswap Price (USDC->WETH)"
-            )}
-            </button>
-             {skewSuccess && <p className="text-green-400 text-xs mt-1 px-1">{skewSuccess}</p>}
-             {skewError && <p className="text-red-400 text-xs mt-1 px-1 break-words">{skewError}</p>}
+        {/* Skew Prices Button */}
+        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-amber-500/30 group">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-amber-500/20 transition-all">
+              <span className="text-white flex items-center justify-center w-3.5 h-3.5">📈</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-center">
+                <p className="text-white/80 text-xs font-medium">Skew Prices</p>
+                <span className="text-xs px-1 py-0 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded text-[10px]">
+                  Modify Rates
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-1">
+                <button
+                  onClick={handleSkewPrices}
+                  disabled={isSeeding || isSkewing || isFunding}
+                  className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
+                    ${isSeeding || isSkewing || isFunding
+                      ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                      : "bg-amber-500/80 hover:bg-amber-600 hover:shadow-sm"}`}
+                >
+                  {isSkewing ? (
+                    <div className="flex justify-center items-center">
+                      <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Skewing...</span>
+                    </div>
+                  ) : (
+                    <span>Execute</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          <StatusIndicator success={skewSuccess} error={skewError} />
         </div>
 
-        <div>
-            <button
-            onClick={handleFundWallet}
-            disabled={isSeeding || isSkewing || isFunding || !account}
-             className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center ${
-                isSeeding || isSkewing || isFunding || !account
-                ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white cursor-pointer shadow-md"
-            }`}
-            >
-            {isFunding ? (
-                 <>
-                    <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
-                    Funding Wallet...
-                </>
-            ) : (
-                "⛽ Fund Wallet (0.1 ETH)"
-            )}
-            </button>
-             {fundSuccess && <p className="text-green-400 text-xs mt-1 px-1">{fundSuccess}</p>}
-             {fundError && <p className="text-red-400 text-xs mt-1 px-1 break-words">{fundError}</p>}
+        {/* Fund Wallet Button */}
+        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-emerald-500/30 group">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-emerald-500/20 transition-all">
+              <span className="text-white flex items-center justify-center w-3.5 h-3.5">⛽</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-center">
+                <p className="text-white/80 text-xs font-medium">Fund Wallet</p>
+                <span className="text-xs px-1 py-0 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px]">
+                  1 ETH
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-1">
+                <button
+                  onClick={handleFundWallet}
+                  disabled={isSeeding || isSkewing || isFunding || !account}
+                  className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
+                    ${isSeeding || isSkewing || isFunding || !account
+                      ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                      : "bg-emerald-500/80 hover:bg-emerald-600 hover:shadow-sm"}`}
+                >
+                  {isFunding ? (
+                    <div className="flex justify-center items-center">
+                      <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Funding...</span>
+                    </div>
+                  ) : (
+                    <span>Execute</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          <StatusIndicator success={fundSuccess} error={fundError} />
         </div>
-
       </div>
     </div>
   );

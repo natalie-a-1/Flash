@@ -427,7 +427,7 @@ export default function ArbitrageProfitCalculator({
                   </span>
                 </div>
                 {/* Display Buy/Sell Fees */}
-                {buyExchange && sellExchange && (
+                {/* {buyExchange && sellExchange && (
                     <>
                         <div className="flex justify-between items-center p-1.5 rounded bg-white/5">
                             <div className="flex items-center">
@@ -442,7 +442,7 @@ export default function ArbitrageProfitCalculator({
                             <span>{sellFeePct.toFixed(2)}%</span>
                         </div>
                     </>
-                )}
+                )} */}
               </div>
             </div>
           </div>
