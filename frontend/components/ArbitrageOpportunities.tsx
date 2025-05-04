@@ -100,27 +100,26 @@ export default function ArbitrageOpportunities() {
 
   // --- Determine which exchanges to display based on network ---
   const exchangesToShow = EXCHANGES.filter((exchange) => {
-    // If connected to localhost fork, hide the V3 exchanges
+    // Always hide Balancer and Curve for now
+    if (exchange.name === "Balancer V2" || exchange.name === "Curve USDC/ETH") {
+      return false;
+    }
+
+    // If connected to Mainnet, show V2 and V3
+    if (networkId === NETWORK_IDS.MAINNET) {
+      return true; // All others (V2, V3) are shown
+    }
+
+    // If connected to localhost fork, show only V2/Sushi
     if (networkId === NETWORK_IDS.LOCALHOST) {
       return (
-        exchange.name !== "Uniswap V3 (0.05%)" &&
-        exchange.name !== "Uniswap V3 (0.30%)"
-        // Keep Balancer and Curve hidden for now as per previous logic
-        && exchange.name !== "Balancer V2" 
-        && exchange.name !== "Curve USDC/ETH"
+        exchange.name === "Uniswap V2" || exchange.name === "SushiSwap"
       );
-    } 
-    // --- TEMPORARILY KEEP V3 HIDDEN ON MAINNET TOO (as Balancer/Curve are also hidden) ---
-    // You might want to adjust this logic later if Balancer/Curve are re-enabled
-    // Currently hides V3, Balancer, Curve on all networks
-     return (
-        exchange.name !== "Uniswap V3 (0.05%)" &&
-        exchange.name !== "Uniswap V3 (0.30%)"
-        && exchange.name !== "Balancer V2" 
-        && exchange.name !== "Curve USDC/ETH"
-      );
-    // Original logic (show all except Balancer/Curve on mainnet):
-    // return exchange.name !== "Balancer V2" && exchange.name !== "Curve USDC/ETH";
+    }
+    
+    // Default: If networkId is null or unsupported, potentially show nothing or default set
+    // Current logic falls through to showing nothing if not Mainnet or Localhost
+    return false; 
   });
 
   /**
@@ -339,7 +338,7 @@ export default function ArbitrageOpportunities() {
           {PAIRS.map((pair) => {
             const pairPrices = prices[pair.name] || {};
 
-            // Filter prices to include only those from visible exchanges
+            // Filter prices to include only those from *dynamically* visible exchanges
             const visiblePrices: ExchangePrices = {};
             exchangesToShow.forEach((exchange) => {
               if (pairPrices.hasOwnProperty(exchange.name)) {
