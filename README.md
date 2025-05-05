@@ -11,6 +11,10 @@
 
 </div>
 
+![Demo](assets/flash.gif)
+
+
+
 ## ⚡ Discover Opportunities. Execute Seamlessly.
 
 Flash transforms arbitrage trading with an elegant system that empowers you to identify and capitalize on price differences between decentralized exchanges—all without requiring capital upfront through the power of flash loans.
