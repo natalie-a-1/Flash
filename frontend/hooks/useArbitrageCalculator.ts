@@ -8,7 +8,8 @@ interface UseArbitrageCalculatorParams {
   loanAmount: string; // The amount of the loan in USDC
   buyPrice: string; // The price at which the asset is bought (WETH per USD)
   sellPrice: string; // The price at which the asset is sold (WETH per USD)
-  tradingFees: string; // The trading fees percentage
+  buyFeePct: number; // The trading fee percentage for the buy exchange
+  sellFeePct: number; // The trading fee percentage for the sell exchange
   slippage: string; // The slippage percentage
   gasCost: string; // The cost of gas in USD
   profitThreshold: string; // The minimum profit threshold in USD
@@ -25,7 +26,8 @@ export function useArbitrageCalculator({
   loanAmount,
   buyPrice,
   sellPrice,
-  tradingFees,
+  buyFeePct,
+  sellFeePct,
   slippage,
   gasCost,
   profitThreshold,
@@ -36,7 +38,7 @@ export function useArbitrageCalculator({
   const [roi, setRoi] = useState<number | null>(null); // State for return on investment
 
   useEffect(() => {
-    if (!loanAmount) {
+    if (!loanAmount || !buyPrice || !sellPrice || !gasCost) {
       setPotentialProfit(null);
       setIsProfitable(false);
       setRoi(null);
@@ -51,8 +53,8 @@ export function useArbitrageCalculator({
       loanUsdc: parseFloat(loanAmount),
       buyPriceWethPerUsd: parseFloat(buyPrice),
       sellPriceWethPerUsd: parseFloat(sellPrice),
-      buyFeePct: parseFloat(tradingFees),
-      sellFeePct: parseFloat(tradingFees),
+      buyFeePct: buyFeePct,
+      sellFeePct: sellFeePct,
       buySlipPct: parseFloat(slippage),
       sellSlipPct: parseFloat(slippage),
       gasCostUsd: parseFloat(gasCost),
@@ -67,7 +69,8 @@ export function useArbitrageCalculator({
     loanAmount,
     buyPrice,
     sellPrice,
-    tradingFees,
+    buyFeePct,
+    sellFeePct,
     slippage,
     gasCost,
     profitThreshold,

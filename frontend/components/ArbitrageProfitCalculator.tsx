@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { formatCurrencyAmount, formatTokenAmount } from "@/lib/web3/utils";
 import {
   ArbitrageProfitCalculatorProps as UpdatedArbitrageProfitCalculatorProps,
   ExchangePrices,
+  Exchange,
 } from "@/types/arbitrage";
 import { useArbitrageCalculator } from "@/hooks/useArbitrageCalculator";
 import {
@@ -13,16 +14,35 @@ import {
 } from "@/lib/web3/hooks/useTransactionFees";
 import { TokenInfo } from "@/types/aave";
 import { findBestArbitragePath } from "@/lib/services/priceService";
+import { useWeb3 } from "../components/web3/Web3Provider";
+import { NETWORK_IDS } from "@/lib/web3/config";
+import { EXCHANGES } from "@/lib/constants/dex";
 
-export default function ArbitrageProfitCalculator({
-  loanAmount,
-  selectedToken,
-  flashLoanBps,
-  dexPrices,
-}: UpdatedArbitrageProfitCalculatorProps) {
+// Define the ref type for the calculator
+export interface ArbitrageProfitCalculatorRef {
+  getSlippage: () => string;
+}
+
+// Add forwardRef and add calculatorRef to props
+export default forwardRef<
+  ArbitrageProfitCalculatorRef,
+  UpdatedArbitrageProfitCalculatorProps
+>(function ArbitrageProfitCalculator(
+  { loanAmount, selectedToken, flashLoanBps, dexPrices },
+  ref,
+) {
   // Keep local UI state
   const [slippage, setSlippage] = useState<string>("0.5"); // Default 0.5%
   const [profitThreshold, setProfitThreshold] = useState<string>("10"); // Default $10
+
+  // Expose slippage value through imperative handle ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      getSlippage: () => slippage,
+    }),
+    [slippage],
+  );
 
   // Fee statistics from network and estimate based on loan amount
   const { txFeeEth, txFeeUsdc } = useTransactionFees();
@@ -32,32 +52,68 @@ export default function ArbitrageProfitCalculator({
     txFeeUsdc: loanTxFeeUsdc,
   } = useEstimateLoanFee(loanAmount, selectedToken.decimals);
 
-  // Calculate flash loan fee and total fees based on loan amount
+  // Calculate flash loan fee
   const loanAmtNum = parseFloat(loanAmount) || 0;
   const flashLoanFeeAmt =
     loanAmtNum > 0 ? (loanAmtNum * flashLoanBps) / 10_000 : 0;
   const gasFeeAmt = txFeeUsdc ? parseFloat(txFeeUsdc) : 0;
 
-  // Fees are included or will be fetched internally; always use '0' for now
-  const tradingFeesValue = "0";
+  // Get network context
+  const { networkId } = useWeb3();
 
-  // Determine best arbitrage path (auto-select buy/sell DEX)
-  const bestPath = dexPrices ? findBestArbitragePath(dexPrices) : null;
-  const buyExchange = bestPath?.buy || "";
-  const sellExchange = bestPath?.sell || "";
+  // Filter DEX prices for executable exchanges on local fork
+  let filteredDexPrices: ExchangePrices | null = dexPrices;
+  if (networkId === NETWORK_IDS.LOCALHOST && dexPrices) {
+    const allowedExchanges = ["Uniswap V2", "SushiSwap"]; // Only these are configured for execution
+    filteredDexPrices = {};
+    for (const exchangeName of allowedExchanges) {
+      if (dexPrices[exchangeName] !== undefined) {
+        filteredDexPrices[exchangeName] = dexPrices[exchangeName];
+      }
+    }
+    // If filteredDexPrices is empty after filtering, set it back to null
+    if (Object.keys(filteredDexPrices).length === 0) {
+      filteredDexPrices = null;
+    }
+  }
+
+  // Determine best arbitrage path from *filtered* prices
+  const bestPath = filteredDexPrices
+    ? findBestArbitragePath(filteredDexPrices)
+    : null;
+  const buyExchange: Exchange | null = bestPath?.buy || null;
+  const sellExchange: Exchange | null = bestPath?.sell || null;
+
+  // Get router addresses using the exchange name from the constants
+  const buyRouterAddress = buyExchange
+    ? EXCHANGES.find((ex) => ex.name === buyExchange.name)?.router
+    : undefined;
+  const sellRouterAddress = sellExchange
+    ? EXCHANGES.find((ex) => ex.name === sellExchange.name)?.router
+    : undefined;
+
   const buyPriceValue =
-    buyExchange && dexPrices ? dexPrices[buyExchange].toString() : "0";
+    buyExchange && filteredDexPrices && filteredDexPrices[buyExchange.name]
+      ? filteredDexPrices[buyExchange.name].toString()
+      : "0";
   const sellPriceValue =
-    sellExchange && dexPrices ? dexPrices[sellExchange].toString() : "0";
+    sellExchange && filteredDexPrices && filteredDexPrices[sellExchange.name]
+      ? filteredDexPrices[sellExchange.name].toString()
+      : "0";
 
-  // Use custom hook for calculation, pass gasCost in USDC
+  // Get fees from the selected exchanges, default to 0 if null
+  const buyFeePct = buyExchange?.feePct ?? 0;
+  const sellFeePct = sellExchange?.feePct ?? 0;
+
+  // Use custom hook for calculation, pass specific fees
   const { potentialProfit, isProfitable, roi } = useArbitrageCalculator({
     loanAmount,
     buyPrice: buyPriceValue,
     sellPrice: sellPriceValue,
-    tradingFees: tradingFeesValue,
+    buyFeePct, // Pass the specific buy fee %
+    sellFeePct, // Pass the specific sell fee %
     slippage,
-    gasCost: loanTxFeeUsdc,
+    gasCost: loanTxFeeUsdc, // Pass gas cost in USDC
     profitThreshold,
     flashLoanBps,
   });
@@ -289,7 +345,7 @@ export default function ArbitrageProfitCalculator({
                       </svg>
                       <span>
                         Buy on{" "}
-                        <span className="font-medium">{buyExchange}</span>:
+                        <span className="font-medium">{buyExchange.name}</span>:
                       </span>
                     </div>
                     <span>{parseFloat(buyPriceValue).toFixed(8)} WETH</span>
@@ -326,7 +382,8 @@ export default function ArbitrageProfitCalculator({
                       </svg>
                       <span>
                         Sell on{" "}
-                        <span className="font-medium">{sellExchange}</span>:
+                        <span className="font-medium">{sellExchange.name}</span>
+                        :
                       </span>
                     </div>
                     <span>{parseFloat(sellPriceValue).toFixed(8)} WETH</span>
@@ -418,6 +475,23 @@ export default function ArbitrageProfitCalculator({
                       : "—"}
                   </span>
                 </div>
+                {/* Display Buy/Sell Fees */}
+                {/* {buyExchange && sellExchange && (
+                    <>
+                        <div className="flex justify-between items-center p-1.5 rounded bg-white/5">
+                            <div className="flex items-center">
+                                <span>Buy Fee ({buyExchange.name}):</span>
+                            </div>
+                            <span>{buyFeePct.toFixed(2)}%</span>
+                        </div>
+                        <div className="flex justify-between items-center p-1.5 rounded bg-white/5">
+                            <div className="flex items-center">
+                                <span>Sell Fee ({sellExchange.name}):</span>
+                            </div>
+                            <span>{sellFeePct.toFixed(2)}%</span>
+                        </div>
+                    </>
+                )} */}
               </div>
             </div>
           </div>
@@ -425,4 +499,4 @@ export default function ArbitrageProfitCalculator({
       </div>
     </div>
   );
-}
+});

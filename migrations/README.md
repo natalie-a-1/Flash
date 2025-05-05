@@ -47,8 +47,8 @@ This directory contains Truffle migration scripts for deploying and configuring 
       <strong>Implementation:</strong>
       <ul>
         <li>Deploys the main <code>FlashLoan.sol</code> contract</li>
-        <li>Approves DEX routers for arbitrage operations</li>
-        <li>Configures network-specific settings</li>
+        <li>Approves DEX routers (e.g., Uniswap V2, SushiSwap) for arbitrage operations based on network</li>
+        <li>Configures network-specific settings (Aave Pool Provider)</li>
       </ul>
     </td>
   </tr>
@@ -154,63 +154,71 @@ MAINNET_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY
 
 ### Deployment Commands
 
+**Important:** Ensure you have run `npm install` in the root directory.
+
 <div align="center">
   <table>
     <tr>
       <th>Environment</th>
-      <th>Command</th>
+      <th>Command (from root directory)</th>
     </tr>
     <tr>
-      <td>Local Development</td>
+      <td>Local Development (Standard Ganache)</td>
       <td><code>truffle migrate --network development</code></td>
     </tr>
     <tr>
-      <td>Development Fork</td>
-      <td><code>truffle migrate --network development_fork</code></td>
+      <td>Mainnet Fork (Recommended for Testing)</td>
+      <td>See section below</td>
     </tr>
     <tr>
       <td>Sepolia Testnet</td>
       <td><code>truffle migrate --network sepolia</code></td>
     </tr>
+     <tr>
+      <td>Mainnet (Use with caution!)</td>
+      <td><code>truffle migrate --network mainnet</code></td>
+    </tr>
   </table>
 </div>
 
-### Forked Network Deployment
+### Forked Network Deployment (Mainnet Fork)
 
-For the most realistic testing environment, we recommend using a forked network:
+This is the recommended approach for realistic testing.
 
 ```bash
 # Terminal 1: Start Ganache with mainnet fork
+# (Ensure .env is populated with MAINNET_RPC_URL. Command now includes --chain.chainId 1337)
+export $(grep -v '^#' .env | xargs)
 npm run ganache:mainnet:persistent
 
 # Terminal 2: Deploy contracts
-truffle migrate --network development_fork
+# (Uses gas settings from truffle-config.js. Use --reset for fresh deployments)
+npx truffle migrate --network mainnet_fork --reset
+
+# Terminal 3 (If running UI): Copy ABIs to frontend
+node copy-contracts.js
 ```
+
+**Notes:**
+- The `mainnet_fork` network in `truffle-config.js` is configured with specific gas limits and `network_id: "*"`.
+- The `ganache:mainnet:persistent` script uses `--chain.chainId 1337` to ensure MetaMask/frontend detect the correct ID (1337), while Truffle saves deployment artifacts under network ID `1` (the ID Ganache reports for the forked network). The frontend logic handles this mismatch.
+- If you modify contracts, use `truffle migrate --network mainnet_fork --reset` to ensure a clean deployment.
 
 ## Technical Implementation
 
 ### Deployment Workflow
 
-1. **Network Detection**
-   - Scripts automatically identify the target network
-   - Environment-specific configuration is loaded from constants.json
-
-2. **Contract Deployment**
-   - Migrations.sol is deployed first
-   - FlashLoan.sol is deployed with the appropriate Aave provider address
-   - Router approvals are configured for the network's DEXs
-
-3. **Verification**
-   - Contract addresses are logged to the console
-   - Successful deployment is confirmed
-   - Approved routers are verified
+1. **Network Detection**: Scripts identify the target network (`development`, `mainnet_fork`, `sepolia`, etc.).
+2. **Configuration Loading**: Network-specific addresses (Aave Pool Provider, DEX Routers) are loaded from `constants.json`.
+3. **Contract Deployment**: `Migrations.sol` followed by `FlashLoan.sol` (linked to the correct Aave Pool Provider).
+4. **Router Approval**: `2_deploy_flashloan.js` calls `approveRouter` on the deployed `FlashLoan` contract for the network's Uniswap V2 and SushiSwap routers.
+5. **Verification**: Contract addresses and approved routers are logged.
 
 ### Advanced Features
 
-- **Network-Specific Addresses**: Deploys with correct contract addresses for each network
-- **Deployment Skipping**: Automatically skips unsupported networks
-- **Gas Optimization**: Configures appropriate gas limits and prices
-- **Error Handling**: Detailed error messages for failed deployments
+- **Network-Specific Addresses**: Deploys with correct external contract addresses.
+- **Gas Optimization**: Gas settings in `truffle-config.js` are tuned per network (higher limits/prices for mainnet/fork).
+- **Error Handling**: Detailed error messages for failed deployments.
 
 ## Troubleshooting
 

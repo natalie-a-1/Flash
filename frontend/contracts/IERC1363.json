@@ -1,0 +1,1483 @@
+{
+  "contractName": "IERC1363",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferAndCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "transferAndCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "transferFromAndCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFromAndCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approveAndCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "approveAndCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"transferAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"transferFromAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferFromAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the ERC-1363 standard as defined in the https://eips.ethereum.org/EIPS/eip-1363[ERC-1363]. Defines an extension interface for ERC-20 tokens that supports executing code on a recipient contract after `transfer` or `transferFrom`, or code on a spender contract after `approve`, in a single transaction.\",\"events\":{\"Approval(address,address,uint256)\":{\"details\":\"Emitted when the allowance of a `spender` for an `owner` is set by a call to {approve}. `value` is the new allowance.\"},\"Transfer(address,address,uint256)\":{\"details\":\"Emitted when `value` tokens are moved from one account (`from`) to another (`to`). Note that `value` may be zero.\"}},\"kind\":\"dev\",\"methods\":{\"allowance(address,address)\":{\"details\":\"Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called.\"},\"approve(address,uint256)\":{\"details\":\"Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event.\"},\"approveAndCall(address,uint256)\":{\"details\":\"Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\",\"params\":{\"spender\":\"The address which will spend the funds.\",\"value\":\"The amount of tokens to be spent.\"},\"returns\":{\"_0\":\"A boolean value indicating whether the operation succeeded unless throwing.\"}},\"approveAndCall(address,uint256,bytes)\":{\"details\":\"Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\",\"params\":{\"data\":\"Additional data with no specified format, sent in call to `spender`.\",\"spender\":\"The address which will spend the funds.\",\"value\":\"The amount of tokens to be spent.\"},\"returns\":{\"_0\":\"A boolean value indicating whether the operation succeeded unless throwing.\"}},\"balanceOf(address)\":{\"details\":\"Returns the value of tokens owned by `account`.\"},\"supportsInterface(bytes4)\":{\"details\":\"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas.\"},\"totalSupply()\":{\"details\":\"Returns the value of tokens in existence.\"},\"transfer(address,uint256)\":{\"details\":\"Moves a `value` amount of tokens from the caller's account to `to`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"transferAndCall(address,uint256)\":{\"details\":\"Moves a `value` amount of tokens from the caller's account to `to` and then calls {IERC1363Receiver-onTransferReceived} on `to`.\",\"params\":{\"to\":\"The address which you want to transfer to.\",\"value\":\"The amount of tokens to be transferred.\"},\"returns\":{\"_0\":\"A boolean value indicating whether the operation succeeded unless throwing.\"}},\"transferAndCall(address,uint256,bytes)\":{\"details\":\"Moves a `value` amount of tokens from the caller's account to `to` and then calls {IERC1363Receiver-onTransferReceived} on `to`.\",\"params\":{\"data\":\"Additional data with no specified format, sent in call to `to`.\",\"to\":\"The address which you want to transfer to.\",\"value\":\"The amount of tokens to be transferred.\"},\"returns\":{\"_0\":\"A boolean value indicating whether the operation succeeded unless throwing.\"}},\"transferFrom(address,address,uint256)\":{\"details\":\"Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism. `value` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"transferFromAndCall(address,address,uint256)\":{\"details\":\"Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism and then calls {IERC1363Receiver-onTransferReceived} on `to`.\",\"params\":{\"from\":\"The address which you want to send tokens from.\",\"to\":\"The address which you want to transfer to.\",\"value\":\"The amount of tokens to be transferred.\"},\"returns\":{\"_0\":\"A boolean value indicating whether the operation succeeded unless throwing.\"}},\"transferFromAndCall(address,address,uint256,bytes)\":{\"details\":\"Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism and then calls {IERC1363Receiver-onTransferReceived} on `to`.\",\"params\":{\"data\":\"Additional data with no specified format, sent in call to `to`.\",\"from\":\"The address which you want to send tokens from.\",\"to\":\"The address which you want to transfer to.\",\"value\":\"The amount of tokens to be transferred.\"},\"returns\":{\"_0\":\"A boolean value indicating whether the operation succeeded unless throwing.\"}}},\"title\":\"IERC1363\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"@openzeppelin/contracts/interfaces/IERC1363.sol\":\"IERC1363\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/interfaces/IERC1363.sol\":{\"keccak256\":\"0x9b6b3e7803bc5f2f8cd7ad57db8ac1def61a9930a5a3107df4882e028a9605d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://da62d6be1f5c6edf577f0cb45666a8aa9c2086a4bac87d95d65f02e2f4c36a4b\",\"dweb:/ipfs/QmNkpvBpoCMvX8JwAFNSc5XxJ2q5BXJpL5L1txb4QkqVFF\"]},\"@openzeppelin/contracts/interfaces/IERC165.sol\":{\"keccak256\":\"0xde7e9fd9aee8d4f40772f96bb3b58836cbc6dfc0227014a061947f8821ea9724\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://11fea9f8bc98949ac6709f0c1699db7430d2948137aa94d5a9e95a91f61a710a\",\"dweb:/ipfs/QmQdfRXxQjwP6yn3DVo1GHPpriKNcFghSPi94Z1oKEFUNS\"]},\"@openzeppelin/contracts/interfaces/IERC20.sol\":{\"keccak256\":\"0xce41876e78d1badc0512229b4d14e4daf83bc1003d7f83978d18e0e56f965b9c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a2608291cb038b388d80b79a06b6118a42f7894ff67b7da10ec0dbbf5b2973ba\",\"dweb:/ipfs/QmWohqcBLbcxmA4eGPhZDXe5RYMMEEpFq22nfkaUMvTfw1\"]},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://df6f0c459663c9858b6cba2cda1d14a7d05a985bed6d2de72bd8e78c25ee79db\",\"dweb:/ipfs/QmeTTxZ7qVk9rjEv2R4CpCwdf8UMCcRqDNMvzNxHc3Fnn9\"]},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x79796192ec90263f21b464d5bc90b777a525971d3de8232be80d9c4f9fb353b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f6fda447a62815e8064f47eff0dd1cf58d9207ad69b5d32280f8d7ed1d1e4621\",\"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v5.1.0) (interfaces/IERC1363.sol)\n\npragma solidity ^0.8.20;\n\nimport {IERC20} from \"./IERC20.sol\";\nimport {IERC165} from \"./IERC165.sol\";\n\n/**\n * @title IERC1363\n * @dev Interface of the ERC-1363 standard as defined in the https://eips.ethereum.org/EIPS/eip-1363[ERC-1363].\n *\n * Defines an extension interface for ERC-20 tokens that supports executing code on a recipient contract\n * after `transfer` or `transferFrom`, or code on a spender contract after `approve`, in a single transaction.\n */\ninterface IERC1363 is IERC20, IERC165 {\n    /*\n     * Note: the ERC-165 identifier for this interface is 0xb0202a11.\n     * 0xb0202a11 ===\n     *   bytes4(keccak256('transferAndCall(address,uint256)')) ^\n     *   bytes4(keccak256('transferAndCall(address,uint256,bytes)')) ^\n     *   bytes4(keccak256('transferFromAndCall(address,address,uint256)')) ^\n     *   bytes4(keccak256('transferFromAndCall(address,address,uint256,bytes)')) ^\n     *   bytes4(keccak256('approveAndCall(address,uint256)')) ^\n     *   bytes4(keccak256('approveAndCall(address,uint256,bytes)'))\n     */\n\n    /**\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n     * @param to The address which you want to transfer to.\n     * @param value The amount of tokens to be transferred.\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\n     */\n    function transferAndCall(address to, uint256 value) external returns (bool);\n\n    /**\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n     * @param to The address which you want to transfer to.\n     * @param value The amount of tokens to be transferred.\n     * @param data Additional data with no specified format, sent in call to `to`.\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\n     */\n    function transferAndCall(address to, uint256 value, bytes calldata data) external returns (bool);\n\n    /**\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n     * @param from The address which you want to send tokens from.\n     * @param to The address which you want to transfer to.\n     * @param value The amount of tokens to be transferred.\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\n     */\n    function transferFromAndCall(address from, address to, uint256 value) external returns (bool);\n\n    /**\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n     * @param from The address which you want to send tokens from.\n     * @param to The address which you want to transfer to.\n     * @param value The amount of tokens to be transferred.\n     * @param data Additional data with no specified format, sent in call to `to`.\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\n     */\n    function transferFromAndCall(address from, address to, uint256 value, bytes calldata data) external returns (bool);\n\n    /**\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\n     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\n     * @param spender The address which will spend the funds.\n     * @param value The amount of tokens to be spent.\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\n     */\n    function approveAndCall(address spender, uint256 value) external returns (bool);\n\n    /**\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\n     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\n     * @param spender The address which will spend the funds.\n     * @param value The amount of tokens to be spent.\n     * @param data Additional data with no specified format, sent in call to `spender`.\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\n     */\n    function approveAndCall(address spender, uint256 value, bytes calldata data) external returns (bool);\n}\n",
+  "sourcePath": "@openzeppelin/contracts/interfaces/IERC1363.sol",
+  "ast": {
+    "absolutePath": "@openzeppelin/contracts/interfaces/IERC1363.sol",
+    "exportedSymbols": {
+      "IERC1363": [
+        1504
+      ],
+      "IERC165": [
+        2096
+      ],
+      "IERC20": [
+        1590
+      ]
+    },
+    "id": 1505,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1424,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "107:24:6"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/interfaces/IERC20.sol",
+        "file": "./IERC20.sol",
+        "id": 1426,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 1505,
+        "sourceUnit": 1513,
+        "src": "133:36:6",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 1425,
+              "name": "IERC20",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 1590,
+              "src": "141:6:6",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/interfaces/IERC165.sol",
+        "file": "./IERC165.sol",
+        "id": 1428,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 1505,
+        "sourceUnit": 1509,
+        "src": "170:38:6",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 1427,
+              "name": "IERC165",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 2096,
+              "src": "178:7:6",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 1430,
+              "name": "IERC20",
+              "nameLocations": [
+                "590:6:6"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 1590,
+              "src": "590:6:6"
+            },
+            "id": 1431,
+            "nodeType": "InheritanceSpecifier",
+            "src": "590:6:6"
+          },
+          {
+            "baseName": {
+              "id": 1432,
+              "name": "IERC165",
+              "nameLocations": [
+                "598:7:6"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 2096,
+              "src": "598:7:6"
+            },
+            "id": 1433,
+            "nodeType": "InheritanceSpecifier",
+            "src": "598:7:6"
+          }
+        ],
+        "canonicalName": "IERC1363",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 1429,
+          "nodeType": "StructuredDocumentation",
+          "src": "210:357:6",
+          "text": " @title IERC1363\n @dev Interface of the ERC-1363 standard as defined in the https://eips.ethereum.org/EIPS/eip-1363[ERC-1363].\n Defines an extension interface for ERC-20 tokens that supports executing code on a recipient contract\n after `transfer` or `transferFrom`, or code on a spender contract after `approve`, in a single transaction."
+        },
+        "fullyImplemented": false,
+        "id": 1504,
+        "linearizedBaseContracts": [
+          1504,
+          2096,
+          1590
+        ],
+        "name": "IERC1363",
+        "nameLocation": "578:8:6",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 1434,
+              "nodeType": "StructuredDocumentation",
+              "src": "1148:370:6",
+              "text": " @dev Moves a `value` amount of tokens from the caller's account to `to`\n and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n @param to The address which you want to transfer to.\n @param value The amount of tokens to be transferred.\n @return A boolean value indicating whether the operation succeeded unless throwing."
+            },
+            "functionSelector": "1296ee62",
+            "id": 1443,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "transferAndCall",
+            "nameLocation": "1532:15:6",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1439,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1436,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "1556:2:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1443,
+                  "src": "1548:10:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1435,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1548:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1438,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "1568:5:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1443,
+                  "src": "1560:13:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1437,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1560:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1547:27:6"
+            },
+            "returnParameters": {
+              "id": 1442,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1441,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1443,
+                  "src": "1593:4:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1440,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1593:4:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1592:6:6"
+            },
+            "scope": 1504,
+            "src": "1523:76:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 1444,
+              "nodeType": "StructuredDocumentation",
+              "src": "1605:453:6",
+              "text": " @dev Moves a `value` amount of tokens from the caller's account to `to`\n and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n @param to The address which you want to transfer to.\n @param value The amount of tokens to be transferred.\n @param data Additional data with no specified format, sent in call to `to`.\n @return A boolean value indicating whether the operation succeeded unless throwing."
+            },
+            "functionSelector": "4000aea0",
+            "id": 1455,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "transferAndCall",
+            "nameLocation": "2072:15:6",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1451,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1446,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "2096:2:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1455,
+                  "src": "2088:10:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1445,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2088:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1448,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "2108:5:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1455,
+                  "src": "2100:13:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1447,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2100:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1450,
+                  "mutability": "mutable",
+                  "name": "data",
+                  "nameLocation": "2130:4:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1455,
+                  "src": "2115:19:6",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1449,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2115:5:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2087:48:6"
+            },
+            "returnParameters": {
+              "id": 1454,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1453,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1455,
+                  "src": "2154:4:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1452,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2154:4:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2153:6:6"
+            },
+            "scope": 1504,
+            "src": "2063:97:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 1456,
+              "nodeType": "StructuredDocumentation",
+              "src": "2166:453:6",
+              "text": " @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism\n and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n @param from The address which you want to send tokens from.\n @param to The address which you want to transfer to.\n @param value The amount of tokens to be transferred.\n @return A boolean value indicating whether the operation succeeded unless throwing."
+            },
+            "functionSelector": "d8fbe994",
+            "id": 1467,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "transferFromAndCall",
+            "nameLocation": "2633:19:6",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1463,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1458,
+                  "mutability": "mutable",
+                  "name": "from",
+                  "nameLocation": "2661:4:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1467,
+                  "src": "2653:12:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1457,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2653:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1460,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "2675:2:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1467,
+                  "src": "2667:10:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1459,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2667:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1462,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "2687:5:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1467,
+                  "src": "2679:13:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1461,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2679:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2652:41:6"
+            },
+            "returnParameters": {
+              "id": 1466,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1465,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1467,
+                  "src": "2712:4:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1464,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2712:4:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2711:6:6"
+            },
+            "scope": 1504,
+            "src": "2624:94:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 1468,
+              "nodeType": "StructuredDocumentation",
+              "src": "2724:536:6",
+              "text": " @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism\n and then calls {IERC1363Receiver-onTransferReceived} on `to`.\n @param from The address which you want to send tokens from.\n @param to The address which you want to transfer to.\n @param value The amount of tokens to be transferred.\n @param data Additional data with no specified format, sent in call to `to`.\n @return A boolean value indicating whether the operation succeeded unless throwing."
+            },
+            "functionSelector": "c1d34b89",
+            "id": 1481,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "transferFromAndCall",
+            "nameLocation": "3274:19:6",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1477,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1470,
+                  "mutability": "mutable",
+                  "name": "from",
+                  "nameLocation": "3302:4:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1481,
+                  "src": "3294:12:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1469,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3294:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1472,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "3316:2:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1481,
+                  "src": "3308:10:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1471,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3308:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1474,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "3328:5:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1481,
+                  "src": "3320:13:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1473,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3320:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1476,
+                  "mutability": "mutable",
+                  "name": "data",
+                  "nameLocation": "3350:4:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1481,
+                  "src": "3335:19:6",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1475,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3335:5:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3293:62:6"
+            },
+            "returnParameters": {
+              "id": 1480,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1479,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1481,
+                  "src": "3374:4:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1478,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3374:4:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3373:6:6"
+            },
+            "scope": 1504,
+            "src": "3265:115:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 1482,
+              "nodeType": "StructuredDocumentation",
+              "src": "3386:390:6",
+              "text": " @dev Sets a `value` amount of tokens as the allowance of `spender` over the\n caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\n @param spender The address which will spend the funds.\n @param value The amount of tokens to be spent.\n @return A boolean value indicating whether the operation succeeded unless throwing."
+            },
+            "functionSelector": "3177029f",
+            "id": 1491,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "approveAndCall",
+            "nameLocation": "3790:14:6",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1487,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1484,
+                  "mutability": "mutable",
+                  "name": "spender",
+                  "nameLocation": "3813:7:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1491,
+                  "src": "3805:15:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1483,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3805:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1486,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "3830:5:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1491,
+                  "src": "3822:13:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1485,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3822:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3804:32:6"
+            },
+            "returnParameters": {
+              "id": 1490,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1489,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1491,
+                  "src": "3855:4:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1488,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3855:4:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3854:6:6"
+            },
+            "scope": 1504,
+            "src": "3781:80:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 1492,
+              "nodeType": "StructuredDocumentation",
+              "src": "3867:478:6",
+              "text": " @dev Sets a `value` amount of tokens as the allowance of `spender` over the\n caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\n @param spender The address which will spend the funds.\n @param value The amount of tokens to be spent.\n @param data Additional data with no specified format, sent in call to `spender`.\n @return A boolean value indicating whether the operation succeeded unless throwing."
+            },
+            "functionSelector": "cae9ca51",
+            "id": 1503,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "approveAndCall",
+            "nameLocation": "4359:14:6",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1499,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1494,
+                  "mutability": "mutable",
+                  "name": "spender",
+                  "nameLocation": "4382:7:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1503,
+                  "src": "4374:15:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1493,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4374:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1496,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "4399:5:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1503,
+                  "src": "4391:13:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1495,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4391:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1498,
+                  "mutability": "mutable",
+                  "name": "data",
+                  "nameLocation": "4421:4:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1503,
+                  "src": "4406:19:6",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1497,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4406:5:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4373:53:6"
+            },
+            "returnParameters": {
+              "id": 1502,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1501,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1503,
+                  "src": "4445:4:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1500,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4445:4:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4444:6:6"
+            },
+            "scope": 1504,
+            "src": "4350:101:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 1505,
+        "src": "568:3885:6",
+        "usedErrors": [],
+        "usedEvents": [
+          1524,
+          1533
+        ]
+      }
+    ],
+    "src": "107:4347:6"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2025-05-04T20:18:57.787Z",
+  "devdoc": {
+    "details": "Interface of the ERC-1363 standard as defined in the https://eips.ethereum.org/EIPS/eip-1363[ERC-1363]. Defines an extension interface for ERC-20 tokens that supports executing code on a recipient contract after `transfer` or `transferFrom`, or code on a spender contract after `approve`, in a single transaction.",
+    "events": {
+      "Approval(address,address,uint256)": {
+        "details": "Emitted when the allowance of a `spender` for an `owner` is set by a call to {approve}. `value` is the new allowance."
+      },
+      "Transfer(address,address,uint256)": {
+        "details": "Emitted when `value` tokens are moved from one account (`from`) to another (`to`). Note that `value` may be zero."
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "allowance(address,address)": {
+        "details": "Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called."
+      },
+      "approve(address,uint256)": {
+        "details": "Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event."
+      },
+      "approveAndCall(address,uint256)": {
+        "details": "Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.",
+        "params": {
+          "spender": "The address which will spend the funds.",
+          "value": "The amount of tokens to be spent."
+        },
+        "returns": {
+          "_0": "A boolean value indicating whether the operation succeeded unless throwing."
+        }
+      },
+      "approveAndCall(address,uint256,bytes)": {
+        "details": "Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.",
+        "params": {
+          "data": "Additional data with no specified format, sent in call to `spender`.",
+          "spender": "The address which will spend the funds.",
+          "value": "The amount of tokens to be spent."
+        },
+        "returns": {
+          "_0": "A boolean value indicating whether the operation succeeded unless throwing."
+        }
+      },
+      "balanceOf(address)": {
+        "details": "Returns the value of tokens owned by `account`."
+      },
+      "supportsInterface(bytes4)": {
+        "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+      },
+      "totalSupply()": {
+        "details": "Returns the value of tokens in existence."
+      },
+      "transfer(address,uint256)": {
+        "details": "Moves a `value` amount of tokens from the caller's account to `to`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+      },
+      "transferAndCall(address,uint256)": {
+        "details": "Moves a `value` amount of tokens from the caller's account to `to` and then calls {IERC1363Receiver-onTransferReceived} on `to`.",
+        "params": {
+          "to": "The address which you want to transfer to.",
+          "value": "The amount of tokens to be transferred."
+        },
+        "returns": {
+          "_0": "A boolean value indicating whether the operation succeeded unless throwing."
+        }
+      },
+      "transferAndCall(address,uint256,bytes)": {
+        "details": "Moves a `value` amount of tokens from the caller's account to `to` and then calls {IERC1363Receiver-onTransferReceived} on `to`.",
+        "params": {
+          "data": "Additional data with no specified format, sent in call to `to`.",
+          "to": "The address which you want to transfer to.",
+          "value": "The amount of tokens to be transferred."
+        },
+        "returns": {
+          "_0": "A boolean value indicating whether the operation succeeded unless throwing."
+        }
+      },
+      "transferFrom(address,address,uint256)": {
+        "details": "Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism. `value` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+      },
+      "transferFromAndCall(address,address,uint256)": {
+        "details": "Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism and then calls {IERC1363Receiver-onTransferReceived} on `to`.",
+        "params": {
+          "from": "The address which you want to send tokens from.",
+          "to": "The address which you want to transfer to.",
+          "value": "The amount of tokens to be transferred."
+        },
+        "returns": {
+          "_0": "A boolean value indicating whether the operation succeeded unless throwing."
+        }
+      },
+      "transferFromAndCall(address,address,uint256,bytes)": {
+        "details": "Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism and then calls {IERC1363Receiver-onTransferReceived} on `to`.",
+        "params": {
+          "data": "Additional data with no specified format, sent in call to `to`.",
+          "from": "The address which you want to send tokens from.",
+          "to": "The address which you want to transfer to.",
+          "value": "The amount of tokens to be transferred."
+        },
+        "returns": {
+          "_0": "A boolean value indicating whether the operation succeeded unless throwing."
+        }
+      }
+    },
+    "title": "IERC1363",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

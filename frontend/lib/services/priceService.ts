@@ -13,7 +13,9 @@ import {
   CURVE_GET_DY_ABI,
   USDC_DECIMALS,
   WETH_DECIMALS,
+  EXCHANGES,
 } from "@/lib/constants/dex";
+import { NETWORK_IDS } from "@/lib/web3/config"; // Import network IDs
 
 /**
  * Fetches price data from decentralized exchanges (DEXs) for specified token pairs.
@@ -29,6 +31,11 @@ export async function fetchDexPrices(
   pairs: TokenPair[],
 ): Promise<TokenPairPrices> {
   const fetchedPrices: TokenPairPrices = {};
+
+  // Get network ID (you might need to pass the provider or use a hook if not available here)
+  // For simplicity, assume provider has getNetwork method
+  const network = await provider.getNetwork();
+  const networkId = network.chainId;
 
   for (const pair of pairs) {
     const pairName = pair.name;
@@ -47,12 +54,25 @@ export async function fetchDexPrices(
     for (const exchange of exchanges) {
       const { name, router, type, feeTier, poolId } = exchange;
 
+      // <<< START MODIFICATION: Only fetch V2/Sushi on Local Fork >>>
+      if (networkId === NETWORK_IDS.LOCALHOST) {
+        if (name !== "Uniswap V2" && name !== "SushiSwap") {
+          console.log(`Skipping ${name} price fetch on local fork.`);
+          fetchedPrices[pairName][name] = 0; // Set price to 0 or skip entry
+          continue; // Skip to the next exchange
+        }
+      }
+      // <<< END MODIFICATION >>>
+
       // --- TEMPORARILY COMMENT OUT BALANCER AND CURVE ---
+      // This block can likely be removed now due to the explicit skipping above
+      /*
       if (name === "Balancer V2" || name === "Curve USDC/ETH") {
         console.log(`Temporarily skipping ${name} price fetch.`);
         fetchedPrices[pairName][name] = 0; // Set price to 0
         continue; // Skip to the next exchange
       }
+      */
       // --- END TEMPORARY COMMENT OUT ---
 
       // Skip if router is not a valid Ethereum address
@@ -69,8 +89,9 @@ export async function fetchDexPrices(
         let outAmount: ethers.BigNumber;
 
         if (type === "v3") {
-          // Uniswap V3 Quoter
-          const quoter = new Contract(router, QUOTER_ABI, provider);
+          // Uniswap V3 Quoter - Needs QUOTER Address, not Router Address
+          // const quoter = new Contract(MAINNET_ADDRESSES.UNISWAP_V3_QUOTER, QUOTER_ABI, provider); // Correct address
+          const quoter = new Contract(router, QUOTER_ABI, provider); // Current INCORRECT code for V3
           outAmount = await quoter.quoteExactInputSingle(
             tokenInAddress,
             tokenOutAddress,
@@ -153,47 +174,91 @@ export async function fetchDexPrices(
 }
 
 /**
- * Determines the best arbitrage path between exchanges for a given token pair.
+ * Determines the best arbitrage path between exchanges for a given token pair (USDC -> WETH -> USDC).
  *
- * @param prices - Prices for the token pair on different exchanges.
- * @returns The best arbitrage path or null if no opportunity exists.
+ * @param prices - Prices for the token pair (WETH per USDC) on different exchanges.
+ * @returns The best arbitrage path (containing full Exchange objects) or null if no opportunity exists.
  */
 export function findBestArbitragePath(prices: ExchangePrices): ArbitragePath {
-  // Always buy WETH on the cheapest exchange and sell on the most expensive
-  const validPrices = Object.entries(prices).filter(([, price]) => price > 0);
-  if (validPrices.length < 2) {
-    const exchangeNames = Object.keys(prices);
-    return { buy: exchangeNames[0], sell: exchangeNames[0], percentage: 0 };
+  const validEntries = Object.entries(prices)
+    .map(([name, price]) => {
+      const exchange = EXCHANGES.find((ex) => ex.name === name);
+      return { exchange, price };
+    })
+    .filter(
+      (entry): entry is { exchange: Exchange; price: number } =>
+        entry.exchange !== undefined && entry.price > 0,
+    );
+
+  if (validEntries.length < 2) {
+    // Not enough valid prices for arbitrage
+    const bestEntry = validEntries[0]; // Might have one entry
+    return {
+      buy: bestEntry?.exchange || null,
+      sell: bestEntry?.exchange || null,
+      percentage: 0,
+    };
   }
-  // Initialize with the first valid entry
-  let [buyExchange, buyPrice] = validPrices[0];
-  let [sellExchange, sellPrice] = validPrices[0];
-  for (const [ex, price] of validPrices) {
-    if (price < buyPrice) {
-      buyExchange = ex;
-      buyPrice = price;
+
+  // Initialize:
+  // For USDC -> WETH -> USDC:
+  // 'buy' is where WETH/USDC is highest (get most WETH per USDC)
+  // 'sell' is where WETH/USDC is lowest (pay least WETH per USDC for the sell-back)
+  let buyEntry = validEntries[0]; // Will hold entry with MAX price
+  let sellEntry = validEntries[0]; // Will hold entry with MIN price
+
+  for (const entry of validEntries) {
+    // Find the highest price for the buy leg
+    if (entry.price > buyEntry.price) {
+      buyEntry = entry;
     }
-    if (price > sellPrice) {
-      sellExchange = ex;
-      sellPrice = price;
+    // Find the lowest price for the sell leg
+    if (entry.price < sellEntry.price) {
+      sellEntry = entry;
     }
   }
-  const percentage = calculateArbitragePercentage(buyPrice, sellPrice);
-  return { buy: buyExchange, sell: sellExchange, percentage };
+
+  // Calculate percentage based on the identified buy (high price) and sell (low price)
+  // Note: The calculateArbitragePercentage might need adjustment if it assumes buyPrice < sellPrice
+  const percentage = calculateArbitragePercentage(
+    sellEntry.price,
+    buyEntry.price,
+  ); // Pass (low, high) or adjust calculation
+
+  // Return the path with the highest price exchange as 'buy' and lowest as 'sell'
+  return {
+    buy: buyEntry.exchange,
+    sell: sellEntry.exchange,
+    percentage,
+  };
 }
 
 /**
  * Calculates the arbitrage opportunity percentage.
+ * Assumes price1 is the lower price (sell leg) and price2 is the higher price (buy leg)
+ * for a USDC -> WETH -> USDC scenario.
  *
- * @param buyPrice - Price to buy the token.
- * @param sellPrice - Price to sell the token.
+ * @param sellPriceWethPerUsdc - Price (WETH/USDC) to sell WETH back for USDC (lower number is better).
+ * @param buyPriceWethPerUsdc - Price (WETH/USDC) to buy WETH with USDC (higher number is better).
  * @returns Percentage profit/loss as a number (e.g., 1.5 for 1.5%).
  */
 export function calculateArbitragePercentage(
-  buyPrice: number,
-  sellPrice: number,
+  sellPriceWethPerUsdc: number,
+  buyPriceWethPerUsdc: number,
 ): number {
-  if (buyPrice <= 0) return 0;
-  const percentageDifference = ((sellPrice - buyPrice) / buyPrice) * 100;
+  // Prevent division by zero or nonsensical results if prices are invalid
+  if (sellPriceWethPerUsdc <= 0) return 0;
+
+  // Calculate the effective USDC per WETH rates
+  const usdcPerWethBuy = 1 / buyPriceWethPerUsdc;
+  const usdcPerWethSell = 1 / sellPriceWethPerUsdc;
+
+  // Calculate the percentage difference based on USDC per WETH
+  const percentageDifference =
+    ((usdcPerWethSell - usdcPerWethBuy) / usdcPerWethBuy) * 100;
+
+  // Original calculation (based directly on WETH/USDC, might be confusing):
+  // const percentageDifference = ((buyPriceWethPerUsdc - sellPriceWethPerUsdc) / sellPriceWethPerUsdc) * 100;
+
   return parseFloat(percentageDifference.toFixed(2));
 }

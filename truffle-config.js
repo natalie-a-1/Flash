@@ -24,6 +24,8 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       network_id: "*", // Match any network id
+      gas: 9000000, // per-tx cap
+      gasPrice: 20000000000, // 20 Gwei
     },
 
     // Development network forking Sepolia
@@ -48,11 +50,11 @@ module.exports = {
     mainnet_fork: {
       host: "127.0.0.1", // Ganache's default host
       port: 8545, // Ganache's default port
-      network_id: "*", // Match any network ID
+      network_id: "*", // Revert to wildcard to accept ID '1' from Ganache fork report
       // Fork from Mainnet using Alchemy RPC
       fork: MAINNET_RPC_URL,
       // A higher gas limit is often needed for complex interactions on forks
-      gas: 8000000,
+      gas: 9000000, // per-tx cap
       // Optional: Set a reasonable gas price (e.g., 20 Gwei).
       gasPrice: 20000000000,
     },

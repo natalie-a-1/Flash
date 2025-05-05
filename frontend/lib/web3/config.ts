@@ -47,6 +47,7 @@ export const MAINNET_ADDRESSES = {
 
   // New DEX router addresses
   UNISWAP_V3_QUOTER: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6", // Uniswap V3 Quoter contract address
+  UNISWAP_V3_ROUTER: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Uniswap V3 Router contract address (for swaps)
   BALANCER_VAULT: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Balancer V2 Vault contract address
   CURVE_3POOL: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // Curve 3Pool contract address
   CURVE_TRICRYPTO_POOL: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // Curve Tricrypto2 Pool address (USDT/WBTC/WETH)

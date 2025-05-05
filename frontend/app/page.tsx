@@ -35,25 +35,22 @@ export default function LoginPage() {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="max-w-md w-full px-4">
-          <div className="text-center mb-10">
-            <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+          <div className="text-center mb-8">
+            <h1 className="text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
               Flash
             </h1>
             <p className="text-xl text-white/80">
-              Flash loan arbitrage platform using Aave V3
+              Flash loan arbitrage platform
             </p>
           </div>
 
-          <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-8 shadow-xl border border-white/20">
-            {/* Pre-rendering placeholder with animation */}
+          <div className="backdrop-blur-sm bg-white/5 rounded-xl p-6 shadow-lg border border-white/10">
             <div className="animate-pulse">
               <div className="flex items-center justify-center">
                 <div className="w-16 h-16 bg-white/10 rounded-full"></div>
               </div>
               <div className="h-6 bg-white/10 rounded w-3/4 mx-auto mt-5"></div>
-              <div className="h-4 bg-white/10 rounded w-1/2 mx-auto mt-3 mb-8"></div>
-              <div className="h-12 bg-white/10 rounded-lg w-full mb-6"></div>
-              <div className="h-4 bg-white/10 rounded w-3/4 mx-auto"></div>
+              <div className="h-12 bg-white/10 rounded-lg w-full mt-6"></div>
             </div>
           </div>
         </div>
@@ -68,16 +65,14 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center">
       <div className="max-w-md w-full px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
             Flash
           </h1>
-          <p className="text-xl text-white/80">
-            Flash loan arbitrage platform using Aave V3
-          </p>
+          <p className="text-xl text-white/80">Flash loan arbitrage platform</p>
         </div>
 
-        <div className="backdrop-blur-lg bg-white/10 rounded-2xl p-8 shadow-xl border border-white/20">
+        <div className="backdrop-blur-sm bg-white/5 rounded-xl p-6 shadow-lg border border-white/10">
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto">
               <svg
@@ -96,14 +91,12 @@ export default function LoginPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-semibold mt-4">Welcome to Flash</h2>
-            <p className="text-white/70 mt-2">
-              Connect your wallet to access the dashboard
-            </p>
+            <p className="text-white/70 mt-1">Connect your wallet to start</p>
           </div>
 
           <button
             onClick={connectWallet}
-            className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg flex items-center justify-center"
+            className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:opacity-90 transition-all shadow-lg flex items-center justify-center"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -129,14 +122,8 @@ export default function LoginPage() {
             Connect Wallet
           </button>
 
-          <div className="mt-6 text-center">
-            <p className="text-white/60 text-sm">
-              This application requires a Web3 wallet like MetaMask
-            </p>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-white/10">
-            <div className="text-sm text-white/70">
+          <div className="mt-6 pt-4 border-t border-white/5">
+            <div className="text-sm text-white/60">
               <p className="mb-2">With Flash, you can:</p>
               <ul className="space-y-1">
                 <li className="flex items-center">

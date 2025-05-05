@@ -8,43 +8,57 @@ import { Exchange } from "@/types/arbitrage";
 export const EXCHANGES: Exchange[] = [
   {
     name: "Uniswap V2", // Name of the exchange
-    router: MAINNET_ADDRESSES.UNISWAP_V2_ROUTER, // Router address for Uniswap V2
+    router: MAINNET_ADDRESSES.UNISWAP_V2_ROUTER, // Keep original name 'router'
     icon: "🦄", // Icon representing Uniswap V2
-    feesIncluded: true, // getAmountsOut on Uniswap V2 includes the 0.30% fee
+    feePct: 0.3, // Standard 0.30% fee for V2
+    type: "v2",
   },
   {
     name: "SushiSwap", // Name of the exchange
-    router: MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER, // Router address for SushiSwap
+    router: MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER, // Keep original name 'router'
     icon: "🍣", // Icon representing SushiSwap
-    feesIncluded: true, // getAmountsOut on SushiSwap includes the 0.30% fee
+    feePct: 0.3, // Standard 0.30% fee for SushiSwap
+    type: "v2",
   },
   {
     name: "Uniswap V3 (0.05%)",
-    router: MAINNET_ADDRESSES.UNISWAP_V3_QUOTER,
+    router: MAINNET_ADDRESSES.UNISWAP_V3_ROUTER, // Use V3 ROUTER
     icon: "🦄",
     type: "v3",
     feeTier: 500,
+    feePct: 0.05,
   },
   {
     name: "Uniswap V3 (0.30%)",
-    router: MAINNET_ADDRESSES.UNISWAP_V3_QUOTER,
+    router: MAINNET_ADDRESSES.UNISWAP_V3_ROUTER, // Use V3 ROUTER
     icon: "🦄",
     type: "v3",
     feeTier: 3000,
+    feePct: 0.3,
+  },
+  {
+    name: "Uniswap V3 (1.00%)",
+    router: MAINNET_ADDRESSES.UNISWAP_V3_ROUTER, // Use V3 ROUTER
+    icon: "🦄",
+    type: "v3",
+    feeTier: 10000,
+    feePct: 1.0,
   },
   {
     name: "Balancer V2",
-    router: MAINNET_ADDRESSES.BALANCER_VAULT,
+    router: MAINNET_ADDRESSES.BALANCER_VAULT, // Keep original name 'router'
     icon: "⚖️",
     type: "balancer",
     poolId:
-      "0x06df3b2bbb68adc8b0e302443692037ed9f91b42000000000000000000000063",
+      "0x06df3b2bbb68adc8b0e302443692037ed9f91b42000000000000000000000063", // Example Pool ID for WETH/USDC - might vary
+    feePct: 0.05, // Example: Assuming a common Balancer pool fee, adjust if needed
   },
   {
     name: "Curve USDC/ETH", // Update name
-    router: MAINNET_ADDRESSES.CURVE_USDC_ETH_POOL, // Use correct pool address
+    router: MAINNET_ADDRESSES.CURVE_USDC_ETH_POOL, // Keep original name 'router'
     icon: "🌀",
     type: "curve_get_dy", // Use a specific type for this logic
+    feePct: 0.04, // Example: Common fee for Curve stable pools, adjust if needed
   },
 ];
 
