@@ -35,7 +35,7 @@ export async function fetchDexPrices(
   // Get network ID (you might need to pass the provider or use a hook if not available here)
   // For simplicity, assume provider has getNetwork method
   const network = await provider.getNetwork();
-  const networkId = network.chainId; 
+  const networkId = network.chainId;
 
   for (const pair of pairs) {
     const pairName = pair.name;
@@ -57,9 +57,9 @@ export async function fetchDexPrices(
       // <<< START MODIFICATION: Only fetch V2/Sushi on Local Fork >>>
       if (networkId === NETWORK_IDS.LOCALHOST) {
         if (name !== "Uniswap V2" && name !== "SushiSwap") {
-           console.log(`Skipping ${name} price fetch on local fork.`);
-           fetchedPrices[pairName][name] = 0; // Set price to 0 or skip entry
-           continue; // Skip to the next exchange
+          console.log(`Skipping ${name} price fetch on local fork.`);
+          fetchedPrices[pairName][name] = 0; // Set price to 0 or skip entry
+          continue; // Skip to the next exchange
         }
       }
       // <<< END MODIFICATION >>>
@@ -185,31 +185,32 @@ export function findBestArbitragePath(prices: ExchangePrices): ArbitragePath {
       const exchange = EXCHANGES.find((ex) => ex.name === name);
       return { exchange, price };
     })
-    .filter((entry): entry is { exchange: Exchange; price: number } => 
-      entry.exchange !== undefined && entry.price > 0
+    .filter(
+      (entry): entry is { exchange: Exchange; price: number } =>
+        entry.exchange !== undefined && entry.price > 0,
     );
 
   if (validEntries.length < 2) {
     // Not enough valid prices for arbitrage
     const bestEntry = validEntries[0]; // Might have one entry
-    return { 
-        buy: bestEntry?.exchange || null, 
-        sell: bestEntry?.exchange || null, 
-        percentage: 0 
+    return {
+      buy: bestEntry?.exchange || null,
+      sell: bestEntry?.exchange || null,
+      percentage: 0,
     };
   }
 
-  // Initialize: 
-  // For USDC -> WETH -> USDC: 
+  // Initialize:
+  // For USDC -> WETH -> USDC:
   // 'buy' is where WETH/USDC is highest (get most WETH per USDC)
   // 'sell' is where WETH/USDC is lowest (pay least WETH per USDC for the sell-back)
-  let buyEntry = validEntries[0];  // Will hold entry with MAX price
+  let buyEntry = validEntries[0]; // Will hold entry with MAX price
   let sellEntry = validEntries[0]; // Will hold entry with MIN price
 
   for (const entry of validEntries) {
     // Find the highest price for the buy leg
     if (entry.price > buyEntry.price) {
-      buyEntry = entry; 
+      buyEntry = entry;
     }
     // Find the lowest price for the sell leg
     if (entry.price < sellEntry.price) {
@@ -219,19 +220,22 @@ export function findBestArbitragePath(prices: ExchangePrices): ArbitragePath {
 
   // Calculate percentage based on the identified buy (high price) and sell (low price)
   // Note: The calculateArbitragePercentage might need adjustment if it assumes buyPrice < sellPrice
-  const percentage = calculateArbitragePercentage(sellEntry.price, buyEntry.price); // Pass (low, high) or adjust calculation
+  const percentage = calculateArbitragePercentage(
+    sellEntry.price,
+    buyEntry.price,
+  ); // Pass (low, high) or adjust calculation
 
   // Return the path with the highest price exchange as 'buy' and lowest as 'sell'
-  return { 
-      buy: buyEntry.exchange, 
-      sell: sellEntry.exchange, 
-      percentage 
+  return {
+    buy: buyEntry.exchange,
+    sell: sellEntry.exchange,
+    percentage,
   };
 }
 
 /**
  * Calculates the arbitrage opportunity percentage.
- * Assumes price1 is the lower price (sell leg) and price2 is the higher price (buy leg) 
+ * Assumes price1 is the lower price (sell leg) and price2 is the higher price (buy leg)
  * for a USDC -> WETH -> USDC scenario.
  *
  * @param sellPriceWethPerUsdc - Price (WETH/USDC) to sell WETH back for USDC (lower number is better).
@@ -239,8 +243,8 @@ export function findBestArbitragePath(prices: ExchangePrices): ArbitragePath {
  * @returns Percentage profit/loss as a number (e.g., 1.5 for 1.5%).
  */
 export function calculateArbitragePercentage(
-  sellPriceWethPerUsdc: number, 
-  buyPriceWethPerUsdc: number
+  sellPriceWethPerUsdc: number,
+  buyPriceWethPerUsdc: number,
 ): number {
   // Prevent division by zero or nonsensical results if prices are invalid
   if (sellPriceWethPerUsdc <= 0) return 0;
@@ -250,10 +254,11 @@ export function calculateArbitragePercentage(
   const usdcPerWethSell = 1 / sellPriceWethPerUsdc;
 
   // Calculate the percentage difference based on USDC per WETH
-  const percentageDifference = ((usdcPerWethSell - usdcPerWethBuy) / usdcPerWethBuy) * 100;
+  const percentageDifference =
+    ((usdcPerWethSell - usdcPerWethBuy) / usdcPerWethBuy) * 100;
 
   // Original calculation (based directly on WETH/USDC, might be confusing):
-  // const percentageDifference = ((buyPriceWethPerUsdc - sellPriceWethPerUsdc) / sellPriceWethPerUsdc) * 100; 
+  // const percentageDifference = ((buyPriceWethPerUsdc - sellPriceWethPerUsdc) / sellPriceWethPerUsdc) * 100;
 
   return parseFloat(percentageDifference.toFixed(2));
 }

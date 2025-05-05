@@ -42,6 +42,7 @@ npm run fork:with-approvals
 ```
 
 This starts a Ganache fork and automatically:
+
 1. Compiles contracts if needed
 2. Starts Ganache with the specified fork parameters
 3. Verifies if the FlashLoan contract exists at the expected address
@@ -53,16 +54,19 @@ This starts a Ganache fork and automatically:
 If you prefer to run steps separately:
 
 1. Compile your contracts (if not already compiled):
+
    ```bash
    npx truffle compile
    ```
 
 2. Start Ganache:
+
    ```bash
    npm run ganache:mainnet:persistent
    ```
 
 3. Deploy the FlashLoan contract (if needed):
+
    ```bash
    npm run deploy-flash-loan
    ```
@@ -102,6 +106,7 @@ This error occurs when the contract artifacts don't exist. Fix it by:
 This happens when the contract doesn't exist at the address specified. The script will automatically attempt to deploy a new contract.
 
 If you want to deploy manually:
+
 ```bash
 npm run deploy-flash-loan
 ```
@@ -117,6 +122,7 @@ This happens when the first account in your Ganache instance doesn't match the c
 ### "Error executing the approval transaction"
 
 This could be due to:
+
 - Insufficient gas
 - Network issues
 - Contract state inconsistencies
@@ -131,4 +137,4 @@ The router approval process is implemented in these files:
 - `test/demo/deployFlashLoan.js` - Script to deploy the FlashLoan contract if needed
 - `scripts/start-fork-with-approvals.js` - Node.js script that combines starting Ganache with deployment and approvals
 
-The approval process uses the `setRouterApproval` function in the Flash Loan contract to grant permission to the Uniswap and SushiSwap router addresses. 
+The approval process uses the `setRouterApproval` function in the Flash Loan contract to grant permission to the Uniswap and SushiSwap router addresses.

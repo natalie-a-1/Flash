@@ -50,13 +50,13 @@ Flash transforms arbitrage trading with an elegant system that empowers you to i
 The core arbitrage strategy for USDC -> WETH -> USDC involves:
 
 1.  **Monitoring:** Tracking WETH/USDC prices across DEXs.
-2.  **Discovery:** Identifying when DEX A offers a *higher* WETH/USDC price than DEX B by a sufficient margin.
+2.  **Discovery:** Identifying when DEX A offers a _higher_ WETH/USDC price than DEX B by a sufficient margin.
 3.  **Execution:**
-    *   Borrow USDC via Aave flash loan.
-    *   Buy WETH on DEX A (where WETH/USDC price is highest).
-    *   Sell WETH on DEX B (where WETH/USDC price is lowest).
-    *   Repay USDC loan + premium.
-    *   Keep the remaining USDC as profit.
+    - Borrow USDC via Aave flash loan.
+    - Buy WETH on DEX A (where WETH/USDC price is highest).
+    - Sell WETH on DEX B (where WETH/USDC price is lowest).
+    - Repay USDC loan + premium.
+    - Keep the remaining USDC as profit.
 
 ```mermaid
 flowchart LR
@@ -96,7 +96,7 @@ Copy the example environment files. You will need to edit these to include your 
 
 ```bash
 # Create/Populate Root .env file (for Truffle, Ganache, backend scripts)
-cp .env.example .env 
+cp .env.example .env
 # -> EDIT .env and fill in MAINNET_RPC_URL, MNEMONIC, USDC_WHALE_ADDRESS
 
 # Create/Populate Frontend .env.local file (for Next.js App)
@@ -137,13 +137,14 @@ This command will start a Ganache fork with all necessary setup for router appro
 In a new terminal window, start the Next.js development server:
 
 ```bash
-cd frontend 
+cd frontend
 npm run dev
 ```
 
 Visit `http://localhost:3000` and connect your wallet (configured for localhost:8545, Chain ID 1337) to start exploring arbitrage opportunities.
 
 > **Note:**
+>
 > - The `fork:with-approvals` script handles contract compilation, Ganache startup, contract deployment, and router approvals all in one command.
 > - You must restart the `fork:with-approvals` script each time you want a fresh Ganache instance.
 > - For more details on the router approval process, see [docs/ROUTER_APPROVALS.md](docs/ROUTER_APPROVALS.md).
@@ -229,6 +230,7 @@ npm run fork:with-approvals
 ```
 
 This command will:
+
 - Start a Ganache fork of Ethereum mainnet
 - Verify the FlashLoan contract exists
 - Deploy a new contract if needed

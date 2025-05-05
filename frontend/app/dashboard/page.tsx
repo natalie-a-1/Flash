@@ -32,14 +32,15 @@ export default function Dashboard() {
     const timer = setTimeout(() => {
       setIsLoading(false);
       // Only redirect if mounted and not connected
-      if (mounted && !isConnected) { // Check mounted explicitly
-         console.log("Dashboard: Not connected after mount, redirecting...");
-         router.push("/");
+      if (mounted && !isConnected) {
+        // Check mounted explicitly
+        console.log("Dashboard: Not connected after mount, redirecting...");
+        router.push("/");
       }
-    }, 500); 
+    }, 500);
 
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, mounted, router]); // Add mounted to dependency array
 
   /**
@@ -108,17 +109,15 @@ export default function Dashboard() {
    */
   // This state might be briefly visible before redirect kicks in
   if (!isConnected) {
-      return (
-            <main className="min-h-screen flex items-center justify-center">
-                 <div className="max-w-md w-full px-4 text-center">
-                  <h2 className="text-2xl font-semibold mb-4">Wallet Not Connected</h2>
-                  <p className="text-white/70 mb-6">
-                    Redirecting to connect page...
-                  </p>
-                 {/* Optional: Add a manual connect button if redirect fails */}
-                </div>
-            </main>
-        );
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md w-full px-4 text-center">
+          <h2 className="text-2xl font-semibold mb-4">Wallet Not Connected</h2>
+          <p className="text-white/70 mb-6">Redirecting to connect page...</p>
+          {/* Optional: Add a manual connect button if redirect fails */}
+        </div>
+      </main>
+    );
   }
 
   /**
@@ -129,10 +128,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <div className="lg:col-span-4">
           <div className="space-y-3">
-            {/* Conditionally render DevelopmentTools only on Local Fork */} 
-            {networkId === NETWORK_IDS.LOCALHOST && (
-              <DevelopmentTools />
-            )}
+            {/* Conditionally render DevelopmentTools only on Local Fork */}
+            {networkId === NETWORK_IDS.LOCALHOST && <DevelopmentTools />}
             <ArbitrageOpportunities />
             <QuickStats />
           </div>
@@ -141,7 +138,7 @@ export default function Dashboard() {
           <FlashLoanOptions />
         </div>
       </div>
-      
+
       {/* Add the FlashLoanExecutionTracker modal at the root level for global visibility */}
       <FlashLoanExecutionTracker />
     </main>

@@ -23,21 +23,26 @@ export interface ArbitrageProfitCalculatorRef {
   getSlippage: () => string;
 }
 
-// Add forwardRef and add calculatorRef to props 
-export default forwardRef<ArbitrageProfitCalculatorRef, UpdatedArbitrageProfitCalculatorProps>(function ArbitrageProfitCalculator({
-  loanAmount,
-  selectedToken,
-  flashLoanBps,
-  dexPrices,
-}, ref) {
+// Add forwardRef and add calculatorRef to props
+export default forwardRef<
+  ArbitrageProfitCalculatorRef,
+  UpdatedArbitrageProfitCalculatorProps
+>(function ArbitrageProfitCalculator(
+  { loanAmount, selectedToken, flashLoanBps, dexPrices },
+  ref,
+) {
   // Keep local UI state
   const [slippage, setSlippage] = useState<string>("0.5"); // Default 0.5%
   const [profitThreshold, setProfitThreshold] = useState<string>("10"); // Default $10
 
   // Expose slippage value through imperative handle ref
-  useImperativeHandle(ref, () => ({
-    getSlippage: () => slippage
-  }), [slippage]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      getSlippage: () => slippage,
+    }),
+    [slippage],
+  );
 
   // Fee statistics from network and estimate based on loan amount
   const { txFeeEth, txFeeUsdc } = useTransactionFees();
@@ -66,28 +71,34 @@ export default forwardRef<ArbitrageProfitCalculatorRef, UpdatedArbitrageProfitCa
         filteredDexPrices[exchangeName] = dexPrices[exchangeName];
       }
     }
-     // If filteredDexPrices is empty after filtering, set it back to null
+    // If filteredDexPrices is empty after filtering, set it back to null
     if (Object.keys(filteredDexPrices).length === 0) {
       filteredDexPrices = null;
     }
   }
 
   // Determine best arbitrage path from *filtered* prices
-  const bestPath = filteredDexPrices ? findBestArbitragePath(filteredDexPrices) : null;
+  const bestPath = filteredDexPrices
+    ? findBestArbitragePath(filteredDexPrices)
+    : null;
   const buyExchange: Exchange | null = bestPath?.buy || null;
   const sellExchange: Exchange | null = bestPath?.sell || null;
-  
-  // Get router addresses using the exchange name from the constants
-  const buyRouterAddress = buyExchange ? EXCHANGES.find(ex => ex.name === buyExchange.name)?.router : undefined;
-  const sellRouterAddress = sellExchange ? EXCHANGES.find(ex => ex.name === sellExchange.name)?.router : undefined;
 
-  const buyPriceValue = 
-      buyExchange && filteredDexPrices && filteredDexPrices[buyExchange.name] 
-      ? filteredDexPrices[buyExchange.name].toString() 
+  // Get router addresses using the exchange name from the constants
+  const buyRouterAddress = buyExchange
+    ? EXCHANGES.find((ex) => ex.name === buyExchange.name)?.router
+    : undefined;
+  const sellRouterAddress = sellExchange
+    ? EXCHANGES.find((ex) => ex.name === sellExchange.name)?.router
+    : undefined;
+
+  const buyPriceValue =
+    buyExchange && filteredDexPrices && filteredDexPrices[buyExchange.name]
+      ? filteredDexPrices[buyExchange.name].toString()
       : "0";
-  const sellPriceValue = 
-      sellExchange && filteredDexPrices && filteredDexPrices[sellExchange.name] 
-      ? filteredDexPrices[sellExchange.name].toString() 
+  const sellPriceValue =
+    sellExchange && filteredDexPrices && filteredDexPrices[sellExchange.name]
+      ? filteredDexPrices[sellExchange.name].toString()
       : "0";
 
   // Get fees from the selected exchanges, default to 0 if null
@@ -99,7 +110,7 @@ export default forwardRef<ArbitrageProfitCalculatorRef, UpdatedArbitrageProfitCa
     loanAmount,
     buyPrice: buyPriceValue,
     sellPrice: sellPriceValue,
-    buyFeePct, // Pass the specific buy fee % 
+    buyFeePct, // Pass the specific buy fee %
     sellFeePct, // Pass the specific sell fee %
     slippage,
     gasCost: loanTxFeeUsdc, // Pass gas cost in USDC
@@ -371,7 +382,8 @@ export default forwardRef<ArbitrageProfitCalculatorRef, UpdatedArbitrageProfitCa
                       </svg>
                       <span>
                         Sell on{" "}
-                        <span className="font-medium">{sellExchange.name}</span>:
+                        <span className="font-medium">{sellExchange.name}</span>
+                        :
                       </span>
                     </div>
                     <span>{parseFloat(sellPriceValue).toFixed(8)} WETH</span>
@@ -487,4 +499,4 @@ export default forwardRef<ArbitrageProfitCalculatorRef, UpdatedArbitrageProfitCa
       </div>
     </div>
   );
-})
+});

@@ -26,46 +26,69 @@ export async function loadContract(
     // Get the current network ID
     const networkDetails = await getNetworkDetails();
     let networkId = networkDetails.id.toString();
-    console.log(`[loadContract] Network ID detected by frontend (eth_chainId): ${networkId}`);
+    console.log(
+      `[loadContract] Network ID detected by frontend (eth_chainId): ${networkId}`,
+    );
 
     // Handle Ganache fork reporting network ID 1 during migration
     // while MetaMask reports 1337 for the running instance.
     let artifactNetworkKey = networkId;
-    if (networkId === '1337') {
-      console.log(`[loadContract] Detected local fork (1337), attempting to load artifact using key '1'`);
-      artifactNetworkKey = '1'; // Truffle saved artifact under network ID 1 for forks
+    if (networkId === "1337") {
+      console.log(
+        `[loadContract] Detected local fork (1337), attempting to load artifact using key '1'`,
+      );
+      artifactNetworkKey = "1"; // Truffle saved artifact under network ID 1 for forks
     }
 
-    console.log(`[loadContract] contractJson.networks object:`, contractJson.networks);
-    console.log(`[loadContract] Looking for key '${artifactNetworkKey}' in networks object...`);
-    console.log(`[loadContract] contractJson.networks[${artifactNetworkKey}] entry:`, contractJson.networks ? contractJson.networks[artifactNetworkKey] : 'N/A (networks obj missing)');
+    console.log(
+      `[loadContract] contractJson.networks object:`,
+      contractJson.networks,
+    );
+    console.log(
+      `[loadContract] Looking for key '${artifactNetworkKey}' in networks object...`,
+    );
+    console.log(
+      `[loadContract] contractJson.networks[${artifactNetworkKey}] entry:`,
+      contractJson.networks
+        ? contractJson.networks[artifactNetworkKey]
+        : "N/A (networks obj missing)",
+    );
 
     // For FlashLoan contracts on localhost, fetch the latest deployed address from the API
-    if (contractName === "FlashLoan" && networkId === '1337') {
+    if (contractName === "FlashLoan" && networkId === "1337") {
       try {
-        console.log("[loadContract] FlashLoan contract on localhost detected, fetching current address from API...");
-        const response = await fetch('/api/get-contract-address');
+        console.log(
+          "[loadContract] FlashLoan contract on localhost detected, fetching current address from API...",
+        );
+        const response = await fetch("/api/get-contract-address");
         const data = await response.json();
-        
+
         if (data.contractAddress) {
-          console.log(`[loadContract] Successfully fetched current contract address from API: ${data.contractAddress}`);
-          // Create and return the contract instance with the fetched address
-          return createContractInstance(
-            contractJson.abi,
-            data.contractAddress,
+          console.log(
+            `[loadContract] Successfully fetched current contract address from API: ${data.contractAddress}`,
           );
+          // Create and return the contract instance with the fetched address
+          return createContractInstance(contractJson.abi, data.contractAddress);
         } else {
-          console.error("[loadContract] API returned no contract address:", data);
+          console.error(
+            "[loadContract] API returned no contract address:",
+            data,
+          );
         }
       } catch (error) {
-        console.error("[loadContract] Error fetching contract address from API:", error);
+        console.error(
+          "[loadContract] Error fetching contract address from API:",
+          error,
+        );
         // Continue with normal flow if API fetch fails
       }
     }
 
     // Check if the contract is deployed on this network (using the adjusted key)
     if (contractJson.networks && contractJson.networks[artifactNetworkKey]) {
-      console.log(`[loadContract] Found network entry for key '${artifactNetworkKey}'. Address: ${contractJson.networks[artifactNetworkKey].address}`);
+      console.log(
+        `[loadContract] Found network entry for key '${artifactNetworkKey}'. Address: ${contractJson.networks[artifactNetworkKey].address}`,
+      );
       // Create and return the contract instance using network deployment info
       return createContractInstance(
         contractJson.abi,

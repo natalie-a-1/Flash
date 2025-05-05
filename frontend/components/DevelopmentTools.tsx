@@ -38,9 +38,9 @@ export default function DevelopmentTools() {
   const fetchContractAddress = async () => {
     setLoadingContract(true);
     try {
-      const response = await fetch('/api/get-contract-address');
+      const response = await fetch("/api/get-contract-address");
       const data = await response.json();
-      
+
       if (data.contractAddress) {
         setContractAddress(data.contractAddress);
       } else if (data.error) {
@@ -78,20 +78,22 @@ export default function DevelopmentTools() {
     setFundError(null);
     setFundSuccess(null);
     try {
-      const response = await fetch('/api/run-seed-wallet', { method: 'POST' });
+      const response = await fetch("/api/run-seed-wallet", { method: "POST" });
       const data = await response.json();
 
       if (!response.ok || !data.success) {
         console.error("Seed Wallet API Error:", data);
-        throw new Error(data.error || `Request failed with status ${response.status}`);
+        throw new Error(
+          data.error || `Request failed with status ${response.status}`,
+        );
       }
       console.log("Seed Wallet Script Output:", data.output);
-      if(data.warning) console.warn("Seed Wallet Script Warning:", data.warning);
+      if (data.warning)
+        console.warn("Seed Wallet Script Warning:", data.warning);
       setSeedSuccess("Wallet seeding complete.");
-      
+
       fetchEthBalance();
       manualRefresh();
-
     } catch (err: any) {
       console.error("Failed to run seed wallet script:", err);
       setSeedError(`Seed Error: ${err.message}`);
@@ -109,17 +111,19 @@ export default function DevelopmentTools() {
     setFundError(null);
     setFundSuccess(null);
     try {
-      const response = await fetch('/api/run-skew-prices', { method: 'POST' });
+      const response = await fetch("/api/run-skew-prices", { method: "POST" });
       const data = await response.json();
 
       if (!response.ok || !data.success) {
         console.error("Skew Prices API Error:", data);
-        throw new Error(data.error || `Request failed with status ${response.status}`);
+        throw new Error(
+          data.error || `Request failed with status ${response.status}`,
+        );
       }
       console.log("Skew Prices Script Output:", data.output);
-      if(data.warning) console.warn("Skew Prices Script Warning:", data.warning);
+      if (data.warning)
+        console.warn("Skew Prices Script Warning:", data.warning);
       setSkewSuccess("Prices skewed successfully.");
-
     } catch (err: any) {
       console.error("Failed to run skew prices script:", err);
       setSkewError(`Skew Error: ${err.message}`);
@@ -143,7 +147,7 @@ export default function DevelopmentTools() {
 
     try {
       const localNodeProvider = new ethers.providers.JsonRpcProvider(
-        "http://127.0.0.1:8545"
+        "http://127.0.0.1:8545",
       );
       const nodeSigner = localNodeProvider.getSigner(0);
       const nodeSignerAddress = await nodeSigner.getAddress();
@@ -155,7 +159,9 @@ export default function DevelopmentTools() {
       console.log(`   Amount: ${ethers.utils.formatEther(amountToSend)} ETH`);
 
       if (nodeSignerAddress.toLowerCase() === account.toLowerCase()) {
-          throw new Error("Refusing to send ETH to the same account (Account 0).");
+        throw new Error(
+          "Refusing to send ETH to the same account (Account 0).",
+        );
       }
 
       const tx = await nodeSigner.sendTransaction({
@@ -164,12 +170,14 @@ export default function DevelopmentTools() {
       });
 
       console.log("Funding transaction sent:", tx.hash);
-      setFundSuccess(`Funding transaction sent: ${tx.hash}. Waiting for confirmation...`);
+      setFundSuccess(
+        `Funding transaction sent: ${tx.hash}. Waiting for confirmation...`,
+      );
 
       await tx.wait();
       console.log("Funding transaction confirmed.");
       setFundSuccess("Wallet funded with 1 ETH");
-      
+
       fetchEthBalance();
       manualRefresh();
     } catch (error: any) {
@@ -184,28 +192,58 @@ export default function DevelopmentTools() {
     return null;
   }
 
-  const StatusIndicator = ({ success, error }: { success: string | null, error: string | null }) => {
+  const StatusIndicator = ({
+    success,
+    error,
+  }: {
+    success: string | null;
+    error: string | null;
+  }) => {
     if (!success && !error) return null;
-    
+
     return (
-      <div className={`mt-1 text-[10px] font-medium rounded px-1.5 py-1 ${
-        success 
-          ? "bg-green-900/20 text-green-300" 
-          : "bg-red-900/20 text-red-300"
-      }`}>
+      <div
+        className={`mt-1 text-[10px] font-medium rounded px-1.5 py-1 ${
+          success
+            ? "bg-green-900/20 text-green-300"
+            : "bg-red-900/20 text-red-300"
+        }`}
+      >
         <div className="flex items-center">
           {success && (
             <>
-              <svg className="w-2.5 h-2.5 mr-1 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              <svg
+                className="w-2.5 h-2.5 mr-1 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
               </svg>
               <span>{success}</span>
             </>
           )}
           {error && (
             <>
-              <svg className="w-2.5 h-2.5 mr-1 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              <svg
+                className="w-2.5 h-2.5 mr-1 text-red-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
               </svg>
               <span className="break-words">{error}</span>
             </>
@@ -235,9 +273,7 @@ export default function DevelopmentTools() {
           </svg>
         </div>
         Dev Tools
-        <span className="text-[10px] text-slate-400 ml-2">
-          Local fork only
-        </span>
+        <span className="text-[10px] text-slate-400 ml-2">Local fork only</span>
       </h2>
 
       <div className="mb-3 bg-slate-700/30 rounded-lg p-2.5">
@@ -245,12 +281,14 @@ export default function DevelopmentTools() {
           <span className="text-xs text-slate-300">Contract:</span>
         </div>
         {loadingContract ? (
-          <span className="text-gray-400 text-[11px] animate-pulse">Loading...</span>
+          <span className="text-gray-400 text-[11px] animate-pulse">
+            Loading...
+          </span>
         ) : contractAddress ? (
           <div className="flex items-center justify-between">
-            <a 
-              href={`https://etherscan.io/address/${contractAddress}`} 
-              target="_blank" 
+            <a
+              href={`https://etherscan.io/address/${contractAddress}`}
+              target="_blank"
               rel="noopener noreferrer"
               className="text-[11px] font-mono bg-slate-800/60 rounded px-1.5 py-1 text-blue-300 hover:text-blue-200 transition-colors"
             >
@@ -268,7 +306,9 @@ export default function DevelopmentTools() {
             </button>
           </div>
         ) : (
-          <span className="text-[11px] text-red-400">Contract address not found</span>
+          <span className="text-[11px] text-red-400">
+            Contract address not found
+          </span>
         )}
         {window.flashLoanContract ? (
           <div className="mt-1 bg-green-900/20 text-green-300 text-[10px] font-medium rounded px-1.5 py-1">
@@ -288,9 +328,7 @@ export default function DevelopmentTools() {
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] text-slate-400">ETH</span>
-            <span className="text-xs font-medium text-white">
-              {ethBalance}
-            </span>
+            <span className="text-xs font-medium text-white">{ethBalance}</span>
           </div>
         </div>
         <div className="flex items-center bg-slate-700/30 rounded p-2">
@@ -349,8 +387,8 @@ export default function DevelopmentTools() {
         <StatusIndicator success={skewSuccess} error={skewError} />
         <StatusIndicator success={fundSuccess} error={fundError} />
       </div>
-      
+
       <FlashLoanExecutionTracker />
     </div>
   );
-} 
+}

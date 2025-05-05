@@ -185,7 +185,7 @@ sequenceDiagram
     Note over FL: Keep profit (remaining USDC)
 ```
 
-**Logic:** For a USDC -> WETH -> USDC arbitrage, the goal is to buy WETH where it costs the *least* USDC (i.e., where the WETH/USDC price is *highest*) and sell it where it yields the *most* USDC (i.e., where the WETH/USDC price is *lowest*). The difference must cover the flash loan premium and gas fees.
+**Logic:** For a USDC -> WETH -> USDC arbitrage, the goal is to buy WETH where it costs the _least_ USDC (i.e., where the WETH/USDC price is _highest_) and sell it where it yields the _most_ USDC (i.e., where the WETH/USDC price is _lowest_). The difference must cover the flash loan premium and gas fees.
 
 ## 🔐 Security Considerations
 

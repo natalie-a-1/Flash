@@ -25,7 +25,8 @@ import {DataTypes} from "@aave/core-v3/contracts/protocol/libraries/types/DataTy
  * @title Dynamic FlashLoan Arbitrage
  * @notice Implements an Aave V3 Flash Loan receiver for configurable arbitrage strategies.
  */
-contract FlashLoan { // REMOVED Inheritance
+contract FlashLoan {
+  // REMOVED Inheritance
   // ===================================================================
   // State Variables
   // ===================================================================
@@ -107,8 +108,9 @@ contract FlashLoan { // REMOVED Inheritance
    * @notice Sets up the contract with the Aave Addresses Provider address
    * @param _addressesProvider The Aave Pool Addresses Provider address
    */
-  constructor(address _addressesProvider)
-    // REMOVED: FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressesProvider))
+  constructor(
+    address _addressesProvider
+  ) // REMOVED: FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressesProvider))
   {
     ADDRESSES_PROVIDER = IPoolAddressesProvider(_addressesProvider); // RE-ADDED Assignment
     i_owner = msg.sender;
@@ -143,15 +145,15 @@ contract FlashLoan { // REMOVED Inheritance
     // Fetch the Aave Pool from the provider
     // IMPORTANT: Ensure ADDRESSES_PROVIDER is correctly set during deployment
     if (address(ADDRESSES_PROVIDER) == address(0)) {
-        emit ErrorMessage("ADDRESSES_PROVIDER is zero");
-        revert("ADDRESSES_PROVIDER not set"); 
+      emit ErrorMessage("ADDRESSES_PROVIDER is zero");
+      revert("ADDRESSES_PROVIDER not set");
     }
     IPool pool = IPool(MAINNET_POOL_ADDRESS);
     if (address(pool) == address(0)) {
-        emit ErrorMessage("Hardcoded Pool address is zero - THIS SHOULD NOT HAPPEN");
-        revert("Hardcoded Pool address is zero"); 
+      emit ErrorMessage("Hardcoded Pool address is zero - THIS SHOULD NOT HAPPEN");
+      revert("Hardcoded Pool address is zero");
     }
-     emit OperationStep("Got Pool address (Hardcoded)");
+    emit OperationStep("Got Pool address (Hardcoded)");
 
     uint256 amountToRepay = amount + premium;
 
@@ -161,12 +163,12 @@ contract FlashLoan { // REMOVED Inheritance
 
     // Validate routers are approved
     if (!approvedRouters[arbParams.sourceRouter]) {
-        emit ErrorMessage("Source Router Not Approved");
-        revert RouterNotApproved();
+      emit ErrorMessage("Source Router Not Approved");
+      revert RouterNotApproved();
     }
     if (!approvedRouters[arbParams.targetRouter]) {
-        emit ErrorMessage("Target Router Not Approved");
-        revert RouterNotApproved();
+      emit ErrorMessage("Target Router Not Approved");
+      revert RouterNotApproved();
     }
     emit OperationStep("Routers Validated");
 
@@ -178,7 +180,7 @@ contract FlashLoan { // REMOVED Inheritance
       revert InvalidPath();
     if (arbParams.secondPath[0] != arbParams.intermediateToken) revert InvalidPath();
     if (arbParams.secondPath[arbParams.secondPath.length - 1] != asset) revert InvalidPath();
-     emit OperationStep("Paths Validated");
+    emit OperationStep("Paths Validated");
 
     // --- Start Arbitrage Logic ---
     // First Swap (borrowed asset -> intermediate token)
@@ -200,21 +202,25 @@ contract FlashLoan { // REMOVED Inheritance
 
       // Perform swap
       // Consider adding try/catch here if swaps can fail gracefully
-      try IUniswapV2Router02(arbParams.sourceRouter).swapExactTokensForTokens(
+      try
+        IUniswapV2Router02(arbParams.sourceRouter).swapExactTokensForTokens(
           amount,
           amountOutMin,
           arbParams.firstPath,
           address(this),
           block.timestamp + SWAP_DEADLINE_OFFSET
-        ) returns (uint[] memory actualAmounts) {
-           intermediateReceived = actualAmounts[actualAmounts.length - 1];
-           emit SwapResult("Source", intermediateReceived);
+        )
+      returns (uint[] memory actualAmounts) {
+        intermediateReceived = actualAmounts[actualAmounts.length - 1];
+        emit SwapResult("Source", intermediateReceived);
       } catch Error(string memory reason) {
-            emit ErrorMessage(string.concat("Source Swap Failed: ", reason));
-            revert ArbitrageSwapFailed(string.concat("Source Swap Failed: ", reason));
+        emit ErrorMessage(string.concat("Source Swap Failed: ", reason));
+        revert ArbitrageSwapFailed(string.concat("Source Swap Failed: ", reason));
       } catch (bytes memory lowLevelData) {
-            emit ErrorMessage(string.concat("Source Swap Failed (Low Level): ", string(lowLevelData)));
-             revert ArbitrageSwapFailed(string.concat("Source Swap Failed (Low Level): ", string(lowLevelData)));
+        emit ErrorMessage(string.concat("Source Swap Failed (Low Level): ", string(lowLevelData)));
+        revert ArbitrageSwapFailed(
+          string.concat("Source Swap Failed (Low Level): ", string(lowLevelData))
+        );
       }
       emit OperationStep("After Source Swap Execution");
     }
@@ -237,22 +243,26 @@ contract FlashLoan { // REMOVED Inheritance
       emit OperationStep("Before Target Swap Execution");
 
       // Perform swap
-      try IUniswapV2Router02(arbParams.targetRouter).swapExactTokensForTokens(
+      try
+        IUniswapV2Router02(arbParams.targetRouter).swapExactTokensForTokens(
           intermediateReceived,
           amountOutMin,
           arbParams.secondPath,
           address(this),
           block.timestamp + SWAP_DEADLINE_OFFSET
-       ) returns (uint[] memory actualAmounts) {
-            finalReceived = actualAmounts[actualAmounts.length - 1];
-            emit SwapResult("Target", finalReceived);
-       } catch Error(string memory reason) {
-             emit ErrorMessage(string.concat("Target Swap Failed: ", reason));
-             revert ArbitrageSwapFailed(string.concat("Target Swap Failed: ", reason));
-       } catch (bytes memory lowLevelData) {
-             emit ErrorMessage(string.concat("Target Swap Failed (Low Level): ", string(lowLevelData)));
-              revert ArbitrageSwapFailed(string.concat("Target Swap Failed (Low Level): ", string(lowLevelData)));
-       }
+        )
+      returns (uint[] memory actualAmounts) {
+        finalReceived = actualAmounts[actualAmounts.length - 1];
+        emit SwapResult("Target", finalReceived);
+      } catch Error(string memory reason) {
+        emit ErrorMessage(string.concat("Target Swap Failed: ", reason));
+        revert ArbitrageSwapFailed(string.concat("Target Swap Failed: ", reason));
+      } catch (bytes memory lowLevelData) {
+        emit ErrorMessage(string.concat("Target Swap Failed (Low Level): ", string(lowLevelData)));
+        revert ArbitrageSwapFailed(
+          string.concat("Target Swap Failed (Low Level): ", string(lowLevelData))
+        );
+      }
       emit OperationStep("After Target Swap Execution");
     }
     // --- End Arbitrage Logic ---
@@ -277,17 +287,17 @@ contract FlashLoan { // REMOVED Inheritance
     // Calculate profit and send it to the initiator
     uint256 profit = finalBalance - amountToRepay;
     if (profit > 0 && arbParams.initiator != address(0)) {
-        emit OperationStep("Sending profit to initiator");
-        
-        // Transfer profit to the transaction initiator
-        _safeApprove(asset, address(this), 0); // Reset approval first
-        bool sent = IERC20(asset).transfer(arbParams.initiator, profit);
-        if (!sent) {
-            emit ErrorMessage("Failed to transfer profit to initiator");
-        } else {
-            emit ProfitTransferred(arbParams.initiator, asset, profit);
-            emit OperationStep("Profit successfully transferred");
-        }
+      emit OperationStep("Sending profit to initiator");
+
+      // Transfer profit to the transaction initiator
+      _safeApprove(asset, address(this), 0); // Reset approval first
+      bool sent = IERC20(asset).transfer(arbParams.initiator, profit);
+      if (!sent) {
+        emit ErrorMessage("Failed to transfer profit to initiator");
+      } else {
+        emit ProfitTransferred(arbParams.initiator, asset, profit);
+        emit OperationStep("Profit successfully transferred");
+      }
     }
 
     // Emit event

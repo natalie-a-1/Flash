@@ -6,7 +6,7 @@ import { TokenInfo } from "@/types/aave";
 
 /**
  * Debug function to check contract state and approvals before executing flash loan
- * 
+ *
  * @param tokenAddress The address of the token to be borrowed
  * @param sourceRouter Source router address
  * @param targetRouter Target router address
@@ -15,7 +15,7 @@ import { TokenInfo } from "@/types/aave";
 export async function debugFlashLoanState(
   tokenAddress: string,
   sourceRouter: string,
-  targetRouter: string
+  targetRouter: string,
 ): Promise<void> {
   if (!window.flashLoanContract || !window.ethereum) {
     console.error("DEBUG: Flash loan contract or ethereum not available");
@@ -24,43 +24,52 @@ export async function debugFlashLoanState(
 
   try {
     console.group("📊 Flash Loan Pre-execution Debug");
-    
+
     // Check contract details
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contractAddress = window.flashLoanContract.address;
     console.log("Contract address:", contractAddress);
-    
+
     // Check contract ETH balance
     const contractBalance = await provider.getBalance(contractAddress);
-    console.log("Contract ETH balance:", ethers.utils.formatEther(contractBalance), "ETH");
+    console.log(
+      "Contract ETH balance:",
+      ethers.utils.formatEther(contractBalance),
+      "ETH",
+    );
 
     // Check if account is contract owner
     const signer = provider.getSigner();
     const account = await signer.getAddress();
     console.log("Current account:", account);
-    
+
     try {
       const owner = await window.flashLoanContract.getOwner();
       console.log("Contract owner:", owner);
-      console.log("Is current account the owner:", owner.toLowerCase() === account.toLowerCase());
+      console.log(
+        "Is current account the owner:",
+        owner.toLowerCase() === account.toLowerCase(),
+      );
     } catch (error) {
       console.error("Error getting contract owner:", error);
     }
-    
+
     // Check router approvals
     try {
-      const sourceRouterApproved = await window.flashLoanContract.isRouterApproved(sourceRouter);
-      const targetRouterApproved = await window.flashLoanContract.isRouterApproved(targetRouter);
+      const sourceRouterApproved =
+        await window.flashLoanContract.isRouterApproved(sourceRouter);
+      const targetRouterApproved =
+        await window.flashLoanContract.isRouterApproved(targetRouter);
       console.log("Router approvals:", {
         sourceRouter,
         sourceRouterApproved,
         targetRouter,
-        targetRouterApproved
+        targetRouterApproved,
       });
     } catch (error) {
       console.error("Error checking router approvals:", error);
     }
-    
+
     // Check pool address
     try {
       const poolAddress = await window.flashLoanContract.ADDRESSES_PROVIDER();
@@ -68,7 +77,7 @@ export async function debugFlashLoanState(
     } catch (error) {
       console.error("Error getting pool provider address:", error);
     }
-    
+
     // Check token ERC20 details if possible
     try {
       const tokenContract = new ethers.Contract(
@@ -79,27 +88,27 @@ export async function debugFlashLoanState(
           "function decimals() view returns (uint8)",
           "function balanceOf(address) view returns (uint256)",
         ],
-        provider
+        provider,
       );
-      
+
       const [name, symbol, decimals, contractBalance] = await Promise.all([
         tokenContract.name().catch(() => "Unknown"),
         tokenContract.symbol().catch(() => "???"),
         tokenContract.decimals().catch(() => 18),
-        tokenContract.balanceOf(contractAddress).catch(() => "0")
+        tokenContract.balanceOf(contractAddress).catch(() => "0"),
       ]);
-      
+
       console.log("Token details:", {
         address: tokenAddress,
         name,
         symbol,
         decimals,
-        contractBalance: contractBalance.toString()
+        contractBalance: contractBalance.toString(),
       });
     } catch (error) {
       console.error("Error getting token details:", error);
     }
-    
+
     console.groupEnd();
   } catch (error) {
     console.error("Error in debugFlashLoanState:", error);
@@ -109,15 +118,17 @@ export async function debugFlashLoanState(
 
 /**
  * Checks if a router address is approved in the FlashLoan contract
- * 
+ *
  * @param {string} routerAddress - The address of the router to check
  * @returns {Promise<boolean>} True if the router is approved, false otherwise
  */
-export async function isRouterApproved(routerAddress: string): Promise<boolean> {
+export async function isRouterApproved(
+  routerAddress: string,
+): Promise<boolean> {
   if (!window.flashLoanContract) {
     throw new Error("FlashLoan contract not loaded");
   }
-  
+
   try {
     return await window.flashLoanContract.isRouterApproved(routerAddress);
   } catch (error) {
@@ -173,12 +184,19 @@ export async function executeAaveFlashLoan(
   await debugFlashLoanState(token.address, sourceRouter, targetRouter);
 
   try {
-    console.log("Preparing transaction with contract:", flashLoanContract.address);
+    console.log(
+      "Preparing transaction with contract:",
+      flashLoanContract.address,
+    );
 
     // Get current gas price and estimate gas for the transaction
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const gasPrice = await provider.getGasPrice();
-    console.log("Current gas price:", ethers.utils.formatUnits(gasPrice, 'gwei'), "gwei");
+    console.log(
+      "Current gas price:",
+      ethers.utils.formatUnits(gasPrice, "gwei"),
+      "gwei",
+    );
 
     // Get network information
     const network = await provider.getNetwork();
@@ -193,11 +211,14 @@ export async function executeAaveFlashLoan(
         targetRouter,
         intermediateToken,
         slippageBps,
-        { value: 0 }
+        { value: 0 },
       );
       console.log("Estimated gas limit:", gasEstimate.toString());
     } catch (gasError) {
-      console.warn("Gas estimation failed (this often happens, but tx may still succeed):", gasError);
+      console.warn(
+        "Gas estimation failed (this often happens, but tx may still succeed):",
+        gasError,
+      );
       console.log("Using default gas limit instead");
       // We'll proceed without gas estimation and let ethers use its default
     }
@@ -218,10 +239,10 @@ export async function executeAaveFlashLoan(
       targetRouter, // _targetRouter
       intermediateToken, // _intermediateToken
       slippageBps, // _slippageBps
-      txOptions
+      txOptions,
     );
     console.log("Flash loan transaction sent:", txResponse.hash);
-    
+
     // Wait for transaction confirmation
     console.log("Waiting for transaction confirmation...");
     const txReceipt = await txResponse.wait();
@@ -231,7 +252,7 @@ export async function executeAaveFlashLoan(
       status: txReceipt.status,
       logs: txReceipt.logs.length,
     });
-    
+
     if (txReceipt.status === 1) {
       console.log("✅ Flash loan executed successfully!");
       console.groupEnd();
@@ -246,7 +267,7 @@ export async function executeAaveFlashLoan(
 
     // Detailed error extraction
     console.group("🔍 Error Details");
-    
+
     // Try to extract error from transaction
     if (error.transaction) {
       console.log("Failed transaction details:", {
@@ -257,7 +278,7 @@ export async function executeAaveFlashLoan(
         gasLimit: error.transaction.gasLimit?.toString(),
       });
     }
-    
+
     // Try to extract error from receipt
     if (error.receipt) {
       console.log("Transaction receipt:", {
@@ -267,7 +288,7 @@ export async function executeAaveFlashLoan(
         logs: error.receipt.logs?.length || 0,
       });
     }
-    
+
     // --- Improved Error Reason Extraction ---
     let revertReason = "Flash loan execution failed.";
     if (error.reason) {
@@ -296,23 +317,30 @@ export async function executeAaveFlashLoan(
     }
 
     // Remove VM Exception prefix if present
-    if (revertReason.startsWith("VM Exception while processing transaction: revert")) {
-      revertReason = revertReason.substring("VM Exception while processing transaction: revert".length).trim();
+    if (
+      revertReason.startsWith(
+        "VM Exception while processing transaction: revert",
+      )
+    ) {
+      revertReason = revertReason
+        .substring("VM Exception while processing transaction: revert".length)
+        .trim();
       if (revertReason.startsWith("-")) {
         revertReason = revertReason.substring(1).trim();
       }
     }
-    
-    if (revertReason === "") revertReason = "Transaction reverted with no specific reason.";
+
+    if (revertReason === "")
+      revertReason = "Transaction reverted with no specific reason.";
     console.log("Extracted Revert Reason:", revertReason);
-    
+
     // Try to get any extra info from error object
     console.log("Raw error object keys:", Object.keys(error));
     if (error.data) console.log("Error data:", error.data);
-    
+
     console.groupEnd(); // End error details group
     console.groupEnd(); // End executing flash loan group
-    
+
     return false;
   }
 }

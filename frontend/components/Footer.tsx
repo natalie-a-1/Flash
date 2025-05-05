@@ -14,9 +14,7 @@ export default function Footer() {
     <footer className="fixed bottom-0 left-0 right-0 border-t border-slate-800 py-2 text-xs bg-black/70 backdrop-blur-sm z-10">
       <div className="container mx-auto px-3">
         <div className="flex justify-between items-center">
-          <p className="text-slate-500">
-            © {new Date().getFullYear()} Flash
-          </p>
+          <p className="text-slate-500">© {new Date().getFullYear()} Flash</p>
           <div className="flex gap-3">
             <Link
               href="#"

@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
 declare global {
   interface Window {
@@ -8,4 +8,4 @@ declare global {
   }
 }
 
-export {}; 
+export {};

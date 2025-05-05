@@ -17,7 +17,7 @@ import { formatTokenAmount } from "@/lib/web3/utils";
 export default function ArbitrageOpportunities() {
   // Destructure necessary values from the Web3 context
   const { isConnected, isCorrectNetwork, networkId } = useWeb3();
-  
+
   // Get data from the global provider
   const { dexPrices, isLoading } = useGlobalData();
 
@@ -46,14 +46,12 @@ export default function ArbitrageOpportunities() {
 
     // If connected to localhost fork, show only V2/Sushi
     if (networkId === NETWORK_IDS.LOCALHOST) {
-      return (
-        exchange.name === "Uniswap V2" || exchange.name === "SushiSwap"
-      );
+      return exchange.name === "Uniswap V2" || exchange.name === "SushiSwap";
     }
-    
+
     // Default: If networkId is null or unsupported, potentially show nothing or default set
     // Current logic falls through to showing nothing if not Mainnet or Localhost
-    return false; 
+    return false;
   });
 
   /**
@@ -255,7 +253,8 @@ export default function ArbitrageOpportunities() {
                       {exchangesToShow.map((exchange) => {
                         const price = pairPrices[exchange.name] ?? 0;
                         const isBestBuy = bestPath?.buy?.name === exchange.name;
-                        const isBestSell = bestPath?.sell?.name === exchange.name;
+                        const isBestSell =
+                          bestPath?.sell?.name === exchange.name;
                         return (
                           <div
                             key={exchange.name}

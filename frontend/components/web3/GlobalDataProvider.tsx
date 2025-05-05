@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { useWeb3 } from "./Web3Provider";
 import { useFlashLoanData } from "@/lib/web3/hooks/useFlashLoanData";
 import { ethers } from "ethers";
@@ -30,9 +36,10 @@ const GlobalDataContext = createContext<GlobalDataContextType>({
 export const useGlobalData = () => useContext(GlobalDataContext);
 
 export const GlobalDataProvider = ({ children }: { children: ReactNode }) => {
-  const { web3, isConnected, isCorrectNetwork, account, refreshBalance } = useWeb3();
+  const { web3, isConnected, isCorrectNetwork, account, refreshBalance } =
+    useWeb3();
   const { reload: reloadFlashLoanData } = useFlashLoanData();
-  
+
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [dexPrices, setDexPrices] = useState<TokenPairPrices>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -56,12 +63,10 @@ export const GlobalDataProvider = ({ children }: { children: ReactNode }) => {
 
       // 3. Fetch DEX prices
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-        const fetchedPrices = await fetchDexPrices(
-          provider,
-          EXCHANGES,
-          PAIRS
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as any,
         );
+        const fetchedPrices = await fetchDexPrices(provider, EXCHANGES, PAIRS);
         setDexPrices(fetchedPrices);
       } catch (priceError) {
         console.error("Error fetching DEX prices:", priceError);
@@ -96,12 +101,12 @@ export const GlobalDataProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Initial fetch
     fetchAllData();
-    
+
     // Set up interval for regular updates
     const updateInterval = setInterval(() => {
       fetchAllData();
     }, 10000); // Every 10 seconds as requested
-    
+
     return () => clearInterval(updateInterval);
   }, [isConnected, isCorrectNetwork, account]);
 
@@ -112,7 +117,7 @@ export const GlobalDataProvider = ({ children }: { children: ReactNode }) => {
         dexPrices,
         isLoading,
         error,
-        manualRefresh
+        manualRefresh,
       }}
     >
       {children}
@@ -120,4 +125,4 @@ export const GlobalDataProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default GlobalDataProvider; 
+export default GlobalDataProvider;

@@ -3,18 +3,30 @@
 import { useState, useEffect, useRef } from "react";
 import { useWeb3 } from "./web3/Web3Provider";
 import { ethers } from "ethers";
-import { executeAaveFlashLoan, isRouterApproved, debugFlashLoanState } from "@/lib/web3/aave";
+import {
+  executeAaveFlashLoan,
+  isRouterApproved,
+  debugFlashLoanState,
+} from "@/lib/web3/aave";
 import { useFlashLoanData } from "@/lib/web3/hooks/useFlashLoanData";
 import { formatMaxAmount, getStatusStyle } from "../lib/utils/flashLoanUtils";
 import { formatTokenAmount, formatCurrencyAmount } from "@/lib/web3/utils";
 import { TOKENS } from "@/lib/constants/tokens";
 import { EXCHANGES, PAIRS } from "@/lib/constants/dex";
-import { fetchDexPrices, findBestArbitragePath } from "@/lib/services/priceService";
+import {
+  fetchDexPrices,
+  findBestArbitragePath,
+} from "@/lib/services/priceService";
 import { ExchangePrices, Exchange } from "@/types/arbitrage";
-import ArbitrageProfitCalculator, { ArbitrageProfitCalculatorRef } from "./ArbitrageProfitCalculator";
+import ArbitrageProfitCalculator, {
+  ArbitrageProfitCalculatorRef,
+} from "./ArbitrageProfitCalculator";
 import { MAINNET_ADDRESSES } from "@/lib/web3/config"; // Need WETH address
 import { NETWORK_IDS } from "@/lib/web3/config"; // Ensure NETWORK_IDS is imported
-import { FlashLoanEvents, openFlashLoanTracker } from "./FlashLoanExecutionTracker";
+import {
+  FlashLoanEvents,
+  openFlashLoanTracker,
+} from "./FlashLoanExecutionTracker";
 import { useGlobalData } from "./web3/GlobalDataProvider";
 
 /**
@@ -24,7 +36,7 @@ import { useGlobalData } from "./web3/GlobalDataProvider";
  */
 export default function FlashLoanOptions() {
   const { web3, isConnected, isCorrectNetwork, account, networkId } = useWeb3();
-  
+
   // Get global data for auto-updates
   const { lastUpdated } = useGlobalData();
 
@@ -55,13 +67,17 @@ export default function FlashLoanOptions() {
 
   // Add state for transaction status
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [txStatus, setTxStatus] = useState<
+    "idle" | "pending" | "success" | "error"
+  >("idle");
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
   // Add state to toggle debug mode
   const [debugMode, setDebugMode] = useState<boolean>(false);
   const [uniswapApproved, setUniswapApproved] = useState<boolean | null>(null);
-  const [sushiswapApproved, setSushiswapApproved] = useState<boolean | null>(null);
+  const [sushiswapApproved, setSushiswapApproved] = useState<boolean | null>(
+    null,
+  );
 
   // Reference to access ArbitrageProfitCalculator slippage value
   const calculatorRef = useRef<ArbitrageProfitCalculatorRef>(null);
@@ -96,21 +112,21 @@ export default function FlashLoanOptions() {
         console.log("Checking router approvals on component mount...");
         const [uniApproved, sushiApproved] = await Promise.all([
           isRouterApproved(MAINNET_ADDRESSES.UNISWAP_V2_ROUTER),
-          isRouterApproved(MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER)
+          isRouterApproved(MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER),
         ]);
-        
+
         console.log("Router approval status:", {
           uniswap: uniApproved,
-          sushiswap: sushiApproved
+          sushiswap: sushiApproved,
         });
-        
+
         setUniswapApproved(uniApproved);
         setSushiswapApproved(sushiApproved);
       } catch (error) {
         console.error("Error checking router approvals:", error);
       }
     };
-    
+
     checkRouterApprovals();
   }, [isConnected, isCorrectNetwork]);
 
@@ -150,17 +166,20 @@ export default function FlashLoanOptions() {
 
     // Reset transaction state
     setTxHash(null);
-    setTxStatus('idle');
+    setTxStatus("idle");
     setDebugInfo(null);
 
     // Reset execution tracker - remove tracker functionality
     FlashLoanEvents.reset();
-    
+
     // Remove opening the tracker modal
     // openFlashLoanTracker();
-    
+
     // Create initial step - keep this for logging but not for UI display
-    const initStepId = FlashLoanEvents.addStep("Initializing flash loan", "pending");
+    const initStepId = FlashLoanEvents.addStep(
+      "Initializing flash loan",
+      "pending",
+    );
 
     console.group("🔄 Flash Loan Request");
     // Get slippage from calculator component
@@ -171,7 +190,7 @@ export default function FlashLoanOptions() {
       tokenAddress: selectedToken.address,
       tokenSymbol: selectedToken.symbol,
       loanAmount,
-      slippage
+      slippage,
     });
 
     const selectedReserve = reserves[selectedToken.address];
@@ -180,7 +199,12 @@ export default function FlashLoanOptions() {
       const errorMsg = `${selectedToken.symbol} is not available for flash loans at this time`;
       console.error(errorMsg);
       setError(errorMsg);
-      FlashLoanEvents.updateStep(initStepId, "error", "Initialization failed", errorMsg);
+      FlashLoanEvents.updateStep(
+        initStepId,
+        "error",
+        "Initialization failed",
+        errorMsg,
+      );
       console.groupEnd();
       return;
     }
@@ -192,7 +216,12 @@ export default function FlashLoanOptions() {
       // alert(
       //   "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits without the ability to execute loans."
       // );
-      FlashLoanEvents.updateStep(initStepId, "error", "Contract not available", errorMsg);
+      FlashLoanEvents.updateStep(
+        initStepId,
+        "error",
+        "Contract not available",
+        errorMsg,
+      );
       console.groupEnd();
       return;
     }
@@ -201,45 +230,73 @@ export default function FlashLoanOptions() {
     FlashLoanEvents.updateStep(initStepId, "success", "Flash loan initialized");
 
     // Log contract address and ABI for debugging
-    console.log("Flash Loan Contract Address:", window.flashLoanContract.address);
-    const contractStepId = FlashLoanEvents.addStep("Checking contract interface", "pending");
-    
+    console.log(
+      "Flash Loan Contract Address:",
+      window.flashLoanContract.address,
+    );
+    const contractStepId = FlashLoanEvents.addStep(
+      "Checking contract interface",
+      "pending",
+    );
+
     try {
       console.log("Checking contract interface...");
-      const functions = Object.keys(window.flashLoanContract.interface.functions);
+      const functions = Object.keys(
+        window.flashLoanContract.interface.functions,
+      );
       console.log("Available contract functions:", functions);
-      FlashLoanEvents.updateStep(contractStepId, "success", "Contract interface verified", 
-        `Available functions: ${functions.slice(0, 3).join(", ")}...`);
+      FlashLoanEvents.updateStep(
+        contractStepId,
+        "success",
+        "Contract interface verified",
+        `Available functions: ${functions.slice(0, 3).join(", ")}...`,
+      );
     } catch (error) {
       console.warn("Could not get contract interface:", error);
-      FlashLoanEvents.updateStep(contractStepId, "warning", "Could not verify contract interface", 
-        error instanceof Error ? error.message : String(error));
+      FlashLoanEvents.updateStep(
+        contractStepId,
+        "warning",
+        "Could not verify contract interface",
+        error instanceof Error ? error.message : String(error),
+      );
     }
 
     // Filter Prices for Execution (Only V2/Sushi on Fork)
-    const filterStepId = FlashLoanEvents.addStep("Filtering DEX prices for execution", "pending");
+    const filterStepId = FlashLoanEvents.addStep(
+      "Filtering DEX prices for execution",
+      "pending",
+    );
     let executionDexPrices: ExchangePrices | null = dexPrices;
     if (networkId === NETWORK_IDS.LOCALHOST && dexPrices) {
-        const allowedExchanges = ["Uniswap V2", "SushiSwap"];
-        executionDexPrices = {};
-        for (const exchangeName of allowedExchanges) {
-            if (dexPrices[exchangeName] !== undefined) {
-                executionDexPrices[exchangeName] = dexPrices[exchangeName];
-            }
+      const allowedExchanges = ["Uniswap V2", "SushiSwap"];
+      executionDexPrices = {};
+      for (const exchangeName of allowedExchanges) {
+        if (dexPrices[exchangeName] !== undefined) {
+          executionDexPrices[exchangeName] = dexPrices[exchangeName];
         }
-        // If filteredDexPrices is empty after filtering, set it back to null
-        if (Object.keys(executionDexPrices).length === 0) {
-            executionDexPrices = null;
-        }
+      }
+      // If filteredDexPrices is empty after filtering, set it back to null
+      if (Object.keys(executionDexPrices).length === 0) {
+        executionDexPrices = null;
+      }
     }
 
     console.log("Execution DEX prices:", executionDexPrices);
-    FlashLoanEvents.updateStep(filterStepId, "success", "DEX prices filtered", 
-      `Available exchanges: ${executionDexPrices ? Object.keys(executionDexPrices).join(", ") : "None"}`);
+    FlashLoanEvents.updateStep(
+      filterStepId,
+      "success",
+      "DEX prices filtered",
+      `Available exchanges: ${executionDexPrices ? Object.keys(executionDexPrices).join(", ") : "None"}`,
+    );
 
     // Get Dynamic Parameters based on *FILTERED* prices
-    const pathStepId = FlashLoanEvents.addStep("Finding best arbitrage path", "pending");
-    const bestPath = executionDexPrices ? findBestArbitragePath(executionDexPrices) : null;
+    const pathStepId = FlashLoanEvents.addStep(
+      "Finding best arbitrage path",
+      "pending",
+    );
+    const bestPath = executionDexPrices
+      ? findBestArbitragePath(executionDexPrices)
+      : null;
     const buyExchange: Exchange | null = bestPath?.buy || null;
     const sellExchange: Exchange | null = bestPath?.sell || null;
 
@@ -250,17 +307,27 @@ export default function FlashLoanOptions() {
     });
 
     if (!buyExchange || !sellExchange) {
-        const errorMsg = "Could not determine executable arbitrage path (Uniswap V2 / SushiSwap). No prices available or profitable path found between them.";
-        console.error(errorMsg);
-        setError(errorMsg);
-        setIsLoading(false);
-        FlashLoanEvents.updateStep(pathStepId, "error", "Could not find arbitrage path", errorMsg);
-        console.groupEnd();
-        return;
+      const errorMsg =
+        "Could not determine executable arbitrage path (Uniswap V2 / SushiSwap). No prices available or profitable path found between them.";
+      console.error(errorMsg);
+      setError(errorMsg);
+      setIsLoading(false);
+      FlashLoanEvents.updateStep(
+        pathStepId,
+        "error",
+        "Could not find arbitrage path",
+        errorMsg,
+      );
+      console.groupEnd();
+      return;
     }
 
-    FlashLoanEvents.updateStep(pathStepId, "success", "Arbitrage path found", 
-      `Buy on ${buyExchange.name}, Sell on ${sellExchange.name}`);
+    FlashLoanEvents.updateStep(
+      pathStepId,
+      "success",
+      "Arbitrage path found",
+      `Buy on ${buyExchange.name}, Sell on ${sellExchange.name}`,
+    );
 
     // Intermediate token is WETH for USDC/WETH pair
     const intermediateToken = MAINNET_ADDRESSES.WETH; // Assuming USDC/WETH arbitrage
@@ -274,31 +341,48 @@ export default function FlashLoanOptions() {
       slippageBps,
       sourceRouter: buyExchange.router,
       targetRouter: sellExchange.router,
-      intermediateToken
+      intermediateToken,
     });
 
-    const paramsStepId = FlashLoanEvents.addStep("Setting up execution parameters", "pending");
-    
+    const paramsStepId = FlashLoanEvents.addStep(
+      "Setting up execution parameters",
+      "pending",
+    );
+
     // Validate slippage
-    if (slippageBps <= 0 || slippageBps > 10000) { // 10000 BPS = 100%
-        const errorMsg = "Invalid slippage tolerance. Must be between 0% and 100%.";
-        console.error(errorMsg);
-        setError(errorMsg);
-        FlashLoanEvents.updateStep(paramsStepId, "error", "Invalid slippage parameter", errorMsg);
-        console.groupEnd();
-        return;
+    if (slippageBps <= 0 || slippageBps > 10000) {
+      // 10000 BPS = 100%
+      const errorMsg =
+        "Invalid slippage tolerance. Must be between 0% and 100%.";
+      console.error(errorMsg);
+      setError(errorMsg);
+      FlashLoanEvents.updateStep(
+        paramsStepId,
+        "error",
+        "Invalid slippage parameter",
+        errorMsg,
+      );
+      console.groupEnd();
+      return;
     }
 
-    FlashLoanEvents.updateStep(paramsStepId, "success", "Parameters verified", 
-      `Slippage: ${slippageNum}%, Buy: ${buyExchange.name}, Sell: ${sellExchange.name}`);
+    FlashLoanEvents.updateStep(
+      paramsStepId,
+      "success",
+      "Parameters verified",
+      `Slippage: ${slippageNum}%, Buy: ${buyExchange.name}, Sell: ${sellExchange.name}`,
+    );
 
     try {
       setIsLoading(true);
       setError(null);
-      setTxStatus('pending');
+      setTxStatus("pending");
 
       // Check router approvals first
-      const approvalStepId = FlashLoanEvents.addStep("Checking router approvals", "pending");
+      const approvalStepId = FlashLoanEvents.addStep(
+        "Checking router approvals",
+        "pending",
+      );
       console.log("Checking router approvals...");
       const sourceRouterApproved = await isRouterApproved(buyExchange.router);
       const targetRouterApproved = await isRouterApproved(sellExchange.router);
@@ -307,34 +391,49 @@ export default function FlashLoanOptions() {
         sourceRouter: {
           name: buyExchange.name,
           address: buyExchange.router,
-          approved: sourceRouterApproved
+          approved: sourceRouterApproved,
         },
         targetRouter: {
           name: sellExchange.name,
           address: sellExchange.router,
-          approved: targetRouterApproved
-        }
+          approved: targetRouterApproved,
+        },
       });
 
       if (!sourceRouterApproved || !targetRouterApproved) {
         let errorMsg = "Router approval required: ";
-        if (!sourceRouterApproved) errorMsg += `${buyExchange.name} router is not approved. `;
-        if (!targetRouterApproved) errorMsg += `${sellExchange.name} router is not approved. `;
-        errorMsg += "Please contact the contract owner to approve these routers.";
+        if (!sourceRouterApproved)
+          errorMsg += `${buyExchange.name} router is not approved. `;
+        if (!targetRouterApproved)
+          errorMsg += `${sellExchange.name} router is not approved. `;
+        errorMsg +=
+          "Please contact the contract owner to approve these routers.";
         console.error(errorMsg);
         setError(errorMsg);
         setIsLoading(false);
-        setTxStatus('error');
-        FlashLoanEvents.updateStep(approvalStepId, "error", "Router approval required", errorMsg);
+        setTxStatus("error");
+        FlashLoanEvents.updateStep(
+          approvalStepId,
+          "error",
+          "Router approval required",
+          errorMsg,
+        );
         console.groupEnd();
         return;
       }
 
-      FlashLoanEvents.updateStep(approvalStepId, "success", "Routers approved", 
-        `${buyExchange.name} and ${sellExchange.name} routers are approved`);
+      FlashLoanEvents.updateStep(
+        approvalStepId,
+        "success",
+        "Routers approved",
+        `${buyExchange.name} and ${sellExchange.name} routers are approved`,
+      );
 
       // Prepare amount
-      const amountStepId = FlashLoanEvents.addStep("Preparing loan amount", "pending");
+      const amountStepId = FlashLoanEvents.addStep(
+        "Preparing loan amount",
+        "pending",
+      );
       const amountInWei = ethers.utils.parseUnits(
         loanAmount,
         selectedToken.decimals,
@@ -343,7 +442,7 @@ export default function FlashLoanOptions() {
       console.log("Amount details:", {
         inputAmount: loanAmount,
         decimals: selectedToken.decimals,
-        amountInWei: amountInWei.toString()
+        amountInWei: amountInWei.toString(),
       });
 
       const availableLiquidityBN = ethers.utils.parseUnits(
@@ -354,7 +453,7 @@ export default function FlashLoanOptions() {
       console.log("Liquidity check:", {
         requested: amountInWei.toString(),
         available: availableLiquidityBN.toString(),
-        hasEnough: amountInWei.lte(availableLiquidityBN)
+        hasEnough: amountInWei.lte(availableLiquidityBN),
       });
 
       if (amountInWei.gt(availableLiquidityBN)) {
@@ -367,32 +466,46 @@ export default function FlashLoanOptions() {
         console.error(errorMsg);
         setError(errorMsg);
         setIsLoading(false);
-        setTxStatus('error');
-        FlashLoanEvents.updateStep(amountStepId, "error", "Insufficient liquidity", errorMsg);
+        setTxStatus("error");
+        FlashLoanEvents.updateStep(
+          amountStepId,
+          "error",
+          "Insufficient liquidity",
+          errorMsg,
+        );
         console.groupEnd();
         return;
       }
 
-      FlashLoanEvents.updateStep(amountStepId, "success", "Loan amount prepared", 
-        `Amount: ${loanAmount} ${selectedToken.symbol}`);
+      FlashLoanEvents.updateStep(
+        amountStepId,
+        "success",
+        "Loan amount prepared",
+        `Amount: ${loanAmount} ${selectedToken.symbol}`,
+      );
 
       // Log provider and network info
-      const networkStepId = FlashLoanEvents.addStep("Checking network status", "pending");
+      const networkStepId = FlashLoanEvents.addStep(
+        "Checking network status",
+        "pending",
+      );
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as any,
+        );
         const network = await provider.getNetwork();
         console.log("Network info:", {
           chainId: network.chainId,
-          name: network.name
+          name: network.name,
         });
-        
+
         const block = await provider.getBlock("latest");
         console.log("Latest block:", {
           number: block.number,
           timestamp: block.timestamp,
-          gasLimit: block.gasLimit.toString()
+          gasLimit: block.gasLimit.toString(),
         });
-        
+
         // Save debug info
         setDebugInfo({
           network,
@@ -411,51 +524,70 @@ export default function FlashLoanOptions() {
             targetRouter: sellExchange.router,
             intermediateToken,
             slippageBps,
-          }
+          },
         });
-        
-        FlashLoanEvents.updateStep(networkStepId, "success", "Network verified", 
-          `Chain ID: ${network.chainId}, Latest Block: ${block.number}`);
+
+        FlashLoanEvents.updateStep(
+          networkStepId,
+          "success",
+          "Network verified",
+          `Chain ID: ${network.chainId}, Latest Block: ${block.number}`,
+        );
       } catch (error) {
         console.warn("Error getting network info:", error);
-        FlashLoanEvents.updateStep(networkStepId, "warning", "Network info incomplete", 
-          error instanceof Error ? error.message : String(error));
+        FlashLoanEvents.updateStep(
+          networkStepId,
+          "warning",
+          "Network info incomplete",
+          error instanceof Error ? error.message : String(error),
+        );
       }
 
       // Execute with dynamic parameters derived from filtered prices
-      const executeStepId = FlashLoanEvents.addStep("Executing flash loan transaction", "pending", 
-        "This may take a moment and will require confirmation in your wallet");
+      const executeStepId = FlashLoanEvents.addStep(
+        "Executing flash loan transaction",
+        "pending",
+        "This may take a moment and will require confirmation in your wallet",
+      );
       console.log("Executing flash loan...");
       const success = await executeAaveFlashLoan(
-        web3, 
+        web3,
         selectedToken,
         amountInWei.toString(),
         buyExchange.router, // Use .router
         sellExchange.router, // Use .router
-        intermediateToken, 
+        intermediateToken,
         slippageBps,
       );
 
       console.log("Flash loan execution result:", success);
-      setTxStatus(success ? 'success' : 'error');
+      setTxStatus(success ? "success" : "error");
 
       if (success) {
-        FlashLoanEvents.updateStep(executeStepId, "success", "Flash loan executed successfully", 
-          `${loanAmount} ${selectedToken.symbol} flash loan completed`);
+        FlashLoanEvents.updateStep(
+          executeStepId,
+          "success",
+          "Flash loan executed successfully",
+          `${loanAmount} ${selectedToken.symbol} flash loan completed`,
+        );
         // Remove alert
         // alert(
         //   `Flash loan for ${loanAmount} ${selectedToken.symbol} requested! Check your wallet for transaction confirmation.`
         // );
         setLoanAmount("");
       } else {
-        FlashLoanEvents.updateStep(executeStepId, "error", "Flash loan execution failed", 
-          "Transaction was not successful. See console for details.");
+        FlashLoanEvents.updateStep(
+          executeStepId,
+          "error",
+          "Flash loan execution failed",
+          "Transaction was not successful. See console for details.",
+        );
         // Remove alert
         // alert("Flash loan execution failed. Please check console for details.");
       }
     } catch (error) {
       console.error("Error executing flash loan:", error);
-      setTxStatus('error');
+      setTxStatus("error");
       let errorMessage = "Failed to execute flash loan.";
 
       // Try to extract as much info as possible for debugging
@@ -464,20 +596,33 @@ export default function FlashLoanOptions() {
         console.log("Error name:", error.name);
         console.log("Error message:", error.message);
         console.log("Error stack:", error.stack);
-        
+
         if (error.message.includes("user rejected")) {
           errorMessage = "Transaction was rejected in your wallet.";
-          FlashLoanEvents.addStep("Transaction rejected", "error", errorMessage);
+          FlashLoanEvents.addStep(
+            "Transaction rejected",
+            "error",
+            errorMessage,
+          );
         } else if (error.message.includes("insufficient funds")) {
           errorMessage = "Insufficient funds for gas fees.";
           FlashLoanEvents.addStep("Insufficient funds", "error", errorMessage);
         } else if (error.message.includes("contract not loaded")) {
           errorMessage =
             "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits.";
-          FlashLoanEvents.addStep("Contract not deployed", "error", errorMessage);
+          FlashLoanEvents.addStep(
+            "Contract not deployed",
+            "error",
+            errorMessage,
+          );
         } else {
           errorMessage += " " + error.message;
-          FlashLoanEvents.addStep("Execution error", "error", errorMessage, error.stack);
+          FlashLoanEvents.addStep(
+            "Execution error",
+            "error",
+            errorMessage,
+            error.stack,
+          );
         }
       } else if (
         typeof error === "object" &&
@@ -486,10 +631,14 @@ export default function FlashLoanOptions() {
       ) {
         const errMsg = (error as { message: string }).message;
         console.log("Error object message:", errMsg);
-        
+
         if (errMsg.includes("user rejected")) {
           errorMessage = "Transaction was rejected in your wallet.";
-          FlashLoanEvents.addStep("Transaction rejected", "error", errorMessage);
+          FlashLoanEvents.addStep(
+            "Transaction rejected",
+            "error",
+            errorMessage,
+          );
         } else if (errMsg.includes("insufficient funds")) {
           errorMessage = "Insufficient funds for gas fees.";
           FlashLoanEvents.addStep("Insufficient funds", "error", errorMessage);
@@ -498,35 +647,38 @@ export default function FlashLoanOptions() {
           FlashLoanEvents.addStep("Execution error", "error", errorMessage);
         }
       }
-      
+
       // Log any additional properties on the error object
-      if (error && typeof error === 'object') {
+      if (error && typeof error === "object") {
         const errorKeys = Object.keys(error as object);
         console.log("Error object keys:", errorKeys);
-        
+
         // Try to extract common ethers.js error properties
-        if ('code' in (error as any)) console.log("Error code:", (error as any).code);
-        if ('reason' in (error as any)) console.log("Error reason:", (error as any).reason);
-        if ('error' in (error as any)) console.log("Nested error:", (error as any).error);
-        if ('transaction' in (error as any)) {
+        if ("code" in (error as any))
+          console.log("Error code:", (error as any).code);
+        if ("reason" in (error as any))
+          console.log("Error reason:", (error as any).reason);
+        if ("error" in (error as any))
+          console.log("Nested error:", (error as any).error);
+        if ("transaction" in (error as any)) {
           console.log("Transaction:", {
             hash: (error as any).transaction?.hash,
             from: (error as any).transaction?.from,
             to: (error as any).transaction?.to,
           });
-          
+
           if ((error as any).transaction?.hash) {
             const txHash = (error as any).transaction.hash;
             FlashLoanEvents.addStep(
-              "Transaction failed", 
-              "error", 
-              `Transaction reverted: The transaction was submitted but failed on-chain. TX: ${txHash}`
+              "Transaction failed",
+              "error",
+              `Transaction reverted: The transaction was submitted but failed on-chain. TX: ${txHash}`,
             );
           }
         }
       }
       console.groupEnd();
-      
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -538,73 +690,82 @@ export default function FlashLoanOptions() {
    * Trigger debug checks manually without executing a flash loan
    */
   const runDebugChecks = async () => {
-    if (!isConnected || !isCorrectNetwork || !selectedToken)
-      return;
-      
+    if (!isConnected || !isCorrectNetwork || !selectedToken) return;
+
     setIsLoading(true);
     try {
       console.group("🛠️ Manual Debug Check");
-      
+
       const intermediateToken = MAINNET_ADDRESSES.WETH;
-      
+
       // Get router addresses directly from constants
       const sourceRouter = MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER;
       const targetRouter = MAINNET_ADDRESSES.UNISWAP_V2_ROUTER;
-      
+
       console.log("Running debug checks with parameters:", {
         tokenAddress: selectedToken.address,
         sourceRouter,
         targetRouter,
       });
-      
+
       await debugFlashLoanState(
         selectedToken.address,
         sourceRouter,
-        targetRouter
+        targetRouter,
       );
-      
+
       // Check router approvals
       try {
         const [uniApproved, sushiApproved] = await Promise.all([
           isRouterApproved(MAINNET_ADDRESSES.UNISWAP_V2_ROUTER),
-          isRouterApproved(MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER)
+          isRouterApproved(MAINNET_ADDRESSES.SUSHISWAP_V2_ROUTER),
         ]);
-        
+
         setUniswapApproved(uniApproved);
         setSushiswapApproved(sushiApproved);
       } catch (error) {
         console.error("Error checking router approvals:", error);
       }
-      
+
       // Check network info
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as any,
+        );
         const network = await provider.getNetwork();
         console.log("Network info:", {
           chainId: network.chainId,
-          name: network.name
+          name: network.name,
         });
-        
+
         const block = await provider.getBlock("latest");
         console.log("Latest block:", {
           number: block.number,
           timestamp: block.timestamp,
-          gasLimit: block.gasLimit.toString()
+          gasLimit: block.gasLimit.toString(),
         });
-        
+
         // Get gas price
         const gasPrice = await provider.getGasPrice();
-        console.log("Gas price:", ethers.utils.formatUnits(gasPrice, 'gwei'), "gwei");
-        
+        console.log(
+          "Gas price:",
+          ethers.utils.formatUnits(gasPrice, "gwei"),
+          "gwei",
+        );
+
         // Get account balance
         const signer = provider.getSigner();
         const account = await signer.getAddress();
         const balance = await provider.getBalance(account);
-        console.log("Account ETH balance:", ethers.utils.formatEther(balance), "ETH");
+        console.log(
+          "Account ETH balance:",
+          ethers.utils.formatEther(balance),
+          "ETH",
+        );
       } catch (error) {
         console.error("Error getting network info:", error);
       }
-      
+
       console.groupEnd();
     } catch (error) {
       console.error("Debug check error:", error);
@@ -749,7 +910,7 @@ export default function FlashLoanOptions() {
               Available: {formatMaxAmount(reserve, selectedToken)}
             </p>
           )}
-          </div>
+        </div>
 
         {/* Error Message */}
         {(error || errorReserves || errorFees) && (
@@ -1031,15 +1192,34 @@ export default function FlashLoanOptions() {
             onClick={() => setDebugMode(!debugMode)}
             className="text-xs text-gray-400 hover:text-white flex items-center"
           >
-            <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M12 16V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M12 8V8.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <svg
+              className="w-3 h-3 mr-1"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M12 16V12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M12 8V8.01"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
             {debugMode ? "Hide debug info" : "Show debug info"}
           </button>
         </div>
-        
+
         {/* Debug Panel */}
         {debugMode && (
           <div className="mt-3 p-3 bg-slate-900/80 border border-gray-700 rounded-lg">
@@ -1053,14 +1233,19 @@ export default function FlashLoanOptions() {
                 {isLoading ? "Running..." : "Run Debug Checks"}
               </button>
             </div>
-            
-            {txStatus !== 'idle' && (
-              <div className={`mb-2 p-2 rounded text-xs ${
-                txStatus === 'pending' ? 'bg-amber-900/20 text-amber-400' :
-                txStatus === 'success' ? 'bg-green-900/20 text-green-400' :
-                'bg-red-900/20 text-red-400'
-              }`}>
-                Transaction Status: <span className="font-medium">{txStatus.toUpperCase()}</span>
+
+            {txStatus !== "idle" && (
+              <div
+                className={`mb-2 p-2 rounded text-xs ${
+                  txStatus === "pending"
+                    ? "bg-amber-900/20 text-amber-400"
+                    : txStatus === "success"
+                      ? "bg-green-900/20 text-green-400"
+                      : "bg-red-900/20 text-red-400"
+                }`}
+              >
+                Transaction Status:{" "}
+                <span className="font-medium">{txStatus.toUpperCase()}</span>
                 {txHash && (
                   <div className="mt-1 truncate">
                     Hash: <span className="font-mono">{txHash}</span>
@@ -1068,34 +1253,42 @@ export default function FlashLoanOptions() {
                 )}
               </div>
             )}
-            
+
             <div className="text-xs text-gray-400 space-y-1">
               <div>
-                <span className="text-gray-500">Contract:</span> {window.flashLoanContract?.address || "Not loaded"}
+                <span className="text-gray-500">Contract:</span>{" "}
+                {window.flashLoanContract?.address || "Not loaded"}
               </div>
-              
+
               {debugInfo && (
                 <>
                   <div>
-                    <span className="text-gray-500">Network:</span> {debugInfo.network?.name} (Chain ID: {debugInfo.network?.chainId})
+                    <span className="text-gray-500">Network:</span>{" "}
+                    {debugInfo.network?.name} (Chain ID:{" "}
+                    {debugInfo.network?.chainId})
                   </div>
                   <div>
-                    <span className="text-gray-500">Latest block:</span> #{debugInfo.block?.number}
+                    <span className="text-gray-500">Latest block:</span> #
+                    {debugInfo.block?.number}
                   </div>
                   <div className="font-mono text-[10px] overflow-auto whitespace-pre bg-slate-900 p-1 rounded">
                     {JSON.stringify(debugInfo.parameters, null, 2)}
                   </div>
                 </>
               )}
-              
+
               <div className="mt-2">
                 <div className="text-gray-300 mb-1">Router Status:</div>
                 <div className="grid grid-cols-2 gap-1">
-                  <div className={`p-1 rounded ${uniswapApproved === true ? 'bg-green-900/20 text-green-400' : 'bg-red-900/20 text-red-400'}`}>
-                    Uniswap: {uniswapApproved === true ? '✓' : '✗'}
+                  <div
+                    className={`p-1 rounded ${uniswapApproved === true ? "bg-green-900/20 text-green-400" : "bg-red-900/20 text-red-400"}`}
+                  >
+                    Uniswap: {uniswapApproved === true ? "✓" : "✗"}
                   </div>
-                  <div className={`p-1 rounded ${sushiswapApproved === true ? 'bg-green-900/20 text-green-400' : 'bg-red-900/20 text-red-400'}`}>
-                    SushiSwap: {sushiswapApproved === true ? '✓' : '✗'}
+                  <div
+                    className={`p-1 rounded ${sushiswapApproved === true ? "bg-green-900/20 text-green-400" : "bg-red-900/20 text-red-400"}`}
+                  >
+                    SushiSwap: {sushiswapApproved === true ? "✓" : "✗"}
                   </div>
                 </div>
               </div>

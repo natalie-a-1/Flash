@@ -52,7 +52,7 @@ declare global {
 }
 
 // Add ethers to window object for global access
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.ethers = ethers;
 }
 
@@ -107,13 +107,19 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
-      
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum as any,
+      );
+      const usdcContract = new ethers.Contract(
+        USDC_ADDRESS,
+        ERC20_ABI,
+        provider,
+      );
+
       // Get decimals and balance
       const decimals = await usdcContract.decimals();
       const balance = await usdcContract.balanceOf(account);
-      
+
       // Format balance with correct decimals (USDC has 6 decimals)
       const formattedBalance = ethers.utils.formatUnits(balance, decimals);
       setUsdcBalance(formattedBalance);
@@ -139,7 +145,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     try {
       console.log("Calling loadContract('FlashLoan')...");
       const flashLoanContract = await loadContract("FlashLoan");
-      console.log("loadContract result:", flashLoanContract ? 'Contract loaded' : 'Contract NOT loaded');
+      console.log(
+        "loadContract result:",
+        flashLoanContract ? "Contract loaded" : "Contract NOT loaded",
+      );
 
       if (flashLoanContract) {
         console.log("Creating ethers provider...");
@@ -152,7 +161,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         const address = flashLoanContract.options.address;
         console.log("Contract address from artifact:", address);
         if (!address) {
-          console.error("FlashLoan contract address is undefined in artifact for this network");
+          console.error(
+            "FlashLoan contract address is undefined in artifact for this network",
+          );
           window.flashLoanContract = null;
           return false;
         }
@@ -163,7 +174,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         console.log("ABI retrieved, attempting to create ethers.Contract...");
 
         window.flashLoanContract = new ethers.Contract(address, abi, signer);
-        console.log("FlashLoan contract successfully initialized and assigned to window:", window.flashLoanContract);
+        console.log(
+          "FlashLoan contract successfully initialized and assigned to window:",
+          window.flashLoanContract,
+        );
         return true;
       } else {
         console.warn(
@@ -194,12 +208,18 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
       const supported = SUPPORTED_NETWORK_IDS.includes(chainId);
       setIsCorrectNetwork(supported);
-      console.log(`Network ID: ${chainId}, Name: ${name}, Supported: ${supported}`);
+      console.log(
+        `Network ID: ${chainId}, Name: ${name}, Supported: ${supported}`,
+      );
 
       if (supported) {
-        console.log("Network supported, calling initializeFlashLoanContract...");
+        console.log(
+          "Network supported, calling initializeFlashLoanContract...",
+        );
         const initSuccess = await initializeFlashLoanContract();
-        console.log(`initializeFlashLoanContract finished. Success: ${initSuccess}`);
+        console.log(
+          `initializeFlashLoanContract finished. Success: ${initSuccess}`,
+        );
         await fetchUsdcBalance();
       } else {
         console.log("Network not supported, skipping contract initialization.");
@@ -298,11 +318,14 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
             await updateNetworkInfo(web3Instance);
             await fetchUsdcBalance();
 
-            window.ethereum.on("accountsChanged", async (accounts: string[]) => {
-              setAccount(accounts[0] || null);
-              setIsConnected(!!accounts[0]);
-              await fetchUsdcBalance();
-            });
+            window.ethereum.on(
+              "accountsChanged",
+              async (accounts: string[]) => {
+                setAccount(accounts[0] || null);
+                setIsConnected(!!accounts[0]);
+                await fetchUsdcBalance();
+              },
+            );
 
             window.ethereum.on("chainChanged", () => {
               window.location.reload();
@@ -322,7 +345,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
    */
   useEffect(() => {
     if (!isConnected || !account) return;
-    
+
     // Initial fetch
     fetchUsdcBalance();
   }, [isConnected, account]);

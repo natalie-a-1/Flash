@@ -110,7 +110,9 @@ export default function WalletConnection() {
             <div className="flex items-center justify-between">
               <span className="text-white/70">USDC Balance</span>
               <div className="bg-blue-400/10 text-blue-300 px-2.5 py-1 rounded-full text-sm font-medium">
-                {usdcBalance !== null ? `${parseFloat(usdcBalance).toFixed(2)} USDC` : 'Loading...'}
+                {usdcBalance !== null
+                  ? `${parseFloat(usdcBalance).toFixed(2)} USDC`
+                  : "Loading..."}
               </div>
             </div>
 

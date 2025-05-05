@@ -34,7 +34,7 @@ export const EXCHANGES: Exchange[] = [
     icon: "🦄",
     type: "v3",
     feeTier: 3000,
-    feePct: 0.30,
+    feePct: 0.3,
   },
   {
     name: "Uniswap V3 (1.00%)",
@@ -42,7 +42,7 @@ export const EXCHANGES: Exchange[] = [
     icon: "🦄",
     type: "v3",
     feeTier: 10000,
-    feePct: 1.00,
+    feePct: 1.0,
   },
   {
     name: "Balancer V2",

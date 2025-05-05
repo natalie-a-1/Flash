@@ -44,9 +44,9 @@ export default function Header() {
   // Set up a timer to update the status display every second
   useEffect(() => {
     const timer = setInterval(() => {
-      setTick(tick => tick + 1); // Force re-render
+      setTick((tick) => tick + 1); // Force re-render
     }, 1000);
-    
+
     return () => clearInterval(timer); // Clean up on unmount
   }, []);
 
@@ -100,19 +100,25 @@ export default function Header() {
 
   // Format time to show hours, minutes, and seconds
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   // Calculate time elapsed since last update
   const getTimeElapsed = () => {
-    if (!lastUpdated) return 'Never';
-    
+    if (!lastUpdated) return "Never";
+
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
-    
-    if (diffInSeconds < 10) return 'Just now';
+    const diffInSeconds = Math.floor(
+      (now.getTime() - lastUpdated.getTime()) / 1000,
+    );
+
+    if (diffInSeconds < 10) return "Just now";
     if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
-    if (diffInSeconds < 120) return '1m ago';
+    if (diffInSeconds < 120) return "1m ago";
     return `${Math.floor(diffInSeconds / 60)}m ago`;
   };
 
@@ -214,40 +220,73 @@ export default function Header() {
               BETA
             </span>
 
-          {/* Global Update Status - Integrated into header */}
-          <div className="hidden md:flex items-center bg-slate-800/60 px-2 py-1 rounded-lg border border-slate-700/50">
-            <div className="flex items-center mr-2 text-xs">
-              {isLoading ? (
-                <svg className="w-3 h-3 mr-1 text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            {/* Global Update Status - Integrated into header */}
+            <div className="hidden md:flex items-center bg-slate-800/60 px-2 py-1 rounded-lg border border-slate-700/50">
+              <div className="flex items-center mr-2 text-xs">
+                {isLoading ? (
+                  <svg
+                    className="w-3 h-3 mr-1 text-blue-400 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <div
+                    className={`w-2 h-2 rounded-full mr-1 ${lastUpdated ? "bg-green-400" : "bg-red-400"}`}
+                  ></div>
+                )}
+                <span className="text-slate-300 text-xs">
+                  {isLoading ? (
+                    "Updating..."
+                  ) : lastUpdated ? (
+                    <span className="text-[10px]">
+                      Updated {getTimeElapsed()}
+                    </span>
+                  ) : (
+                    "No data"
+                  )}
+                </span>
+              </div>
+
+              <button
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className={`px-1 py-0.5 rounded text-[10px] flex items-center ${
+                  isLoading
+                    ? "bg-slate-700/50 text-slate-500 cursor-not-allowed"
+                    : "bg-blue-600/30 text-blue-400 hover:bg-blue-600/50 hover:text-blue-300 transition-colors"
+                }`}
+                title="Refresh data"
+              >
+                <svg
+                  className="w-2.5 h-2.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
-              ) : (
-                <div className={`w-2 h-2 rounded-full mr-1 ${lastUpdated ? 'bg-green-400' : 'bg-red-400'}`}></div>
-              )}
-              <span className="text-slate-300 text-xs">
-                {isLoading ? 'Updating...' : lastUpdated ? 
-                  <span className="text-[10px]">Updated {getTimeElapsed()}</span> : 
-                  'No data'}
-              </span>
+              </button>
             </div>
-            
-            <button 
-              onClick={handleRefresh}
-              disabled={isLoading}
-              className={`px-1 py-0.5 rounded text-[10px] flex items-center ${
-                isLoading 
-                  ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed' 
-                  : 'bg-blue-600/30 text-blue-400 hover:bg-blue-600/50 hover:text-blue-300 transition-colors'
-              }`}
-              title="Refresh data"
-            >
-              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
-                  stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -295,12 +334,22 @@ export default function Header() {
             )}
           </div>
         </div>
-        
+
         {/* Error display (only shown when there's an error) */}
         {error && (
           <div className="mt-1 text-red-400 text-[10px] flex items-center justify-center bg-red-900/20 py-1 rounded">
-            <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-3 h-3 mr-1 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>{error}</span>
           </div>

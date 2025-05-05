@@ -69,9 +69,7 @@ export default function LoginPage() {
           <h1 className="text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
             Flash
           </h1>
-          <p className="text-xl text-white/80">
-            Flash loan arbitrage platform
-          </p>
+          <p className="text-xl text-white/80">Flash loan arbitrage platform</p>
         </div>
 
         <div className="backdrop-blur-sm bg-white/5 rounded-xl p-6 shadow-lg border border-white/10">
@@ -93,9 +91,7 @@ export default function LoginPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-semibold mt-4">Welcome to Flash</h2>
-            <p className="text-white/70 mt-1">
-              Connect your wallet to start
-            </p>
+            <p className="text-white/70 mt-1">Connect your wallet to start</p>
           </div>
 
           <button
