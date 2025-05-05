@@ -9,9 +9,8 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.0-black.svg?style=flat)](https://nextjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
 
-</div>
-
 ![Demo](assets/flash.gif)
+</div>
 
 ## ⚡ Discover Opportunities. Execute Seamlessly.
 
