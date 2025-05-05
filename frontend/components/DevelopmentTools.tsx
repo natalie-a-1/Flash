@@ -5,6 +5,7 @@ import { useWeb3 } from "./web3/Web3Provider";
 import { NETWORK_IDS } from "@/lib/web3/config";
 import { ethers } from "ethers";
 import { truncateAddress } from "@/lib/web3/utils";
+import FlashLoanExecutionTracker from "./FlashLoanExecutionTracker";
 
 /**
  * DevelopmentTools component provides UI buttons to interact with local blockchain
@@ -233,204 +234,209 @@ export default function DevelopmentTools() {
   };
 
   return (
-    <div className="rounded-lg bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
-      <h2 className="text-lg font-semibold text-white mb-3 flex items-center">
-        <div className="w-5 h-5 mr-1.5 bg-gradient-to-br from-amber-500 to-orange-400 rounded-full flex items-center justify-center">
-          <svg
-            className="w-3 h-3 text-white"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.63-6.837.688-.688a1.875 1.875 0 1 0-2.652-2.652L10.582 7.5m5.63 6.837-5.63 6.837m0-11.317 2.651-3.03m0 0L7.5 10.582l-1.598-1.597a1.875 1.875 0 1 0-2.652 2.651l1.597 1.598"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-        Dev Tools
-        <span className="text-[10px] text-slate-400 font-light italic ml-2">
-          Local fork only
-        </span>
-      </h2>
+    <div className="space-y-3">
+      <div className="rounded-lg bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-4 shadow-xl border border-white/10">
+        <h2 className="text-lg font-semibold text-white mb-3 flex items-center">
+          <div className="w-5 h-5 mr-1.5 bg-gradient-to-br from-amber-500 to-orange-400 rounded-full flex items-center justify-center">
+            <svg
+              className="w-3 h-3 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.63-6.837.688-.688a1.875 1.875 0 1 0-2.652-2.652L10.582 7.5m5.63 6.837-5.63 6.837m0-11.317 2.651-3.03m0 0L7.5 10.582l-1.598-1.597a1.875 1.875 0 1 0-2.652 2.651l1.597 1.598"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          Dev Tools
+          <span className="text-[10px] text-slate-400 font-light italic ml-2">
+            Local fork only
+          </span>
+        </h2>
 
-      {/* Wallet Balances Section */}
-      <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-purple-500/30 group mb-3">
-        <div className="flex items-center mb-2">
-          <div className="flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-purple-500/20 transition-all">
-            <span className="text-white flex items-center justify-center w-3.5 h-3.5">💰</span>
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-center">
-              <p className="text-white/80 text-xs font-medium">Wallet Balances</p>
-              <span className="text-xs px-1 py-0 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded text-[10px]">
-                {truncateAddress(account || "")}
-              </span>
+        {/* Wallet Balances Section */}
+        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-purple-500/30 group mb-3">
+          <div className="flex items-center mb-2">
+            <div className="flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-purple-500/20 transition-all">
+              <span className="text-white flex items-center justify-center w-3.5 h-3.5">💰</span>
             </div>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center mt-1 mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="bg-slate-700/50 px-2 py-1 rounded-md flex items-center">
-              <span className="text-white/80 text-xs mr-1.5">ETH:</span>
-              <span className="text-white text-xs font-medium">{ethBalance}</span>
-            </div>
-            <div className="bg-slate-700/50 px-2 py-1 rounded-md flex items-center">
-              <span className="text-white/80 text-xs mr-1.5">USDC:</span>
-              <span className="text-white text-xs font-medium">
-                {usdcBalance !== null ? Number(usdcBalance).toFixed(2) : 'Loading...'}
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={handleRefreshBalances}
-            disabled={isRefreshing || isSeeding || isSkewing || isFunding}
-            className={`text-white text-xs py-1 px-2 rounded transition-all ${
-              isRefreshing || isSeeding || isSkewing || isFunding
-                ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                : "bg-purple-500/80 hover:bg-purple-600 hover:shadow-sm"
-            }`}
-          >
-            {isRefreshing ? (
-              <div className="flex justify-center items-center">
-                <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Refreshing...</span>
+            <div className="flex-1">
+              <div className="flex justify-between items-center">
+                <p className="text-white/80 text-xs font-medium">Wallet Balances</p>
+                <span className="text-xs px-1 py-0 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded text-[10px]">
+                  {truncateAddress(account || "")}
+                </span>
               </div>
-            ) : (
-              <span>Refresh</span>
-            )}
-          </button>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center mt-1 mb-2">
+            <div className="flex items-center space-x-2">
+              <div className="bg-slate-700/50 px-2 py-1 rounded-md flex items-center">
+                <span className="text-white/80 text-xs mr-1.5">ETH:</span>
+                <span className="text-white text-xs font-medium">{ethBalance}</span>
+              </div>
+              <div className="bg-slate-700/50 px-2 py-1 rounded-md flex items-center">
+                <span className="text-white/80 text-xs mr-1.5">USDC:</span>
+                <span className="text-white text-xs font-medium">
+                  {usdcBalance !== null ? Number(usdcBalance).toFixed(2) : 'Loading...'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleRefreshBalances}
+              disabled={isRefreshing || isSeeding || isSkewing || isFunding}
+              className={`text-white text-xs py-1 px-2 rounded transition-all ${
+                isRefreshing || isSeeding || isSkewing || isFunding
+                  ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                  : "bg-purple-500/80 hover:bg-purple-600 hover:shadow-sm"
+              }`}
+            >
+              {isRefreshing ? (
+                <div className="flex justify-center items-center">
+                  <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Refreshing...</span>
+                </div>
+              ) : (
+                <span>Refresh</span>
+              )}
+            </button>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          {/* Seed Wallet Button */}
+          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-blue-500/30 group">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-blue-500/20 transition-all">
+                <span className="text-white flex items-center justify-center w-3.5 h-3.5">🌱</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-center">
+                  <p className="text-white/80 text-xs font-medium">Seed Wallet</p>
+                  <span className="text-xs px-1 py-0 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[10px]">
+                    100k USDC
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <button
+                    onClick={handleSeedWallet}
+                    disabled={isSeeding || isSkewing || isFunding || isRefreshing}
+                    className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
+                      ${isSeeding || isSkewing || isFunding || isRefreshing
+                        ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                        : "bg-blue-500/80 hover:bg-blue-600 hover:shadow-sm"}`}
+                  >
+                    {isSeeding ? (
+                      <div className="flex justify-center items-center">
+                        <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Seeding...</span>
+                      </div>
+                    ) : (
+                      <span>Execute</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <StatusIndicator success={seedSuccess} error={seedError} />
+          </div>
+
+          {/* Skew Prices Button */}
+          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-amber-500/30 group">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-amber-500/20 transition-all">
+                <span className="text-white flex items-center justify-center w-3.5 h-3.5">📈</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-center">
+                  <p className="text-white/80 text-xs font-medium">Skew Prices</p>
+                  <span className="text-xs px-1 py-0 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded text-[10px]">
+                    Modify Rates
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <button
+                    onClick={handleSkewPrices}
+                    disabled={isSeeding || isSkewing || isFunding || isRefreshing}
+                    className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
+                      ${isSeeding || isSkewing || isFunding || isRefreshing
+                        ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                        : "bg-amber-500/80 hover:bg-amber-600 hover:shadow-sm"}`}
+                  >
+                    {isSkewing ? (
+                      <div className="flex justify-center items-center">
+                        <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Skewing...</span>
+                      </div>
+                    ) : (
+                      <span>Execute</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <StatusIndicator success={skewSuccess} error={skewError} />
+          </div>
+
+          {/* Fund Wallet Button */}
+          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-emerald-500/30 group">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-emerald-500/20 transition-all">
+                <span className="text-white flex items-center justify-center w-3.5 h-3.5">⛽</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-center">
+                  <p className="text-white/80 text-xs font-medium">Fund Wallet</p>
+                  <span className="text-xs px-1 py-0 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px]">
+                    1 ETH
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <button
+                    onClick={handleFundWallet}
+                    disabled={isSeeding || isSkewing || isFunding || isRefreshing || !account}
+                    className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
+                      ${isSeeding || isSkewing || isFunding || isRefreshing || !account
+                        ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                        : "bg-emerald-500/80 hover:bg-emerald-600 hover:shadow-sm"}`}
+                  >
+                    {isFunding ? (
+                      <div className="flex justify-center items-center">
+                        <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Funding...</span>
+                      </div>
+                    ) : (
+                      <span>Execute</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <StatusIndicator success={fundSuccess} error={fundError} />
+          </div>
         </div>
       </div>
       
-      <div className="space-y-3">
-        {/* Seed Wallet Button */}
-        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-blue-500/30 group">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-blue-500/20 transition-all">
-              <span className="text-white flex items-center justify-center w-3.5 h-3.5">🌱</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <p className="text-white/80 text-xs font-medium">Seed Wallet</p>
-                <span className="text-xs px-1 py-0 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[10px]">
-                  100k USDC
-                </span>
-              </div>
-              <div className="flex justify-between items-center mt-1">
-                <button
-                  onClick={handleSeedWallet}
-                  disabled={isSeeding || isSkewing || isFunding || isRefreshing}
-                  className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
-                    ${isSeeding || isSkewing || isFunding || isRefreshing
-                      ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                      : "bg-blue-500/80 hover:bg-blue-600 hover:shadow-sm"}`}
-                >
-                  {isSeeding ? (
-                    <div className="flex justify-center items-center">
-                      <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Seeding...</span>
-                    </div>
-                  ) : (
-                    <span>Execute</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          <StatusIndicator success={seedSuccess} error={seedError} />
-        </div>
-
-        {/* Skew Prices Button */}
-        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-amber-500/30 group">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-amber-500/20 transition-all">
-              <span className="text-white flex items-center justify-center w-3.5 h-3.5">📈</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <p className="text-white/80 text-xs font-medium">Skew Prices</p>
-                <span className="text-xs px-1 py-0 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded text-[10px]">
-                  Modify Rates
-                </span>
-              </div>
-              <div className="flex justify-between items-center mt-1">
-                <button
-                  onClick={handleSkewPrices}
-                  disabled={isSeeding || isSkewing || isFunding || isRefreshing}
-                  className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
-                    ${isSeeding || isSkewing || isFunding || isRefreshing
-                      ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                      : "bg-amber-500/80 hover:bg-amber-600 hover:shadow-sm"}`}
-                >
-                  {isSkewing ? (
-                    <div className="flex justify-center items-center">
-                      <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Skewing...</span>
-                    </div>
-                  ) : (
-                    <span>Execute</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          <StatusIndicator success={skewSuccess} error={skewError} />
-        </div>
-
-        {/* Fund Wallet Button */}
-        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-emerald-500/30 group">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-emerald-500/20 transition-all">
-              <span className="text-white flex items-center justify-center w-3.5 h-3.5">⛽</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <p className="text-white/80 text-xs font-medium">Fund Wallet</p>
-                <span className="text-xs px-1 py-0 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px]">
-                  1 ETH
-                </span>
-              </div>
-              <div className="flex justify-between items-center mt-1">
-                <button
-                  onClick={handleFundWallet}
-                  disabled={isSeeding || isSkewing || isFunding || isRefreshing || !account}
-                  className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
-                    ${isSeeding || isSkewing || isFunding || isRefreshing || !account
-                      ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                      : "bg-emerald-500/80 hover:bg-emerald-600 hover:shadow-sm"}`}
-                >
-                  {isFunding ? (
-                    <div className="flex justify-center items-center">
-                      <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Funding...</span>
-                    </div>
-                  ) : (
-                    <span>Execute</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          <StatusIndicator success={fundSuccess} error={fundError} />
-        </div>
-      </div>
+      {/* Add Flash Loan Execution Tracker */}
+      <FlashLoanExecutionTracker />
     </div>
   );
 } 

@@ -9,6 +9,7 @@ import RouterApprovalStatus from "@/components/web3/RouterApprovalStatus";
 import { NETWORK_IDS } from "@/lib/web3/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import FlashLoanExecutionTracker from "@/components/FlashLoanExecutionTracker";
 
 /**
  * Dashboard component for displaying arbitrage opportunities and flash loan options.
@@ -148,6 +149,9 @@ export default function Dashboard() {
           <FlashLoanOptions />
         </div>
       </div>
+      
+      {/* Add the FlashLoanExecutionTracker modal at the root level for global visibility */}
+      <FlashLoanExecutionTracker />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { formatCurrencyAmount, formatTokenAmount } from "@/lib/web3/utils";
 import {
   ArbitrageProfitCalculatorProps as UpdatedArbitrageProfitCalculatorProps,
@@ -18,15 +18,26 @@ import { useWeb3 } from "../components/web3/Web3Provider";
 import { NETWORK_IDS } from "@/lib/web3/config";
 import { EXCHANGES } from "@/lib/constants/dex";
 
-export default function ArbitrageProfitCalculator({
+// Define the ref type for the calculator
+export interface ArbitrageProfitCalculatorRef {
+  getSlippage: () => string;
+}
+
+// Add forwardRef and add calculatorRef to props 
+export default forwardRef<ArbitrageProfitCalculatorRef, UpdatedArbitrageProfitCalculatorProps>(function ArbitrageProfitCalculator({
   loanAmount,
   selectedToken,
   flashLoanBps,
   dexPrices,
-}: UpdatedArbitrageProfitCalculatorProps) {
+}, ref) {
   // Keep local UI state
   const [slippage, setSlippage] = useState<string>("0.5"); // Default 0.5%
   const [profitThreshold, setProfitThreshold] = useState<string>("10"); // Default $10
+
+  // Expose slippage value through imperative handle ref
+  useImperativeHandle(ref, () => ({
+    getSlippage: () => slippage
+  }), [slippage]);
 
   // Fee statistics from network and estimate based on loan amount
   const { txFeeEth, txFeeUsdc } = useTransactionFees();
@@ -476,4 +487,4 @@ export default function ArbitrageProfitCalculator({
       </div>
     </div>
   );
-}
+})

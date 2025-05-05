@@ -80,7 +80,7 @@ flowchart LR
 
 ## 🏁 Try Flash Today
 
-The quickest way to experience Flash is with our verified local setup:
+The quickest way to experience Flash is with our streamlined local setup:
 
 **1. Clone the Repository**
 
@@ -116,45 +116,37 @@ npm install
 cd frontend && npm install && cd ..
 ```
 
-**4. Start Local Forked Blockchain (Terminal 1)**
+**4. Start the Development Environment (One Command!)**
 
-Run a local Ganache instance forking Ethereum Mainnet. This requires the `MAINNET_RPC_URL` and `USDC_WHALE_ADDRESS` to be set in your root `.env` file.
-
-```bash
-# Ensure .env is populated. This command includes --chain.chainId 1337
-npm run ganache:mainnet:persistent 
-```
-
-**5. Deploy Contracts & Copy Artifacts (Terminal 2)**
-
-Compile and deploy the smart contracts to your running Ganache fork, then copy the resulting ABI files (artifacts) to the frontend directory. Run this after starting a *fresh* Ganache instance.
+Our simplified setup process handles everything in a single command:
 
 ```bash
-# Compile contracts (if needed, usually handled by migrate)
-truffle compile
-
-# Deploy contracts to the fork (use --reset for a clean deploy)
-npx truffle migrate --network mainnet_fork --reset
-
-# Copy contract ABIs to the frontend directory
-node copy-contracts.js
+# This single command:
+# 1. Compiles contracts (if needed)
+# 2. Starts Ganache fork with Chain ID 1337
+# 3. Verifies if the FlashLoan contract exists
+# 4. Deploys a new contract if needed
+# 5. Automatically approves router contracts
+npm run fork:with-approvals
 ```
 
-**6. Launch the Frontend Application (Terminal 3)**
+This command will start a Ganache fork with all necessary setup for router approvals. Keep this terminal window running while developing.
 
-Start the Next.js development server.
+**5. Launch the Frontend Application (New Terminal)**
+
+In a new terminal window, start the Next.js development server:
 
 ```bash
 cd frontend 
 npm run dev
 ```
 
-> **Note:**
-> - You must run the migration (`truffle migrate...` & `node copy-contracts.js`) after starting a *fresh* Ganache instance (e.g., after deleting `./ganache-db` or if not using `--db`).
-> - If Ganache state persists (using `--db`), you only need to re-run migration steps if contracts change.
-> - The `ganache:mainnet:persistent` script is configured to use Chain ID 1337 internally, which is necessary for MetaMask and the frontend, even though Truffle might interact with Ganache using Network ID 1 (the forked network's ID).
-
 Visit `http://localhost:3000` and connect your wallet (configured for localhost:8545, Chain ID 1337) to start exploring arbitrage opportunities.
+
+> **Note:**
+> - The `fork:with-approvals` script handles contract compilation, Ganache startup, contract deployment, and router approvals all in one command.
+> - You must restart the `fork:with-approvals` script each time you want a fresh Ganache instance.
+> - For more details on the router approval process, see [docs/ROUTER_APPROVALS.md](docs/ROUTER_APPROVALS.md).
 
 <!-- <div align="center">
   <img src="./frontend/public/dashboard_preview.png" alt="Flash Dashboard" width="80%" />
@@ -217,3 +209,29 @@ Flash is available under the [MIT License](LICENSE).
 ## 🙏 Acknowledgments
 
 Special thanks to the teams behind Aave, Uniswap, and SushiSwap for creating the infrastructure that makes Flash possible.
+
+## Router Approvals for Flash Loans
+
+When working with flash loans between Uniswap and SushiSwap, the Flash Loan contract must have approval to use these routers. Every time you restart a Ganache fork, these approvals are lost, which can cause errors.
+
+We've implemented an automated solution that:
+
+1. Detects if the Flash Loan contract exists
+2. Deploys a new contract if needed
+3. Automatically approves the routers
+
+### Starting Your Development Environment
+
+For the best development experience, use:
+
+```bash
+npm run fork:with-approvals
+```
+
+This command will:
+- Start a Ganache fork of Ethereum mainnet
+- Verify the FlashLoan contract exists
+- Deploy a new contract if needed
+- Approve Uniswap and SushiSwap routers
+
+For full documentation, see [docs/ROUTER_APPROVALS.md](docs/ROUTER_APPROVALS.md).
