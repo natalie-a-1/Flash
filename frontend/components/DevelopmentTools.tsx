@@ -25,12 +25,37 @@ export default function DevelopmentTools() {
   const [fundSuccess, setFundSuccess] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [contractAddress, setContractAddress] = useState<string | null>(null);
+  const [loadingContract, setLoadingContract] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    fetchContractAddress();
   }, []);
 
-  // Fetch ETH balance when account changes or on refresh
+  const fetchContractAddress = async () => {
+    setLoadingContract(true);
+    try {
+      const response = await fetch('/api/get-contract-address');
+      const data = await response.json();
+      
+      if (data.contractAddress) {
+        setContractAddress(data.contractAddress);
+      } else if (data.error) {
+        console.error("Error fetching contract address:", data.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch contract address:", error);
+    } finally {
+      setLoadingContract(false);
+    }
+  };
+
+  const handleRefreshContract = async () => {
+    await fetchContractAddress();
+    window.location.reload();
+  };
+
   useEffect(() => {
     const fetchEthBalance = async () => {
       if (web3 && account) {
@@ -47,20 +72,15 @@ export default function DevelopmentTools() {
     fetchEthBalance();
   }, [web3, account, fundSuccess]);
 
-  /**
-   * Refresh token balances
-   */
   const handleRefreshBalances = async () => {
     setIsRefreshing(true);
     try {
       if (web3 && account) {
-        // Refresh ETH balance
         const balance = await web3.eth.getBalance(account);
         const formatted = web3.utils.fromWei(balance, "ether");
         setEthBalance(parseFloat(formatted).toFixed(4));
       }
       
-      // Refresh USDC balance via Web3Provider
       await refreshBalance();
     } catch (error) {
       console.error("Error refreshing balances:", error);
@@ -69,10 +89,6 @@ export default function DevelopmentTools() {
     }
   };
 
-  /**
-   * Handles the wallet seeding process by calling the backend API.
-   * Resets error and success states before execution.
-   */
   const handleSeedWallet = async () => {
     setIsSeeding(true);
     setSeedError(null);
@@ -93,7 +109,6 @@ export default function DevelopmentTools() {
       if(data.warning) console.warn("Seed Wallet Script Warning:", data.warning);
       setSeedSuccess("Wallet seeding & approvals complete.");
       
-      // Refresh token balances after seeding
       handleRefreshBalances();
 
     } catch (err: any) {
@@ -104,10 +119,6 @@ export default function DevelopmentTools() {
     }
   };
 
-  /**
-   * Handles the price skewing process by calling the backend API.
-   * Resets error and success states before execution.
-   */
   const handleSkewPrices = async () => {
     setIsSkewing(true);
     setSeedError(null);
@@ -136,10 +147,6 @@ export default function DevelopmentTools() {
     }
   };
 
-  /**
-   * Handles the wallet funding process by sending ETH from a local node account.
-   * Validates connection and account status before proceeding.
-   */
   const handleFundWallet = async () => {
     if (!web3 || !account) {
       setFundError("Wallet not connected.");
@@ -154,21 +161,17 @@ export default function DevelopmentTools() {
     setSkewSuccess(null);
 
     try {
-      // Create a provider connected directly to the local node
       const localNodeProvider = new ethers.providers.JsonRpcProvider(
         "http://127.0.0.1:8545"
       );
-      // Get the signer for the default account (usually index 0) on the local node
       const nodeSigner = localNodeProvider.getSigner(0);
       const nodeSignerAddress = await nodeSigner.getAddress();
-      const amountToSend = ethers.utils.parseEther("1.0"); // Send 1 ETH
+      const amountToSend = ethers.utils.parseEther("1.0");
 
-      // --- Add Logging Here ---
       console.log(`Funding attempt:`);
       console.log(`   Sending From (Node Account 0): ${nodeSignerAddress}`);
       console.log(`   Sending To (MetaMask Account):   ${account}`);
       console.log(`   Amount: ${ethers.utils.formatEther(amountToSend)} ETH`);
-      // ------------------------
 
       if (nodeSignerAddress.toLowerCase() === account.toLowerCase()) {
           throw new Error("Refusing to send ETH to the same account (Account 0).");
@@ -182,11 +185,10 @@ export default function DevelopmentTools() {
       console.log("Funding transaction sent:", tx.hash);
       setFundSuccess(`Funding transaction sent: ${tx.hash}. Waiting for confirmation...`);
 
-      await tx.wait(); // Wait for the transaction to be mined
+      await tx.wait();
       console.log("Funding transaction confirmed.");
       setFundSuccess("Wallet funded successfully with 1 ETH!");
       
-      // Refresh token balances after funding
       handleRefreshBalances();
     } catch (error: any) {
       console.error("Failed to fund wallet:", error);
@@ -196,12 +198,10 @@ export default function DevelopmentTools() {
     }
   };
 
-  // Render nothing if the component is not mounted, not connected, or not on the localhost network
   if (!mounted || !isConnected || networkId !== NETWORK_IDS.LOCALHOST) {
     return null;
   }
 
-  // Status indicator component
   const StatusIndicator = ({ success, error }: { success: string | null, error: string | null }) => {
     if (!success && !error) return null;
     
@@ -259,183 +259,152 @@ export default function DevelopmentTools() {
           </span>
         </h2>
 
-        {/* Wallet Balances Section */}
-        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-purple-500/30 group mb-3">
-          <div className="flex items-center mb-2">
-            <div className="flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-purple-500/20 transition-all">
-              <span className="text-white flex items-center justify-center w-3.5 h-3.5">💰</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <p className="text-white/80 text-xs font-medium">Wallet Balances</p>
-                <span className="text-xs px-1 py-0 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded text-[10px]">
-                  {truncateAddress(account || "")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center mt-1 mb-2">
-            <div className="flex items-center space-x-2">
-              <div className="bg-slate-700/50 px-2 py-1 rounded-md flex items-center">
-                <span className="text-white/80 text-xs mr-1.5">ETH:</span>
-                <span className="text-white text-xs font-medium">{ethBalance}</span>
-              </div>
-              <div className="bg-slate-700/50 px-2 py-1 rounded-md flex items-center">
-                <span className="text-white/80 text-xs mr-1.5">USDC:</span>
-                <span className="text-white text-xs font-medium">
-                  {usdcBalance !== null ? Number(usdcBalance).toFixed(2) : 'Loading...'}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={handleRefreshBalances}
-              disabled={isRefreshing || isSeeding || isSkewing || isFunding}
-              className={`text-white text-xs py-1 px-2 rounded transition-all ${
-                isRefreshing || isSeeding || isSkewing || isFunding
-                  ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                  : "bg-purple-500/80 hover:bg-purple-600 hover:shadow-sm"
-              }`}
+        <div className="mb-4 bg-slate-700/50 rounded-lg border border-slate-600/50 p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-300">FlashLoan Contract:</span>
+            <button 
+              className="text-[10px] text-blue-400 hover:text-blue-300 bg-blue-900/20 px-1.5 py-0.5 rounded"
+              onClick={handleRefreshContract}
+              disabled={loadingContract}
             >
-              {isRefreshing ? (
-                <div className="flex justify-center items-center">
-                  <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Refreshing...</span>
-                </div>
-              ) : (
-                <span>Refresh</span>
-              )}
+              {loadingContract ? "Refreshing..." : "Refresh Contract"}
             </button>
           </div>
+          <div className="mt-1 flex items-center justify-between">
+            {loadingContract ? (
+              <span className="text-gray-400 text-[11px] animate-pulse">Loading contract address...</span>
+            ) : contractAddress ? (
+              <a 
+                href={`https://etherscan.io/address/${contractAddress}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[11px] font-mono bg-slate-800 rounded px-1.5 py-1 text-blue-300 hover:text-blue-200 transition-colors"
+              >
+                {contractAddress}
+              </a>
+            ) : (
+              <span className="text-[11px] text-red-400">Contract address not found</span>
+            )}
+            {contractAddress && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(contractAddress);
+                  alert("Contract address copied to clipboard!");
+                }}
+                className="text-[10px] text-gray-400 hover:text-gray-300 bg-slate-700/50 px-1.5 py-0.5 rounded ml-2"
+                title="Copy to clipboard"
+              >
+                Copy
+              </button>
+            )}
+          </div>
+          {window.flashLoanContract ? (
+            <div className="mt-1 bg-green-900/20 text-green-300 text-[10px] font-medium rounded px-1.5 py-1 border border-green-500/30">
+              ✓ Contract loaded and initialized successfully
+            </div>
+          ) : (
+            <div className="mt-1 bg-red-900/20 text-red-300 text-[10px] font-medium rounded px-1.5 py-1 border border-red-500/30">
+              ✕ Contract not initialized - try refreshing the page
+            </div>
+          )}
         </div>
-        
-        <div className="space-y-3">
-          {/* Seed Wallet Button */}
-          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-blue-500/30 group">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-blue-500/20 transition-all">
-                <span className="text-white flex items-center justify-center w-3.5 h-3.5">🌱</span>
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-center">
-                  <p className="text-white/80 text-xs font-medium">Seed Wallet</p>
-                  <span className="text-xs px-1 py-0 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[10px]">
-                    100k USDC
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <button
-                    onClick={handleSeedWallet}
-                    disabled={isSeeding || isSkewing || isFunding || isRefreshing}
-                    className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
-                      ${isSeeding || isSkewing || isFunding || isRefreshing
-                        ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                        : "bg-blue-500/80 hover:bg-blue-600 hover:shadow-sm"}`}
-                  >
-                    {isSeeding ? (
-                      <div className="flex justify-center items-center">
-                        <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Seeding...</span>
-                      </div>
-                    ) : (
-                      <span>Execute</span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <StatusIndicator success={seedSuccess} error={seedError} />
-          </div>
 
-          {/* Skew Prices Button */}
-          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-amber-500/30 group">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-amber-500/20 transition-all">
-                <span className="text-white flex items-center justify-center w-3.5 h-3.5">📈</span>
+        <div className="mb-4 bg-slate-700/50 rounded-lg border border-slate-600/50 p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-300">Token Balances:</span>
+            <button 
+              className="text-[10px] text-blue-400 hover:text-blue-300 bg-blue-900/20 px-1.5 py-0.5 rounded"
+              onClick={handleRefreshBalances}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? "Refreshing..." : "Refresh Balances"}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="flex items-center bg-slate-800 rounded p-1.5">
+              <div className="w-5 h-5 mr-1.5 bg-blue-800 rounded-full flex items-center justify-center">
+                <span className="text-xs font-semibold text-white">Ξ</span>
               </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-center">
-                  <p className="text-white/80 text-xs font-medium">Skew Prices</p>
-                  <span className="text-xs px-1 py-0 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded text-[10px]">
-                    Modify Rates
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <button
-                    onClick={handleSkewPrices}
-                    disabled={isSeeding || isSkewing || isFunding || isRefreshing}
-                    className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
-                      ${isSeeding || isSkewing || isFunding || isRefreshing
-                        ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                        : "bg-amber-500/80 hover:bg-amber-600 hover:shadow-sm"}`}
-                  >
-                    {isSkewing ? (
-                      <div className="flex justify-center items-center">
-                        <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Skewing...</span>
-                      </div>
-                    ) : (
-                      <span>Execute</span>
-                    )}
-                  </button>
-                </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-400">ETH Balance</span>
+                <span className="text-xs font-medium text-white">
+                  {ethBalance} ETH
+                </span>
               </div>
             </div>
-            <StatusIndicator success={skewSuccess} error={skewError} />
+            <div className="flex items-center bg-slate-800 rounded p-1.5">
+              <div className="w-5 h-5 mr-1.5 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-xs font-semibold text-white">$</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-400">USDC Balance</span>
+                <span className="text-xs font-medium text-white">
+                  {usdcBalance ? parseFloat(usdcBalance).toFixed(2) : "0.00"} USDC
+                </span>
+              </div>
+            </div>
           </div>
+        </div>
 
-          {/* Fund Wallet Button */}
-          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-lg p-2 border border-white/10 transition-all hover:border-emerald-500/30 group">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-1 mr-2 shadow-md group-hover:shadow-emerald-500/20 transition-all">
-                <span className="text-white flex items-center justify-center w-3.5 h-3.5">⛽</span>
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-center">
-                  <p className="text-white/80 text-xs font-medium">Fund Wallet</p>
-                  <span className="text-xs px-1 py-0 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px]">
-                    1 ETH
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <button
-                    onClick={handleFundWallet}
-                    disabled={isSeeding || isSkewing || isFunding || isRefreshing || !account}
-                    className={`text-white text-xs font-medium py-1 px-2 rounded transition-all 
-                      ${isSeeding || isSkewing || isFunding || isRefreshing || !account
-                        ? "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                        : "bg-emerald-500/80 hover:bg-emerald-600 hover:shadow-sm"}`}
-                  >
-                    {isFunding ? (
-                      <div className="flex justify-center items-center">
-                        <svg className="animate-spin h-3 w-3 mr-1 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Funding...</span>
-                      </div>
-                    ) : (
-                      <span>Execute</span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <StatusIndicator success={fundSuccess} error={fundError} />
+        <div className="mb-4">
+          <div className="text-xs font-medium text-gray-300 mb-1.5">Your Account:</div>
+          <div className="text-xs bg-slate-700/50 rounded-lg px-2.5 py-1.5 border border-slate-600/50">
+            {account ? (
+              <div className="font-mono text-gray-300">{truncateAddress(account)}</div>
+            ) : (
+              <div className="text-gray-400">Not connected</div>
+            )}
           </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 mt-4">
+          <button
+            onClick={handleSeedWallet}
+            disabled={isSeeding}
+            className={`w-full flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors
+              bg-gradient-to-br from-amber-600/80 to-orange-700/80 hover:from-amber-600 hover:to-orange-700
+              text-amber-100 font-medium
+              ${isSeeding ? "opacity-70 cursor-not-allowed" : ""}`}
+          >
+            <span className="text-[10px] mb-0.5">
+              {isSeeding ? "Seeding..." : "Seed Wallet"}
+            </span>
+          </button>
+
+          <button
+            onClick={handleSkewPrices}
+            disabled={isSkewing}
+            className={`w-full flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors
+              bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-600 hover:to-blue-700 
+              text-blue-100 font-medium
+              ${isSkewing ? "opacity-70 cursor-not-allowed" : ""}`}
+          >
+            <span className="text-[10px] mb-0.5">
+              {isSkewing ? "Skewing..." : "Skew Prices"}
+            </span>
+          </button>
+
+          <button
+            onClick={handleFundWallet}
+            disabled={isFunding}
+            className={`w-full flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors
+              bg-gradient-to-br from-emerald-600/80 to-emerald-700/80 hover:from-emerald-600 hover:to-emerald-700 
+              text-emerald-100 font-medium
+              ${isFunding ? "opacity-70 cursor-not-allowed" : ""}`}
+          >
+            <span className="text-[10px] mb-0.5">
+              {isFunding ? "Funding..." : "Fund Wallet"}
+            </span>
+          </button>
+        </div>
+
+        <div className="mt-2">
+          <StatusIndicator success={seedSuccess} error={seedError} />
+          <StatusIndicator success={skewSuccess} error={skewError} />
+          <StatusIndicator success={fundSuccess} error={fundError} />
         </div>
       </div>
       
-      {/* Add Flash Loan Execution Tracker */}
       <FlashLoanExecutionTracker />
     </div>
   );

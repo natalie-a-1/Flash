@@ -40,6 +40,29 @@ export async function loadContract(
     console.log(`[loadContract] Looking for key '${artifactNetworkKey}' in networks object...`);
     console.log(`[loadContract] contractJson.networks[${artifactNetworkKey}] entry:`, contractJson.networks ? contractJson.networks[artifactNetworkKey] : 'N/A (networks obj missing)');
 
+    // For FlashLoan contracts on localhost, fetch the latest deployed address from the API
+    if (contractName === "FlashLoan" && networkId === '1337') {
+      try {
+        console.log("[loadContract] FlashLoan contract on localhost detected, fetching current address from API...");
+        const response = await fetch('/api/get-contract-address');
+        const data = await response.json();
+        
+        if (data.contractAddress) {
+          console.log(`[loadContract] Successfully fetched current contract address from API: ${data.contractAddress}`);
+          // Create and return the contract instance with the fetched address
+          return createContractInstance(
+            contractJson.abi,
+            data.contractAddress,
+          );
+        } else {
+          console.error("[loadContract] API returned no contract address:", data);
+        }
+      } catch (error) {
+        console.error("[loadContract] Error fetching contract address from API:", error);
+        // Continue with normal flow if API fetch fails
+      }
+    }
+
     // Check if the contract is deployed on this network (using the adjusted key)
     if (contractJson.networks && contractJson.networks[artifactNetworkKey]) {
       console.log(`[loadContract] Found network entry for key '${artifactNetworkKey}'. Address: ${contractJson.networks[artifactNetworkKey].address}`);
