@@ -19,6 +19,8 @@ export interface FeeStats {
  * Custom hook to fetch and provide transaction fee statistics.
  * It uses the injected window.ethereum provider to fetch EIP-1559 fee data,
  * estimate gas usage (with buffer), and compute total fees in ETH and USDC.
+ * 
+ * Note: This no longer sets up its own polling interval as that's handled by GlobalDataProvider
  *
  * @returns {FeeStats} An object containing various transaction fee statistics.
  */
@@ -96,8 +98,9 @@ export function useTransactionFees(): FeeStats {
     }
 
     updateFees();
-    const intervalId = setInterval(updateFees, 60_000);
-    return () => clearInterval(intervalId);
+    // Removed interval since GlobalDataProvider handles polling
+    // The function is now called only once on component mount
+    // Or can be called manually if needed
   }, []);
 
   return stats;

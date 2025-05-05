@@ -317,6 +317,16 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     checkPreviousConnection();
   }, []);
 
+  /**
+   * Set up automatic refreshing of USDC balance
+   */
+  useEffect(() => {
+    if (!isConnected || !account) return;
+    
+    // Initial fetch
+    fetchUsdcBalance();
+  }, [isConnected, account]);
+
   return (
     <Web3Context.Provider
       value={{

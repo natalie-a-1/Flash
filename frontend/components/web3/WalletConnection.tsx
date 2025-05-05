@@ -3,6 +3,7 @@
 import { useWeb3 } from "./Web3Provider";
 import { truncateAddress } from "@/lib/web3/utils";
 import { useState, useEffect } from "react";
+import { useGlobalData } from "./GlobalDataProvider";
 
 /**
  * WalletConnection component handles the display and interaction
@@ -24,6 +25,9 @@ export default function WalletConnection() {
     refreshBalance,
   } = useWeb3();
 
+  // Get global data (now managing auto-updates)
+  const { lastUpdated } = useGlobalData();
+
   // State to manage tooltip visibility
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   // State to track if the component is mounted
@@ -39,98 +43,102 @@ export default function WalletConnection() {
   }, []);
 
   /**
-   * Refresh the USDC balance when the refresh button is clicked
+   * Show or hide the tooltip
    */
-  const handleRefreshBalance = async () => {
-    await refreshBalance();
+  const toggleTooltip = () => {
+    setIsTooltipVisible(!isTooltipVisible);
   };
 
   /**
-   * Render a skeleton layout during server-side rendering.
-   * This prevents hydration mismatch by providing a consistent
-   * structure while the component is mounting.
+   * Hide the tooltip when mouse leaves
    */
-  if (!mounted) {
-    return (
-      <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
-        <h2 className="text-2xl font-medium text-white mb-4">
-          Wallet Connection
-        </h2>
-        <div className="animate-pulse space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="h-5 bg-white/10 rounded w-1/3"></div>
-            <div className="h-5 bg-white/10 rounded-full w-1/4"></div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="h-5 bg-white/10 rounded w-1/4"></div>
-            <div className="h-5 bg-white/10 rounded-full w-1/3"></div>
-          </div>
-          <div className="h-10 bg-white/10 rounded-lg w-full mt-2"></div>
-        </div>
-      </div>
-    );
-  }
+  const hideTooltip = () => {
+    setIsTooltipVisible(false);
+  };
 
   /**
-   * Main rendering logic for the WalletConnection component.
-   * Displays connection status, network information, and provides
-   * buttons for connecting or switching networks.
+   * Copy the wallet address to clipboard and show tooltip
    */
-  return (
-    <div className="rounded-2xl bg-white/10 backdrop-blur-lg p-6 shadow-xl border border-white/20">
-      <h2 className="text-2xl font-medium text-white mb-4">
-        Wallet Connection
-      </h2>
+  const copyAddress = () => {
+    if (account) {
+      navigator.clipboard.writeText(account);
+      toggleTooltip();
+      setTimeout(() => {
+        setIsTooltipVisible(false);
+      }, 2000);
+    }
+  };
 
-      {isConnected ? (
-        <div className="space-y-4">
+  // Only render on the client-side
+  if (!mounted) return null;
+
+  return (
+    <div className="bg-slate-800/60 rounded-lg p-4 border border-slate-700/60 shadow-xl">
+      <h3 className="text-lg font-semibold text-white">Your Wallet</h3>
+
+      <div className="mt-4">
+        {isConnected ? (
+        <div className="space-y-3">
+          {/* Connection Status */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="h-3 w-3 rounded-full bg-green-400"></div>
-              <span className="text-white font-medium">Connected</span>
-            </div>
-            <div
-              className="text-white/80 bg-white/10 py-1 px-3 rounded-full text-sm flex items-center"
-              onMouseEnter={() => setIsTooltipVisible(true)}
-              onMouseLeave={() => setIsTooltipVisible(false)}
-              style={{ position: "relative" }}
-            >
-              {truncateAddress(account || "")}
-              {isTooltipVisible && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs rounded py-1 px-3 whitespace-nowrap">
-                  {account}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-                </div>
-              )}
+              <span className="text-white/70 font-medium">Connected</span>
             </div>
           </div>
 
+          {/* Wallet Address */}
+          <div
+            className="flex items-center justify-center bg-slate-700/50 rounded-lg p-2 border border-slate-600/50 cursor-pointer relative hover:bg-slate-700/70 transition-colors"
+            onClick={copyAddress}
+            onMouseLeave={hideTooltip}
+          >
+            <div className="flex items-center space-x-2">
+              <svg
+                className="w-4 h-4 text-white/70"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M13 7H7v6h6V7z" />
+                <path
+                  fillRule="evenodd"
+                  d="M7 2a1 1 0 00-.707 1.707L7 4.414v1.586H5.414l-.707-.707A1 1 0 003 6v11a1 1 0 001 1h11a1 1 0 001-1V6a1 1 0 00-1.707-.707L13.586 6H12V4.414l.707-.707A1 1 0 0011 2H7zm2 6h2v2H9V8zm8-2v11H3V6h1v2h12V6h1zm-3-2V4H8v2h6z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="font-mono text-xs text-white">
+                {account ? truncateAddress(account) : ""}
+              </span>
+            </div>
+            {isTooltipVisible && (
+              <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-4 w-auto whitespace-nowrap border border-slate-700">
+                Address copied!
+                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 rotate-45 w-2 h-2 bg-black border-t border-l border-slate-700"></div>
+              </div>
+            )}
+          </div>
+
+          {/* Network Connection */}
           <div className="flex items-center justify-between">
-            <span className="text-white/70">Network</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-white/70">Network</span>
+            </div>
             <div
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
+              className={`text-sm font-medium px-3 py-1 rounded-full ${
                 isCorrectNetwork
-                  ? "bg-emerald-400/20 text-emerald-400"
-                  : "bg-amber-400/20 text-amber-400"
+                  ? "bg-green-400/20 text-green-300"
+                  : "bg-red-400/20 text-red-300"
               }`}
             >
-              {networkName}
+              {networkName || "Unknown"}
             </div>
           </div>
 
-          {/* USDC Balance Display */}
+          {/* USDC Balance Display - Auto-updating */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="text-white/70">USDC Balance</span>
-              <button 
-                onClick={handleRefreshBalance}
-                className="text-blue-400 hover:text-blue-300"
-                title="Refresh Balance"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
             </div>
             <div className="bg-blue-400/20 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
               {usdcBalance !== null ? `${parseFloat(usdcBalance).toFixed(2)} USDC` : 'Loading...'}
@@ -184,6 +192,7 @@ export default function WalletConnection() {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

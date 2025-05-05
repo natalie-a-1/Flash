@@ -6,6 +6,7 @@ import { NETWORK_IDS } from "@/lib/web3/config";
 import { ethers } from "ethers";
 import { truncateAddress } from "@/lib/web3/utils";
 import FlashLoanExecutionTracker from "./FlashLoanExecutionTracker";
+import { useGlobalData } from "./web3/GlobalDataProvider";
 
 /**
  * DevelopmentTools component provides UI buttons to interact with local blockchain
@@ -13,6 +14,7 @@ import FlashLoanExecutionTracker from "./FlashLoanExecutionTracker";
  */
 export default function DevelopmentTools() {
   const { web3, account, isConnected, networkId, usdcBalance, refreshBalance } = useWeb3();
+  const { manualRefresh } = useGlobalData();
   const [mounted, setMounted] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isSkewing, setIsSkewing] = useState(false);
@@ -24,15 +26,17 @@ export default function DevelopmentTools() {
   const [skewSuccess, setSkewSuccess] = useState<string | null>(null);
   const [fundSuccess, setFundSuccess] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string>("0");
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [contractAddress, setContractAddress] = useState<string | null>(null);
   const [loadingContract, setLoadingContract] = useState(false);
 
+  // Simple mount effect - only fetch data once on initial load
   useEffect(() => {
     setMounted(true);
     fetchContractAddress();
+    fetchEthBalance();
   }, []);
 
+  // Fetch contract address
   const fetchContractAddress = async () => {
     setLoadingContract(true);
     try {
@@ -51,43 +55,23 @@ export default function DevelopmentTools() {
     }
   };
 
-  const handleRefreshContract = async () => {
-    await fetchContractAddress();
-    window.location.reload();
-  };
-
-  useEffect(() => {
-    const fetchEthBalance = async () => {
-      if (web3 && account) {
-        try {
-          const balance = await web3.eth.getBalance(account);
-          const formatted = web3.utils.fromWei(balance, "ether");
-          setEthBalance(parseFloat(formatted).toFixed(4));
-        } catch (error) {
-          console.error("Error fetching ETH balance:", error);
-        }
-      }
-    };
-
-    fetchEthBalance();
-  }, [web3, account, fundSuccess]);
-
-  const handleRefreshBalances = async () => {
-    setIsRefreshing(true);
-    try {
-      if (web3 && account) {
+  // Fetch ETH balance
+  const fetchEthBalance = async () => {
+    if (web3 && account) {
+      try {
         const balance = await web3.eth.getBalance(account);
         const formatted = web3.utils.fromWei(balance, "ether");
         setEthBalance(parseFloat(formatted).toFixed(4));
+      } catch (error) {
+        console.error("Error fetching ETH balance:", error);
       }
-      
-      await refreshBalance();
-    } catch (error) {
-      console.error("Error refreshing balances:", error);
-    } finally {
-      setIsRefreshing(false);
     }
   };
+
+  // Update balances when account changes or after funding wallet
+  useEffect(() => {
+    fetchEthBalance();
+  }, [web3, account, fundSuccess]);
 
   const handleSeedWallet = async () => {
     setIsSeeding(true);
@@ -109,7 +93,10 @@ export default function DevelopmentTools() {
       if(data.warning) console.warn("Seed Wallet Script Warning:", data.warning);
       setSeedSuccess("Wallet seeding & approvals complete.");
       
-      handleRefreshBalances();
+      // Auto-refresh data after seeding
+      fetchEthBalance();
+      // Use the global refresh instead of individual refresh
+      manualRefresh();
 
     } catch (err: any) {
       console.error("Failed to run seed wallet script:", err);
@@ -137,7 +124,7 @@ export default function DevelopmentTools() {
       }
       console.log("Skew Prices Script Output:", data.output);
       if(data.warning) console.warn("Skew Prices Script Warning:", data.warning);
-      setSkewSuccess("Price skew script executed. Refresh may be needed.");
+      setSkewSuccess("Price skew script executed successfully.");
 
     } catch (err: any) {
       console.error("Failed to run skew prices script:", err);
@@ -189,7 +176,10 @@ export default function DevelopmentTools() {
       console.log("Funding transaction confirmed.");
       setFundSuccess("Wallet funded successfully with 1 ETH!");
       
-      handleRefreshBalances();
+      // Auto-refresh data after funding
+      fetchEthBalance();
+      // Use the global refresh instead of individual refresh
+      manualRefresh();
     } catch (error: any) {
       console.error("Failed to fund wallet:", error);
       setFundError(error.message || "Failed to fund wallet.");
@@ -262,13 +252,6 @@ export default function DevelopmentTools() {
         <div className="mb-4 bg-slate-700/50 rounded-lg border border-slate-600/50 p-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-300">FlashLoan Contract:</span>
-            <button 
-              className="text-[10px] text-blue-400 hover:text-blue-300 bg-blue-900/20 px-1.5 py-0.5 rounded"
-              onClick={handleRefreshContract}
-              disabled={loadingContract}
-            >
-              {loadingContract ? "Refreshing..." : "Refresh Contract"}
-            </button>
           </div>
           <div className="mt-1 flex items-center justify-between">
             {loadingContract ? (
@@ -312,13 +295,6 @@ export default function DevelopmentTools() {
         <div className="mb-4 bg-slate-700/50 rounded-lg border border-slate-600/50 p-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-300">Token Balances:</span>
-            <button 
-              className="text-[10px] text-blue-400 hover:text-blue-300 bg-blue-900/20 px-1.5 py-0.5 rounded"
-              onClick={handleRefreshBalances}
-              disabled={isRefreshing}
-            >
-              {isRefreshing ? "Refreshing..." : "Refresh Balances"}
-            </button>
           </div>
           <div className="grid grid-cols-2 gap-2 mt-2">
             <div className="flex items-center bg-slate-800 rounded p-1.5">

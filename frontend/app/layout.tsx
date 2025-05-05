@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "@/components/web3/Web3Provider";
+import { GlobalDataProvider } from "@/components/web3/GlobalDataProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -39,12 +40,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-900 to-black text-white flex flex-col min-h-screen`}
       >
         <Web3Provider>
-          <Header />
-          <div className="flex-1 max-w-full overflow-x-hidden pb-12">
-            {children}
-          </div>{" "}
-          {/* Main content area with padding for footer */}
-          <Footer />
+          <GlobalDataProvider>
+            <Header />
+            <div className="flex-1 max-w-full overflow-x-hidden pb-12">
+              {children}
+            </div>{" "}
+            {/* Main content area with padding for footer */}
+            <Footer />
+          </GlobalDataProvider>
         </Web3Provider>
       </body>
     </html>

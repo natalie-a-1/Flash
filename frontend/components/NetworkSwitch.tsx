@@ -5,8 +5,10 @@ import { switchToMainnet, getNetworkDetails } from "@/lib/web3/web3";
 /**
  * @deprecated This component's functionality has been integrated into the Header component.
  * Please update any references to use the network switcher in the Header instead.
- *
+ * 
  * NetworkSwitch component for toggling between Mainnet and Local networks.
+ * Note: This component automatically detects network changes via event listeners,
+ * so no manual refresh button is needed.
  */
 const NetworkSwitch: React.FC = () => {
   const [isFork, setIsFork] = useState(false);
