@@ -5,7 +5,6 @@ import ArbitrageOpportunities from "@/components/ArbitrageOpportunities";
 import FlashLoanOptions from "@/components/FlashLoanOptions";
 import QuickStats from "@/components/TransactionFees";
 import DevelopmentTools from "@/components/DevelopmentTools";
-import RouterApprovalStatus from "@/components/web3/RouterApprovalStatus";
 import { NETWORK_IDS } from "@/lib/web3/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -142,7 +141,6 @@ export default function Dashboard() {
             )}
             <ArbitrageOpportunities />
             <QuickStats />
-            <RouterApprovalStatus />
           </div>
         </div>
         <div className="lg:col-span-8">
