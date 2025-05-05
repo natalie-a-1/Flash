@@ -153,13 +153,13 @@ export default function FlashLoanOptions() {
     setTxStatus('idle');
     setDebugInfo(null);
 
-    // Reset execution tracker
+    // Reset execution tracker - remove tracker functionality
     FlashLoanEvents.reset();
     
-    // Explicitly open the modal
-    openFlashLoanTracker();
+    // Remove opening the tracker modal
+    // openFlashLoanTracker();
     
-    // Create initial step
+    // Create initial step - keep this for logging but not for UI display
     const initStepId = FlashLoanEvents.addStep("Initializing flash loan", "pending");
 
     console.group("🔄 Flash Loan Request");
@@ -188,9 +188,10 @@ export default function FlashLoanOptions() {
     if (!window.flashLoanContract) {
       const errorMsg = "Flash Loan contract is not deployed on this network.";
       console.error(errorMsg);
-      alert(
-        "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits without the ability to execute loans."
-      );
+      // Remove alert
+      // alert(
+      //   "Flash Loan contract is not deployed on this network. This is a demo mode that only shows flash loan limits without the ability to execute loans."
+      // );
       FlashLoanEvents.updateStep(initStepId, "error", "Contract not available", errorMsg);
       console.groupEnd();
       return;
@@ -441,14 +442,16 @@ export default function FlashLoanOptions() {
       if (success) {
         FlashLoanEvents.updateStep(executeStepId, "success", "Flash loan executed successfully", 
           `${loanAmount} ${selectedToken.symbol} flash loan completed`);
-        alert(
-          `Flash loan for ${loanAmount} ${selectedToken.symbol} requested! Check your wallet for transaction confirmation.`
-        );
+        // Remove alert
+        // alert(
+        //   `Flash loan for ${loanAmount} ${selectedToken.symbol} requested! Check your wallet for transaction confirmation.`
+        // );
         setLoanAmount("");
       } else {
         FlashLoanEvents.updateStep(executeStepId, "error", "Flash loan execution failed", 
           "Transaction was not successful. See console for details.");
-        alert("Flash loan execution failed. Please check console for details.");
+        // Remove alert
+        // alert("Flash loan execution failed. Please check console for details.");
       }
     } catch (error) {
       console.error("Error executing flash loan:", error);
