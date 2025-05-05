@@ -260,53 +260,57 @@ export default function FlashLoanExecutionTracker({
   const ModalContent = () => (
     <>
       {/* Header */}
-      <div 
-        className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b border-slate-700"
-      >
+      <div className="flex justify-between items-center p-3 bg-slate-700/30 border-b border-slate-700/50">
         <div className="flex items-center">
-          <div className="w-5 h-5 mr-1.5 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
+          <div className="w-5 h-5 mr-2 bg-blue-500/90 rounded-full flex items-center justify-center">
             <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M2.67 18.95L7.6 15.64C8.39 15.11 9.53 15.17 10.24 15.78L10.57 16.07C11.35 16.74 12.61 16.74 13.39 16.07L17.55 12.5C18.33 11.83 19.59 11.83 20.37 12.5L22 13.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <h3 className="text-white text-sm font-medium">Flash Loan Execution Tracker</h3>
+          <h3 className="text-white text-sm font-medium">Flash Loan Execution</h3>
         </div>
         <button 
           onClick={handleDialogClose} 
           className="text-slate-400 hover:text-white transition-colors"
           aria-label="Close"
         >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
 
       {/* Timeline */}
-      <div className="p-3 max-h-96 overflow-y-auto">
+      <div className="p-3 max-h-80 overflow-y-auto">
         {steps.length === 0 ? (
-          <LoadingContent />
+          <div className="flex items-center justify-center text-cyan-400 text-sm p-4">
+            <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Initializing...
+          </div>
         ) : (
           <div className="relative">
             {/* Timeline connector */}
-            <div className="absolute top-0 bottom-0 left-3.5 w-0.5 bg-slate-700"></div>
+            <div className="absolute top-0 bottom-0 left-3.5 w-0.5 bg-slate-700/70"></div>
             
             {/* Steps */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {steps.map((step, index) => (
-                <div key={step.id || index} className="relative pl-8">
+                <div key={step.id || index} className="relative pl-7">
                   {/* Status dot */}
-                  <div className={`absolute left-0 top-0 mt-1.5 w-7 h-7 rounded-full border-2 flex items-center justify-center ${getStatusStyles(step.status)}`}>
+                  <div className={`absolute left-0 top-0 mt-1.5 w-7 h-7 rounded-full border flex items-center justify-center ${getStatusStyles(step.status)}`}>
                     {getStatusIcon(step.status)}
                   </div>
                   
                   {/* Step content */}
-                  <div className={`p-2 rounded-lg border ${getStatusStyles(step.status)}`}>
+                  <div className={`p-2 rounded-lg ${getStatusStyles(step.status)}`}>
                     <div className="flex justify-between items-start">
                       <span className="text-xs font-medium">{step.message}</span>
-                      <span className="text-[10px] opacity-70">
+                      <span className="text-[10px] opacity-70 ml-2">
                         {new Date(step.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                       </span>
                     </div>
@@ -320,7 +324,7 @@ export default function FlashLoanExecutionTracker({
                     
                     {/* Transaction hash */}
                     {step.txHash && (
-                      <div className="mt-1 text-[10px] font-mono bg-slate-800/50 p-1 rounded overflow-x-auto">
+                      <div className="mt-1 text-[10px] font-mono bg-slate-800/70 p-1 rounded overflow-x-auto">
                         TX: {step.txHash}
                       </div>
                     )}
@@ -333,18 +337,18 @@ export default function FlashLoanExecutionTracker({
       </div>
 
       {/* Controls */}
-      <div className="p-3 border-t border-slate-700 bg-slate-800/50 flex justify-between">
+      <div className="p-3 border-t border-slate-700/50 bg-slate-700/20 flex justify-between">
         <button 
           onClick={handleDialogClose}
-          className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors"
+          className="text-xs px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/80 text-white rounded transition-colors"
         >
           Close
         </button>
         <button 
           onClick={() => FlashLoanEvents.reset()}
-          className="text-xs px-3 py-1.5 bg-red-700/30 hover:bg-red-700/50 text-white rounded transition-colors"
+          className="text-xs px-3 py-1.5 bg-red-900/20 hover:bg-red-900/30 text-red-300 rounded transition-colors"
         >
-          Clear Log
+          Clear
         </button>
       </div>
     </>
@@ -353,7 +357,7 @@ export default function FlashLoanExecutionTracker({
   return (
     <dialog 
       ref={dialogRef}
-      className={`rounded-lg bg-slate-800 border border-slate-700 overflow-hidden shadow-2xl p-0 max-w-xl w-full backdrop:bg-black backdrop:bg-opacity-70 ${className}`}
+      className={`rounded-lg bg-slate-800/90 backdrop-blur-lg overflow-hidden shadow-xl p-0 max-w-lg w-full backdrop:bg-black/80 ${className}`}
       onClick={handleDialogClick}
       onClose={handleDialogClose}
     >

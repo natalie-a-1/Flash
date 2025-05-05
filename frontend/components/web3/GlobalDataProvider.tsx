@@ -71,8 +71,7 @@ export const GlobalDataProvider = ({ children }: { children: ReactNode }) => {
       // 4. Fetch ETH balance if account exists
       if (web3 && account) {
         try {
-          const ethBalance = await web3.eth.getBalance(account);
-          // We're just fetching it here, components will access it via web3 context
+          await web3.eth.getBalance(account);
         } catch (balanceError) {
           console.error("Error fetching ETH balance:", balanceError);
         }
