@@ -51,7 +51,7 @@ jobs:
 
       #     # Wait a few seconds for Ganache to initialize the fork
       #     echo "Waiting for Ganache fork to start..."
-      #     sleep 10 
+      #     sleep 10
 
       #     # Check if Ganache started correctly (optional but helpful)
       #     if ! pgrep -f ganache; then

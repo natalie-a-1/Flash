@@ -109,9 +109,8 @@ contract FlashLoan {
    * @param _addressesProvider The Aave Pool Addresses Provider address
    */
   constructor(
-    address _addressesProvider
-  ) // REMOVED: FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressesProvider))
-  {
+    address _addressesProvider // REMOVED: FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressesProvider))
+  ) {
     ADDRESSES_PROVIDER = IPoolAddressesProvider(_addressesProvider); // RE-ADDED Assignment
     i_owner = msg.sender;
   }
